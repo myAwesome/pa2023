@@ -1,0 +1,14 @@
+version: '3'
+services:
+  mysql:
+    image: "mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: vova
+      MYSQL_DATABASE: pa2023
+      MYSQL_USER: vova
+      MYSQL_PASSWORD: vova
+    ports:
+      - "3310:3306"
+    tty: true
+    volumes:
+      - "./db:/var/lib/mysql:cached"
