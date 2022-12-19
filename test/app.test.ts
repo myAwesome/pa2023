@@ -3,7 +3,7 @@ import { Server } from 'http';
 import url from 'url';
 import axios from 'axios';
 
-import app from '../src/app';
+import app from '../server/app';
 
 const port = app.get('port') || 8998;
 const getUrl = (pathname?: string): string => url.format({
@@ -53,7 +53,7 @@ describe('Feathers application tests (with jest)', () => {
 
     it('shows a 404 JSON error without stack trace', async () => {
       expect.assertions(4);
-      
+
       try {
         await axios.get(getUrl('path/to/nowhere'));
       } catch (error: any) {

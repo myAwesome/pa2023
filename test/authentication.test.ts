@@ -1,10 +1,10 @@
-import app from '../src/app';
+import app from '../server/app';
 
 describe('authentication', () => {
   it('registered the authentication service', () => {
     expect(app.service('authentication')).toBeTruthy();
   });
-  
+
   describe('local strategy', () => {
     const userInfo = {
       email: 'someone@example.com',
@@ -24,7 +24,7 @@ describe('authentication', () => {
         strategy: 'local',
         ...userInfo
       }, {});
-      
+
       expect(accessToken).toBeTruthy();
       expect(user).toBeTruthy();
     });
