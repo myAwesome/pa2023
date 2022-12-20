@@ -5,11 +5,15 @@ import { apiGetAuth } from '../api';
 import theme from './theme';
 
 export async function authLoader() {
-  const auth = await apiGetAuth();
-  if (auth) {
-    return redirect('/');
+  try {
+    const auth = await apiGetAuth();
+    if (auth) {
+      return redirect('/');
+    }
+    return true;
+  } catch (err) {
+    return true;
   }
-  return true;
 }
 const AuthRoot = () => {
   const navigation = useNavigation();
