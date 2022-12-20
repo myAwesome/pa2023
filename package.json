@@ -43,6 +43,8 @@
   },
   "types": "lib/",
   "dependencies": {
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
     "@feathersjs/authentication": "^4.5.15",
     "@feathersjs/authentication-local": "^4.5.15",
     "@feathersjs/authentication-oauth": "^4.5.15",
@@ -51,6 +53,8 @@
     "@feathersjs/express": "^4.5.15",
     "@feathersjs/feathers": "^4.5.15",
     "@feathersjs/transport-commons": "^4.5.15",
+    "@mui/icons-material": "^5.11.0",
+    "@mui/material": "^5.11.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",

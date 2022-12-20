@@ -1,6 +1,17 @@
-import { Form, redirect } from 'react-router-dom';
+import { Form, Link, redirect } from 'react-router-dom';
 import { ActionFunctionArgs } from '@remix-run/router/utils';
 import React, { useCallback, useState } from 'react';
+import {
+  Avatar,
+  Box,
+  Button,
+  Container,
+  Grid,
+  Link as MUILink,
+  TextField,
+  Typography,
+} from '@mui/material';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { apiRegister } from '../../api';
 
 export async function registrationAction({ request }: ActionFunctionArgs) {
@@ -21,21 +32,85 @@ const RegistrationPage = () => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }, []);
   return (
-    <div>
-      <p>Registration Page</p>
-      <Form method="post">
-        <input name="email" value={form.email} onChange={handleChange} />
-        <input name="password" value={form.password} onChange={handleChange} />
-        <input
-          name="confirmPassword"
-          value={form.confirmPassword}
-          onChange={handleChange}
-        />
-        <button disabled={form.password !== form.confirmPassword}>
-          Submit
-        </button>
-      </Form>
-    </div>
+    <Container component="main" maxWidth="xs">
+      <Box
+        sx={{
+          marginTop: 8,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+          <LockOutlinedIcon />
+        </Avatar>
+        <Typography component="h1" variant="h5">
+          Sign up
+        </Typography>
+        <Form method="post">
+          <Box sx={{ mt: 1 }}>
+            <TextField
+              value={form.email}
+              onChange={handleChange}
+              margin="normal"
+              required
+              fullWidth
+              id="email"
+              label="Email Address"
+              name="email"
+              autoComplete="email"
+              autoFocus
+            />
+            <TextField
+              label="Password"
+              type="password"
+              fullWidth
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              margin="normal"
+              required
+              id="password"
+              autoComplete="new-password"
+            />
+            <TextField
+              label="Confirm Password"
+              type="password"
+              fullWidth
+              name="confirmPassword"
+              value={form.confirmPassword}
+              onChange={handleChange}
+              margin="normal"
+              required
+              id="confirm-password"
+              autoComplete="new-password"
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              disabled={
+                !form.email ||
+                !form.password ||
+                form.password !== form.confirmPassword
+              }
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Sign Up
+            </Button>
+            <Grid container>
+              <Grid item>
+                <Link to="/auth/login">
+                  <MUILink variant="body2">
+                    Already have an account? Sign in
+                  </MUILink>
+                </Link>
+              </Grid>
+            </Grid>
+          </Box>
+        </Form>
+      </Box>
+    </Container>
   );
 };
 

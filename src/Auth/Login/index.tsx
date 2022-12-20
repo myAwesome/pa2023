@@ -1,6 +1,17 @@
-import { Form, redirect } from 'react-router-dom';
+import { Form, Link, redirect } from 'react-router-dom';
 import { ActionFunctionArgs } from '@remix-run/router/utils';
 import React, { useCallback, useState } from 'react';
+import {
+  Button,
+  Grid,
+  TextField,
+  Link as MUILink,
+  Container,
+  Box,
+  Avatar,
+  Typography,
+} from '@mui/material';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { apiLogin } from '../../api';
 
 export async function loginAction({ request }: ActionFunctionArgs) {
@@ -19,14 +30,68 @@ const LoginPage = () => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }, []);
   return (
-    <div>
-      <p>Login page</p>
-      <Form method="post">
-        <input name="email" value={form.email} onChange={handleChange} />
-        <input name="password" value={form.password} onChange={handleChange} />
-        <button>Submit</button>
-      </Form>
-    </div>
+    <Container component="main" maxWidth="xs">
+      <Box
+        sx={{
+          marginTop: 8,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+          <LockOutlinedIcon />
+        </Avatar>
+        <Typography component="h1" variant="h5">
+          Sign in
+        </Typography>
+        <Form method="post">
+          <Box sx={{ mt: 1 }}>
+            <TextField
+              value={form.email}
+              onChange={handleChange}
+              margin="normal"
+              required
+              fullWidth
+              id="email"
+              label="Email Address"
+              name="email"
+              autoComplete="email"
+              autoFocus
+            />
+            <TextField
+              label="Password"
+              type="password"
+              fullWidth
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              margin="normal"
+              required
+              id="password"
+              autoComplete="current-password"
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Sign In
+            </Button>
+            <Grid container>
+              <Grid item>
+                <Link to="/auth/registration">
+                  <MUILink variant="body2">
+                    Don&apos;t have an account? Sign Up
+                  </MUILink>
+                </Link>
+              </Grid>
+            </Grid>
+          </Box>
+        </Form>
+      </Box>
+    </Container>
   );
 };
 

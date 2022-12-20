@@ -6,5 +6,7 @@ const http = axios.create({
 export const apiLogin = (email: string, password: string) =>
   http.post('/authentication', { email, password, strategy: 'local' });
 
+export const apiGetAuth = () => http.get('/users');
+
 export const apiRegister = (email: string, password: string) =>
   http.post('/users', { email, password });

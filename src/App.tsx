@@ -4,16 +4,18 @@ import LoginPage, { loginAction } from './Auth/Login';
 import RegistrationPage, { registrationAction } from './Auth/Registration';
 import AuthRoot from './Auth';
 import ErrorPage from './ErrorPage';
+import Layout from './Layout';
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <AuthRoot />,
+    element: <Layout />,
     errorElement: <ErrorPage />,
   },
   {
     path: '/auth',
     element: <AuthRoot />,
+    // loader: authLoader,
     children: [
       { path: 'login', element: <LoginPage />, action: loginAction },
       {
