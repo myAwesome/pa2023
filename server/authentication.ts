@@ -7,11 +7,11 @@ import { Application } from './declarations';
 
 declare module './declarations' {
   interface ServiceTypes {
-    'authentication': AuthenticationService & ServiceAddons<any>;
+    authentication: AuthenticationService & ServiceAddons<any>;
   }
 }
 
-export default function(app: Application): void {
+export default function (app: Application): void {
   const authentication = new AuthenticationService(app);
 
   authentication.register('jwt', new JWTStrategy());

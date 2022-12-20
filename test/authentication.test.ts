@@ -8,7 +8,7 @@ describe('authentication', () => {
   describe('local strategy', () => {
     const userInfo = {
       email: 'someone@example.com',
-      password: 'supersecret'
+      password: 'supersecret',
     };
 
     beforeAll(async () => {
@@ -20,10 +20,13 @@ describe('authentication', () => {
     });
 
     it('authenticates user and creates accessToken', async () => {
-      const { user, accessToken } = await app.service('authentication').create({
-        strategy: 'local',
-        ...userInfo
-      }, {});
+      const { user, accessToken } = await app.service('authentication').create(
+        {
+          strategy: 'local',
+          ...userInfo,
+        },
+        {},
+      );
 
       expect(accessToken).toBeTruthy();
       expect(user).toBeTruthy();

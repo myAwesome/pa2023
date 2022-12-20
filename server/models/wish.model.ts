@@ -8,17 +8,17 @@ import { Application } from '../declarations';
 export default function (app: Application): Knex {
   const db: Knex = app.get('knexClient');
   const tableName = 'wish';
-  db.schema.hasTable(tableName).then(exists => {
-    if(!exists) {
-      db.schema.createTable(tableName, table => {
-        table.increments('id');
-        table.string('text');
-      })
+  db.schema.hasTable(tableName).then((exists) => {
+    if (!exists) {
+      db.schema
+        .createTable(tableName, (table) => {
+          table.increments('id');
+          table.string('text');
+        })
         .then(() => console.log(`Created ${tableName} table`))
-        .catch(e => console.error(`Error creating ${tableName} table`, e));
+        .catch((e) => console.error(`Error creating ${tableName} table`, e));
     }
   });
-  
 
   return db;
 }
