@@ -81,11 +81,13 @@ const LoginPage = () => {
             </Button>
             <Grid container>
               <Grid item>
-                <Link to="/auth/registration">
-                  <MUILink variant="body2">
-                    Don&apos;t have an account? Sign Up
-                  </MUILink>
-                </Link>
+                <MUILink
+                  component={Link}
+                  variant="body2"
+                  to="/auth/registration"
+                >
+                  Don&apos;t have an account? Sign Up
+                </MUILink>
               </Grid>
             </Grid>
           </Box>

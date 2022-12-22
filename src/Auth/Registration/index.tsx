@@ -100,11 +100,9 @@ const RegistrationPage = () => {
             </Button>
             <Grid container>
               <Grid item>
-                <Link to="/auth/login">
-                  <MUILink variant="body2">
-                    Already have an account? Sign in
-                  </MUILink>
-                </Link>
+                <MUILink variant="body2" component={Link} to="/auth/login">
+                  Already have an account? Sign in
+                </MUILink>
               </Grid>
             </Grid>
           </Box>

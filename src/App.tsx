@@ -5,12 +5,16 @@ import RegistrationPage, { registrationAction } from './Auth/Registration';
 import AuthRoot, { authLoader } from './Auth';
 import ErrorPage from './ErrorPage';
 import Layout from './Layout';
+import WishlistPage, { wishlistLoader } from './Wishlist';
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <Layout />,
     errorElement: <ErrorPage />,
+    children: [
+      { path: 'wishlist', element: <WishlistPage />, loader: wishlistLoader },
+    ],
   },
   {
     path: '/auth',

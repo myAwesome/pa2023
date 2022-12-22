@@ -17,6 +17,20 @@ http.interceptors.request.use(
   },
 );
 
+http.interceptors.response.use(
+  (resp) => {
+    return resp;
+  },
+  (error) => {
+    if (error.response.status === 401 && error.config.url !== '/users/me') {
+      localStorage.removeItem('access_token');
+      window.location.href = `/auth/login`;
+      return error;
+    }
+    return Promise.reject(error);
+  },
+);
+
 export const apiLogin = async (email: string, password: string) => {
   const { data } = await http.post('/authentication', {
     email,
@@ -32,3 +46,5 @@ export const apiGetAuth = () => http.get('/users/me');
 
 export const apiRegister = (email: string, password: string) =>
   http.post('/users', { email, password });
+
+export const apiGetWishlist = () => http.get('/wish');
