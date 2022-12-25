@@ -1,5 +1,7 @@
 import React, { FormEvent, Fragment } from 'react';
-import moment from 'moment';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import { useDispatch } from 'react-redux';
 import Chip from '@mui/material/Chip';
 import Grid from '@mui/material/Grid';
@@ -20,6 +22,9 @@ import PostComment from './PostComment';
 import PostCommentEdit from './PostCommentEdit';
 import PostPhotos from './PostPhotos';
 
+dayjs.extend(utc);
+dayjs.extend(relativeTime);
+
 type Props = {
   post: PostType;
   labels: LabelType[];
@@ -39,7 +44,7 @@ const PostShow = ({
   const [isCommentOpen, setCommentOpen] = React.useState(false);
   const [isEdit, setIsEdit] = React.useState(false);
   const [updateDate, setUpdateDate] = React.useState(
-    moment(post.date).format('YYYY-MM-DD'),
+    dayjs(post.date).format('YYYY-MM-DD'),
   );
   const dispatch = useDispatch();
   const deletePostMutation = useDeleteMutation(
@@ -64,12 +69,12 @@ const PostShow = ({
     }),
   );
   const editPostMutation = useUpdateMutation(
-    (body: string) => editPost(post.id, { body, date: moment.utc(updateDate) }),
+    (body: string) => editPost(post.id, { body, date: dayjs.utc(updateDate) }),
     invalidateQueries,
     post.id,
     (body: string) => ({
       body,
-      date: moment.utc(updateDate).format('YYYY-MM-DD'),
+      date: dayjs.utc(updateDate).format('YYYY-MM-DD'),
     }),
     () => setIsEdit(false),
   );
@@ -142,7 +147,7 @@ const PostShow = ({
             padding: (theme) => theme.spacing(0, 1),
             backgroundColor: (theme) => theme.palette.background.default,
           }}
-          title={moment(post.date).fromNow(true)}
+          title={dayjs(post.date).fromNow(true)}
         >
           {isEdit ? (
             <TextField
@@ -157,7 +162,7 @@ const PostShow = ({
               variant="standard"
             />
           ) : (
-            moment(post.date).format('dddd YYYY-MM-DD')
+            dayjs(post.date).format('dddd YYYY-MM-DD')
           )}
         </Grid>
         <Grid item>

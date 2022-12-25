@@ -1,5 +1,5 @@
 import React from 'react';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { Typography } from '@mui/material';
 import Table from '../../../shared/components/Table';
 import { getCalendar } from '../../../shared/utils/calendar';
@@ -35,7 +35,7 @@ const Calendar = ({ year, month, posts }: Props) => {
     const dataToSet = calendar.map((week) => {
       return week.map((d) => {
         const post = posts.find(
-          (post) => moment(post?.date).format('D') === d?.date?.toString(),
+          (post) => dayjs(post?.date).format('D') === d?.date?.toString(),
         );
         return { ...d, ...post, labels: post?.labels, isEmpty: !post };
       });

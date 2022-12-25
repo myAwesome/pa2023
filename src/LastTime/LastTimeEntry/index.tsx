@@ -1,6 +1,6 @@
 import { ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import BeenhereIcon from '@mui/icons-material/Beenhere';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import React from 'react';
 import { LastTimeItemType } from '../../shared/types';
 
@@ -28,7 +28,7 @@ const LastTimeEntry = ({
       <ListItemIcon onClick={(e) => handleListItemClick(e, item)}>
         <BeenhereIcon
           color={
-            moment().diff(moment(item.date), 'days') >= item.remind_after_days
+            dayjs().diff(dayjs(item.date), 'days') >= item.remind_after_days
               ? 'error'
               : 'inherit'
           }
@@ -38,8 +38,8 @@ const LastTimeEntry = ({
         primary={item.body}
         secondary={
           isHovered
-            ? moment(item.date).format('HH:mm DD/MM/YYYY')
-            : moment(item.date).fromNow(true)
+            ? dayjs(item.date).format('HH:mm DD/MM/YYYY')
+            : dayjs(item.date).fromNow(true)
         }
       />
     </ListItemButton>

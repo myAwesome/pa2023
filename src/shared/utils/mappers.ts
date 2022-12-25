@@ -1,4 +1,4 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { TaskType } from '../types';
 
 export const mapLabel = (label: {
@@ -32,16 +32,16 @@ export const mapPost = (post: {
 export const mapPeriod = (period: {
   ID: any;
   Name: any;
-  Start: moment.MomentInput;
-  End: moment.MomentInput;
+  Start: string;
+  End: string;
 }) => ({
   id: period.ID,
   name: period.Name,
-  start: moment(period.Start).format('YYYY-MM-DD'),
+  start: dayjs(period.Start).format('YYYY-MM-DD'),
   end:
     period.End === '0001-01-01T00:00:00Z'
       ? null
-      : moment(period.End).format('YYYY-MM-DD'),
+      : dayjs(period.End).format('YYYY-MM-DD'),
 });
 
 export const mapTasksByStatus = (tasks: TaskType[]) => {

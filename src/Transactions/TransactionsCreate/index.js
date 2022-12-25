@@ -1,5 +1,5 @@
 import React from 'react';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { useQuery } from '@tanstack/react-query';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -17,8 +17,8 @@ import {
 
 const initialValues = { description: '', amount: '', category: 31 };
 
-const thisMonth = moment().format('MMMM');
-const thisYear = moment().year();
+const thisMonth = dayjs().format('MMMM');
+const thisYear = dayjs().year();
 
 const TransactionsCreate = () => {
   const [values, setValues] = React.useState(initialValues);
@@ -33,7 +33,7 @@ const TransactionsCreate = () => {
     (vals) =>
       postTransactionsToMonthAndYear(
         thisYear,
-        moment().month(thisMonth).format('M'),
+        dayjs().month(thisMonth).format('M'),
         vals,
       ),
     ['transactions', thisYear, thisMonth],

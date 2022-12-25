@@ -14,12 +14,11 @@ const queryClient = new QueryClient();
 
 /*
  * TODO: update all libraries
- *  replace moment with dayjs
  * use react-router instead of react-query?
  * toggle light-dark mode
  * do redesign
  * use typescript
- *
+ * remove redux
  * */
 
 const container = document.getElementById('root');

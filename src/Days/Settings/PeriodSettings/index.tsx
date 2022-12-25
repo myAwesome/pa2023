@@ -1,5 +1,6 @@
 import React from 'react';
-import moment from 'moment';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import { Grid, IconButton, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useQuery } from '@tanstack/react-query';
@@ -12,6 +13,7 @@ import {
 } from '../../../shared/api/routes';
 import { useCreateMutation } from '../../../shared/hooks/useCreateMutation';
 import { PeriodType } from '../../../shared/types';
+dayjs.extend(utc);
 
 const PeriodSettings = () => {
   const [isAdd, setIsAdd] = React.useState(false);
@@ -25,8 +27,8 @@ const PeriodSettings = () => {
 
   const handlePeriodAdd = (values: PeriodType) => {
     const data = {
-      End: values.isendInProgress ? null : moment.utc(values.end).format(),
-      Start: moment.utc(values.start).format(),
+      End: values.isendInProgress ? null : dayjs.utc(values.end).format(),
+      Start: dayjs.utc(values.start).format(),
       Name: values.name,
     };
     // @ts-ignore

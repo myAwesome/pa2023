@@ -1,5 +1,6 @@
 import axios from 'axios';
-import moment from 'moment/moment';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import { LOCAL } from '../config/const';
 import { getItemFromStorage, TOKEN_KEY } from '../utils/storage';
 import {
@@ -8,6 +9,8 @@ import {
   mapPost,
   mapTasksByStatus,
 } from '../utils/mappers';
+
+dayjs.extend(utc);
 
 const apiGetRequest = (url, config) => axios.get(url, config);
 const apiPostRequest = (url, data, config) => axios.post(url, data, config);
@@ -168,8 +171,8 @@ export const deletePeriod = (id) =>
   apiLocalDeleteRequest(`periods/${id}`).then((resp) => resp.data);
 export const putPeriod = (id, values) => {
   const data = {
-    End: values.isendInProgress ? null : moment.utc(values.end).format(),
-    Start: moment.utc(values.start).format(),
+    End: values.isendInProgress ? null : dayjs.utc(values.end).format(),
+    Start: dayjs.utc(values.start).format(),
     Name: values.name,
   };
   return apiLocalPutRequest(`periods/${id}`, data).then((resp) => resp.data);

@@ -8,7 +8,7 @@ import {
   TextField,
   Button,
 } from '@mui/material';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import AddIcon from '@mui/icons-material/Add';
 import { useQuery } from '@tanstack/react-query';
 import { deleteLT, getLts, postLT, putLT } from '../shared/api/routes';
@@ -29,7 +29,7 @@ const LastTime = () => {
     null,
   );
   const [updateDate, setUpdateDate] = React.useState(
-    moment().format('YYYY-MM-DDTHH:mm'),
+    dayjs().format('YYYY-MM-DDTHH:mm'),
   );
   const lastTimeData = useQuery(['last_times'], getLts);
   const updateMutation = useUpdateMutation(
@@ -186,7 +186,7 @@ const LastTime = () => {
             <Button
               onClick={() => {
                 // @ts-ignore
-                updateMutation.mutate({ date: moment(updateDate) });
+                updateMutation.mutate({ date: dayjs(updateDate) });
               }}
             >
               OK

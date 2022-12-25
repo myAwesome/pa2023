@@ -1,5 +1,6 @@
 import React from 'react';
-import moment from 'moment';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import {
   Grid,
   MenuItem,
@@ -21,10 +22,11 @@ import {
   putTransaction,
   deleteTransaction,
 } from '../../shared/api/routes';
+dayjs.extend(utc);
 
-const thisMonth = moment().format('MMMM');
-const thisYear = moment().year();
-const startDate = moment('2018-06-01');
+const thisMonth = dayjs().format('MMMM');
+const thisYear = dayjs().year();
+const startDate = dayjs('2018-06-01');
 const yearsSinceStart = thisYear - startDate.year();
 
 const mobileColumns = [
@@ -49,7 +51,7 @@ const mobileColumns = [
       <div>
         <div>{row.category}</div>
         <div>
-          <sub>{moment(row.date).format('ddd D MMM')}</sub>
+          <sub>{dayjs(row.date).format('ddd D MMM')}</sub>
         </div>
       </div>
     ),
@@ -73,7 +75,7 @@ const categoryColumns = [
 const getYears = () => {
   const years = [];
   for (let i = 0; i <= yearsSinceStart; i++) {
-    const year = moment().subtract(i, 'years').format('YYYY');
+    const year = dayjs().subtract(i, 'years').format('YYYY');
     years.push(
       <MenuItem value={year} key={year}>
         {year}
@@ -99,7 +101,7 @@ const TransactionsList = () => {
     () => {
       return getTransactionsByMonthAndYear(
         selectedYear,
-        moment().month(selectedMonth).format('M'),
+        dayjs().month(selectedMonth).format('M'),
       );
     },
   );
@@ -164,7 +166,7 @@ const TransactionsList = () => {
             onChange={onMonthChange}
             variant="standard"
           >
-            {moment.months().map((m) => (
+            {dayjs.months().map((m) => (
               <MenuItem value={m} key={m}>
                 {m}
               </MenuItem>
@@ -219,7 +221,7 @@ const TransactionsList = () => {
             {
               label: 'Date',
               name: 'date',
-              render: (row) => moment(row.date).format('YYYY-MM-DD'),
+              render: (row) => dayjs(row.date).format('YYYY-MM-DD'),
               type: 'date',
             },
           ]}
@@ -229,7 +231,7 @@ const TransactionsList = () => {
             amount: Number(values.amount),
             category: values.category,
             description: values.description,
-            date: moment.utc(values.date).format(),
+            date: dayjs.utc(values.date).format(),
           })}
           deleteMutationFn={(id) => deleteTransaction(id)}
         />

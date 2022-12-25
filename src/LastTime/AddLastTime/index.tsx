@@ -1,7 +1,6 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { TextField, Button, Grid } from '@mui/material';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { LastTimeItemType } from '../../shared/types';
 
 type Props = {
@@ -18,11 +17,11 @@ const AddLastTime = ({
   handleRemove,
 }: Props) => {
   const [lt, setLt] = React.useState(
-    initialValues || { body: '', date: moment(), remind_after_days: '' },
+    initialValues || { body: '', date: dayjs(), remind_after_days: '' },
   );
 
   React.useEffect(() => {
-    setLt(initialValues || { body: '', date: moment(), remind_after_days: '' });
+    setLt(initialValues || { body: '', date: dayjs(), remind_after_days: '' });
   }, [initialValues]);
 
   return (
@@ -36,7 +35,7 @@ const AddLastTime = ({
         setLt({
           id: '',
           body: '',
-          date: moment().format(),
+          date: dayjs().format(),
           remind_after_days: '',
         });
       }}
@@ -73,10 +72,6 @@ const AddLastTime = ({
       </Grid>
     </form>
   );
-};
-
-AddLastTime.propTypes = {
-  handleSubmit: PropTypes.func,
 };
 
 export default AddLastTime;

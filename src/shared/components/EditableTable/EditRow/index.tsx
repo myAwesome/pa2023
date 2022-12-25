@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import SubmitIcon from '@mui/icons-material/Check';
 import CancelIcon from '@mui/icons-material/Close';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import {
   ColumnType,
   SelectColumnType,
@@ -24,7 +24,7 @@ const getInitialValues = (columns: ColumnType[], item: TableItemType) => {
   const initialValues: Record<string, any> = {};
   columns.forEach((col) => {
     if (col.type === 'date') {
-      initialValues[col.name] = moment(item[col.name]).format('YYYY-MM-DD');
+      initialValues[col.name] = dayjs(item[col.name]).format('YYYY-MM-DD');
     } else if (col.type === 'nullable-date') {
       initialValues[col.name] = item[col.name] || '';
       initialValues[`is${col.name}InProgress`] = item.id

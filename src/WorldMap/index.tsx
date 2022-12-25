@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import {
   Button,
   Dialog,
@@ -18,7 +18,7 @@ import countriesList from './countriesList.json';
 
 const getDays = (periods: PeriodType[]) => {
   return periods.reduce(
-    (prev, curr) => prev + moment(curr.end).diff(curr.start, 'days') + 1,
+    (prev, curr) => prev + dayjs(curr.end).diff(curr.start, 'days') + 1,
     0,
   );
 };
@@ -181,8 +181,8 @@ function WorldMap() {
               align="center"
               key={p.name + p.start}
             >
-              {p.name} ({moment(p.start).format('DD/MM/YYYY')} -{' '}
-              {moment(p.end).format('DD/MM/YYYY')})
+              {p.name} ({dayjs(p.start).format('DD/MM/YYYY')} -{' '}
+              {dayjs(p.end).format('DD/MM/YYYY')})
             </Typography>
           ))}
           {!isFetched && <LinearProgress />}

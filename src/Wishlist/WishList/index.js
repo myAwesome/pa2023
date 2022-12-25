@@ -13,7 +13,7 @@ import {
   FormControl,
   FormControlLabel,
 } from '@mui/material';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { useQuery } from '@tanstack/react-query';
 import { deleteWish, getWishes, putWish } from '../../shared/api/routes';
 import { useDeleteMutation } from '../../shared/hooks/useDeleteMutation';
@@ -100,7 +100,7 @@ const WishList = () => {
                     {w.priceFrom} - {w.priceTo} грн.
                   </Typography>
                   <Typography variant="caption">
-                    {moment(w.createdAt).format('DD-MM-YYYY')}
+                    {dayjs(w.createdAt).format('DD-MM-YYYY')}
                   </Typography>
                 </CardContent>
                 <CardActions>

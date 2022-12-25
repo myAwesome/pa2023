@@ -1,15 +1,18 @@
 import React from 'react';
-import moment from 'moment';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { postPost } from '../../../shared/api/routes';
 import { useCreateMutation } from '../../../shared/hooks/useCreateMutation';
 
-const today = moment().format('YYYY-MM-DD');
-const yesterday = moment().subtract(1, 'days').format('YYYY-MM-DD');
+dayjs.extend(utc);
+
+const today = dayjs().format('YYYY-MM-DD');
+const yesterday = dayjs().subtract(1, 'days').format('YYYY-MM-DD');
 const createPost = (body: string, date: string) => ({
   body,
-  date: moment.utc(date),
+  date: dayjs.utc(date),
 });
 
 const PostCreate = () => {
