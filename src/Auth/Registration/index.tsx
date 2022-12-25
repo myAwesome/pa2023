@@ -1,26 +1,23 @@
-import { Form, Link, redirect } from 'react-router-dom';
-import { ActionFunctionArgs } from '@remix-run/router/utils';
-import React, { useCallback, useState } from 'react';
+import React, { FormEvent, useCallback, useContext, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
-  Avatar,
-  Box,
   Button,
-  Container,
   Grid,
-  Link as MUILink,
   TextField,
+  Link as MUILink,
+  Container,
+  Box,
+  Avatar,
   Typography,
 } from '@mui/material';
+import InputAdornment from '@mui/material/InputAdornment';
+import VisibleIcon from '@mui/icons-material/VisibilityOutlined';
+import NotVisibleIcon from '@mui/icons-material/VisibilityOffOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { apiRegister } from '../../api';
-
-export async function registrationAction({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const credentials = Object.fromEntries(formData);
-  // @ts-ignore
-  await apiRegister(credentials.email, credentials.password);
-  return redirect(`/auth/login`);
-}
+import { useNavigate } from 'react-router';
+import { sendRegistration } from '../../shared/api/routes';
+import { setItemToStorage, TOKEN_KEY } from '../../shared/utils/storage';
+import UIContext from '../../shared/context/UIContext';
 
 const RegistrationPage = () => {
   const [form, setForm] = useState({
@@ -31,6 +28,30 @@ const RegistrationPage = () => {
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }, []);
+  const { setError } = useContext(UIContext);
+  const [visible, setVisible] = React.useState(false);
+  const [visible2, setVisible2] = React.useState(false);
+  const navigate = useNavigate();
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (form.password === form.confirmPassword) {
+      sendRegistration({
+        email: form.email,
+        password: form.password,
+        theme: '{mode:"dark"}',
+      })
+        .then((resp) => {
+          setItemToStorage(TOKEN_KEY, resp.data.Token);
+          navigate('/days');
+        })
+        .catch((err) => {
+          setError(err.message);
+        });
+    } else {
+      setError("Passwords don't match!");
+    }
+  };
+
   return (
     <Container component="main" maxWidth="xs">
       <Box
@@ -47,7 +68,7 @@ const RegistrationPage = () => {
         <Typography component="h1" variant="h5">
           Sign up
         </Typography>
-        <Form method="post">
+        <form onSubmit={handleSubmit}>
           <Box sx={{ mt: 1 }}>
             <TextField
               value={form.email}
@@ -63,7 +84,7 @@ const RegistrationPage = () => {
             />
             <TextField
               label="Password"
-              type="password"
+              type={visible ? 'text' : 'password'}
               fullWidth
               name="password"
               value={form.password}
@@ -72,10 +93,26 @@ const RegistrationPage = () => {
               required
               id="password"
               autoComplete="new-password"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment
+                    position="end"
+                    sx={{
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {visible ? (
+                      <NotVisibleIcon onClick={() => setVisible(false)} />
+                    ) : (
+                      <VisibleIcon onClick={() => setVisible(true)} />
+                    )}
+                  </InputAdornment>
+                ),
+              }}
             />
             <TextField
               label="Confirm Password"
-              type="password"
+              type={visible2 ? 'text' : 'password'}
               fullWidth
               name="confirmPassword"
               value={form.confirmPassword}
@@ -84,6 +121,22 @@ const RegistrationPage = () => {
               required
               id="confirm-password"
               autoComplete="new-password"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment
+                    position="end"
+                    sx={{
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {visible2 ? (
+                      <NotVisibleIcon onClick={() => setVisible2(false)} />
+                    ) : (
+                      <VisibleIcon onClick={() => setVisible2(true)} />
+                    )}
+                  </InputAdornment>
+                ),
+              }}
             />
             <Button
               type="submit"
@@ -106,7 +159,7 @@ const RegistrationPage = () => {
               </Grid>
             </Grid>
           </Box>
-        </Form>
+        </form>
       </Box>
     </Container>
   );
