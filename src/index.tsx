@@ -23,7 +23,7 @@ const queryClient = new QueryClient();
  * */
 
 const container = document.getElementById('root');
-const root = createRoot(container);
+const root = createRoot(container!);
 root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
@@ -39,11 +39,12 @@ root.render(
 );
 
 serviceWorkerRegistration.register({
-  onUpdate: (registration) => {
+  onUpdate: (registration: ServiceWorkerRegistration) => {
     const waitingServiceWorker = registration.waiting;
 
     if (waitingServiceWorker) {
       waitingServiceWorker.addEventListener('statechange', (event) => {
+        // @ts-ignore
         if (event.target && event.target.state === 'activated') {
           window.location.reload();
         }
@@ -71,4 +72,4 @@ serviceWorkerRegistration.register({
   },
 });
 
-reportWebVitals(console.log);
+reportWebVitals();

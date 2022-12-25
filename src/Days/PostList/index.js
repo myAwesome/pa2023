@@ -1,5 +1,6 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Typography } from '@mui/material';
 import { getLabels, getPosts, getPostsHistory } from '../../shared/api/routes';
 import Posts from './Posts';
 
@@ -10,7 +11,7 @@ const PostList = ({ tab }) => {
   );
   const labelsData = useQuery(['labels'], getLabels);
   return isLoading ? (
-    'Loading...'
+    <Typography>Loading...</Typography>
   ) : (
     <Posts
       posts={data}

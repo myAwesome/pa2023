@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { styled } from '@mui/material/styles';
@@ -19,8 +18,6 @@ import {
   Box,
 } from '@mui/material';
 import { getUser } from '../shared/api/handlers';
-import ErrorSnackbar from '../shared/components/ErrorSnackbar';
-import { SET_ERROR } from '../shared/redux/rootReducer';
 import { USER_SIGN_OUT } from '../shared/redux/photosReducer';
 import LayoutToolbar from './LayoutToolbar';
 import TasksInProgress from './TasksInProgress';
@@ -96,7 +93,7 @@ const Drawer = styled(MuiDrawer, {
 const Layout = ({ children }) => {
   const [open, setOpen] = React.useState(false);
 
-  const { error, userTheme } = useSelector((state) => state.root);
+  const { userTheme } = useSelector((state) => state.root);
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
@@ -108,10 +105,6 @@ const Layout = ({ children }) => {
   const handleLogout = () => {
     dispatch({ type: USER_SIGN_OUT });
     navigate('/signin');
-  };
-
-  const handleClose = () => {
-    dispatch({ type: SET_ERROR, payload: '' });
   };
 
   return (
@@ -153,8 +146,8 @@ const Layout = ({ children }) => {
             }}
           >
             <Divider />
-            <ListItemButton>
-              <ListItemIcon onClick={handleLogout}>
+            <ListItemButton onClick={handleLogout}>
+              <ListItemIcon>
                 <ExitToApp />
               </ListItemIcon>
               <ListItemText primary="Logout" />
@@ -171,17 +164,12 @@ const Layout = ({ children }) => {
         >
           <Toolbar />
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <ErrorSnackbar error={error} handleClose={handleClose} />
             <div>{children}</div>
           </Container>
         </Box>
       </Box>
     </ThemeProvider>
   );
-};
-
-Layout.propTypes = {
-  children: PropTypes.node.isRequired,
 };
 
 export default Layout;

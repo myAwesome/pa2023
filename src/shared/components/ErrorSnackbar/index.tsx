@@ -1,9 +1,15 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useContext, useCallback } from 'react';
 import { Snackbar, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import UIContext from '../../context/UIContext';
 
-const ErrorSnackbar = ({ error, handleClose }) => {
+const ErrorSnackbar = () => {
+  const { error, setError } = useContext(UIContext);
+
+  const handleClose = useCallback(() => {
+    setError('');
+  }, []);
+
   return (
     <Snackbar
       anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
@@ -29,11 +35,6 @@ const ErrorSnackbar = ({ error, handleClose }) => {
       }
     />
   );
-};
-
-ErrorSnackbar.propTypes = {
-  error: PropTypes.string,
-  handleClose: PropTypes.func,
 };
 
 export default ErrorSnackbar;

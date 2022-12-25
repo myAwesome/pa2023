@@ -135,7 +135,7 @@ const Project = () => {
   };
 
   return projectData.isLoading ? (
-    'Loading...'
+    <Typography>Loading...</Typography>
   ) : (
     <Box
       sx={{
