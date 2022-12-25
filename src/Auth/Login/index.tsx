@@ -1,34 +1,45 @@
-import { Form, Link, redirect } from 'react-router-dom';
-import { ActionFunctionArgs } from '@remix-run/router/utils';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useContext, FormEvent } from 'react';
+import { Link } from 'react-router-dom';
 import {
-  Button,
   Grid,
   TextField,
-  Link as MUILink,
+  Button,
   Container,
   Box,
   Avatar,
   Typography,
+  Link as MUILink,
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { apiLogin } from '../../api';
+import { useNavigate } from 'react-router';
+import { sendLogin } from '../../shared/api/routes';
+import { setItemToStorage, TOKEN_KEY } from '../../shared/utils/storage';
+import UIContext from '../../shared/context/UIContext';
 
-export async function loginAction({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const credentials = Object.fromEntries(formData);
-  // @ts-ignore
-  await apiLogin(credentials.email, credentials.password);
-  return redirect(`/`);
-}
 const LoginPage = () => {
   const [form, setForm] = useState({
     email: '',
     password: '',
   });
+  const navigate = useNavigate();
+  const { setError } = useContext(UIContext);
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    sendLogin(form)
+      .then((resp) => {
+        setItemToStorage(TOKEN_KEY, resp.data.Token);
+        navigate('/days');
+      })
+      .catch((err) => {
+        setError(err.message);
+      });
+  };
+
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }, []);
+
   return (
     <Container component="main" maxWidth="xs">
       <Box
@@ -45,7 +56,7 @@ const LoginPage = () => {
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>
-        <Form method="post">
+        <form onSubmit={handleSubmit}>
           <Box sx={{ mt: 1 }}>
             <TextField
               value={form.email}
@@ -91,7 +102,7 @@ const LoginPage = () => {
               </Grid>
             </Grid>
           </Box>
-        </Form>
+        </form>
       </Box>
     </Container>
   );
