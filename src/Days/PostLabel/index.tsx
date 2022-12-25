@@ -1,8 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Box } from '@mui/material';
+import { LabelType } from '../../shared/types';
 
-const PostLabel = ({ isActive, label, onClick, noMargin }) => {
+type Props = {
+  isActive: boolean;
+  label: LabelType;
+  onClick: (e: React.MouseEvent<HTMLDivElement>, isActive: boolean) => void;
+  noMargin?: boolean;
+};
+
+const PostLabel = ({ isActive, label, onClick, noMargin }: Props) => {
   return (
     <Box
       sx={{
@@ -23,7 +31,7 @@ const PostLabel = ({ isActive, label, onClick, noMargin }) => {
       }}
       onClick={(e) => onClick(e, isActive)}
     >
-      {label.name.substr(0, 1)}
+      {label.name?.substr(0, 1)}
     </Box>
   );
 };

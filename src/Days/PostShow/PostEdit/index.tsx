@@ -1,14 +1,20 @@
-import React from 'react';
+import React, { FormEvent } from 'react';
 import { TextField, Button, Grid } from '@mui/material';
 
-const PostEdit = ({ body, onCancel, handleSubmit }) => {
+type Props = {
+  body: string;
+  onCancel: () => void;
+  handleSubmit: (e: FormEvent, newVal: string) => void;
+};
+
+const PostEdit = ({ body, onCancel, handleSubmit }: Props) => {
   const [updatedValue, setUpdatedValue] = React.useState(body);
 
   React.useEffect(() => {
     setUpdatedValue(body);
   }, [body]);
 
-  const handleText = (e) => {
+  const handleText = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUpdatedValue(e.target.value);
   };
 

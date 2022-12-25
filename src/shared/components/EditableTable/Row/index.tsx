@@ -4,6 +4,15 @@ import { IconButton, TableCell, TableRow, Button } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import { useDeleteMutation } from '../../../hooks/useDeleteMutation';
+import { ColumnType, TableItemType } from '../../../types/table';
+
+type Props = {
+  item: TableItemType;
+  columns: ColumnType[];
+  invalidateQueries?: string[];
+  onEditClicked: () => void;
+  deleteMutationFn: () => void;
+};
 
 const Row = ({
   item,
@@ -11,7 +20,7 @@ const Row = ({
   deleteMutationFn,
   invalidateQueries,
   columns,
-}) => {
+}: Props) => {
   const [isDelete, setIsDelete] = React.useState(false);
   const deleteMutation = useDeleteMutation(
     deleteMutationFn,

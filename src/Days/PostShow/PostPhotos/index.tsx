@@ -2,12 +2,20 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Button from '@mui/material/Button';
 import { Dialog, Grid, Typography, Box } from '@mui/material';
+import { Dispatch } from 'redux';
 import { getPhotosOnDate, photosSignIn } from '../../../shared/utils/photos';
+import { PhotoType } from '../../../shared/types';
 
-const PostPhotos = ({ oauthToken, date, dispatch }) => {
-  const [photos, setPhotos] = React.useState([]);
+type Props = {
+  oauthToken: string;
+  date: number;
+  dispatch: Dispatch;
+};
+
+const PostPhotos = ({ oauthToken, date, dispatch }: Props) => {
+  const [photos, setPhotos] = React.useState<PhotoType[]>([]);
   const [isFetched, setFetched] = React.useState(false);
-  const [showImg, setShowImg] = React.useState(null);
+  const [showImg, setShowImg] = React.useState('');
 
   const getPhotos = () => {
     getPhotosOnDate(oauthToken, date)
@@ -62,14 +70,14 @@ const PostPhotos = ({ oauthToken, date, dispatch }) => {
           ))}
         </Grid>
       ) : null}
-      <Dialog open={!!showImg} onClose={() => setShowImg(null)}>
+      <Dialog open={!!showImg} onClose={() => setShowImg('')}>
         <img
           src={showImg}
           style={{
             maxWidth: '90vw',
             maxHeight: '90vh',
           }}
-          alt={date}
+          alt={date.toString()}
         />
       </Dialog>
     </Grid>

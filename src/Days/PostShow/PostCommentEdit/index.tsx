@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FormEvent } from 'react';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -6,10 +6,11 @@ import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import { useCreateMutation } from '../../../shared/hooks/useCreateMutation';
 import { postComment } from '../../../shared/api/routes';
+import { PostType } from '../../../shared/types';
 
-let today = new Date();
-let dd = today.getDate();
-let mm = today.getMonth() + 1;
+let today: string | Date = new Date();
+let dd: string | number = today.getDate();
+let mm: string | number = today.getMonth() + 1;
 const yyyy = today.getFullYear();
 
 if (dd < 10) {
@@ -22,12 +23,18 @@ if (mm < 10) {
 
 today = `${yyyy}-${mm}-${dd}`;
 
-const PostCommentEdit = ({ postId, onCancel, invalidateQueries }) => {
+type Props = {
+  postId: string;
+  onCancel: () => void;
+  invalidateQueries?: string[];
+};
+
+const PostCommentEdit = ({ postId, onCancel, invalidateQueries }: Props) => {
   const [commentBody, setCommentBody] = React.useState('');
   const addMutation = useCreateMutation(
-    (d) => postComment(d),
+    (d: { body: string; postId: string }) => postComment(d),
     invalidateQueries,
-    (old, vals) => {
+    (old: PostType[], vals: { body: string; postId: string }) => {
       const newItems = [...old];
       const thisPostIndex = newItems.findIndex((p) => p.id === postId);
       newItems[thisPostIndex] = {
@@ -47,12 +54,13 @@ const PostCommentEdit = ({ postId, onCancel, invalidateQueries }) => {
     onCancel,
   );
 
-  const handleText = (e) => {
+  const handleText = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCommentBody(e.target.value);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    // @ts-ignore
     addMutation.mutate({
       body: commentBody,
       PostId: postId,
@@ -63,7 +71,7 @@ const PostCommentEdit = ({ postId, onCancel, invalidateQueries }) => {
     <Paper style={{ width: '100%', padding: '0 10px 5px 10px' }}>
       <Grid container alignItems="center" justifyContent="space-between">
         <Grid item style={{ minWidth: 91 }}>
-          <Typography>{today}</Typography>
+          <Typography>{today.toString()}</Typography>
         </Grid>
         <Grid item xs={12} md={8}>
           <TextField

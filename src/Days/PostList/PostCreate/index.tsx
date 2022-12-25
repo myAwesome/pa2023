@@ -7,7 +7,7 @@ import { useCreateMutation } from '../../../shared/hooks/useCreateMutation';
 
 const today = moment().format('YYYY-MM-DD');
 const yesterday = moment().subtract(1, 'days').format('YYYY-MM-DD');
-const createPost = (body, date) => ({
+const createPost = (body: string, date: string) => ({
   body,
   date: moment.utc(date),
 });
@@ -18,7 +18,7 @@ const PostCreate = () => {
   const createPostMutation = useCreateMutation(
     () => postPost(createPost(value, date)),
     ['recent_posts'],
-    (old) => [
+    (old: any[]) => [
       { ...createPost(value, date), id: 'new', labels: [], comments: [] },
       ...old,
     ],
@@ -27,11 +27,11 @@ const PostCreate = () => {
     },
   );
 
-  const handleText = (e) => {
+  const handleText = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
   };
 
-  const handleDate = (e) => {
+  const handleDate = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDate(e.target.value);
   };
 
@@ -53,7 +53,11 @@ const PostCreate = () => {
       />
       <Button
         style={{ marginRight: 15 }}
-        onClick={() => handleDate({ target: { value: yesterday } })}
+        onClick={() =>
+          handleDate({
+            target: { value: yesterday },
+          } as React.ChangeEvent<HTMLInputElement>)
+        }
         color="inherit"
       >
         Yesterday
@@ -66,7 +70,11 @@ const PostCreate = () => {
         variant="standard"
       />
       <Button
-        onClick={() => handleDate({ target: { value: today } })}
+        onClick={() =>
+          handleDate({
+            target: { value: today },
+          } as React.ChangeEvent<HTMLInputElement>)
+        }
         color="inherit"
       >
         Today

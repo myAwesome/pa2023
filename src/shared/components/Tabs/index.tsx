@@ -1,9 +1,24 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { ReactElement } from 'react';
 import { Tab, Tabs as MuiTabs, useMediaQuery, useTheme } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-const Tabs = ({ value, onChange, tabs }) => {
+type Props = {
+  value: string;
+  onChange: (path: string) => void;
+  tabs: {
+    label?: string;
+    icon?: ReactElement;
+    path: string;
+    mobile: {
+      label?: string;
+      icon?: ReactElement;
+    };
+    onClick?: () => void;
+    hideOnMobile?: boolean;
+  }[];
+};
+
+const Tabs = ({ value, onChange, tabs }: Props) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const tabsToUse = isMobile
@@ -33,23 +48,6 @@ const Tabs = ({ value, onChange, tabs }) => {
       )}
     </MuiTabs>
   );
-};
-
-Tabs.propTypes = {
-  value: PropTypes.string,
-  onChange: PropTypes.func,
-  tabs: PropTypes.arrayOf(
-    PropTypes.shape({
-      label: PropTypes.string,
-      icon: PropTypes.node,
-      mobile: PropTypes.shape({
-        label: PropTypes.string,
-        icon: PropTypes.node,
-      }).isRequired,
-      onClick: PropTypes.func,
-      hideOnMobile: PropTypes.bool,
-    }),
-  ),
 };
 
 export default Tabs;

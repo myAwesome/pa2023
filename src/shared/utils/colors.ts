@@ -31,7 +31,7 @@ export const colorsDark = [
   [orange['A700'], deepOrange['A700'], brown[800], blueGrey[800]],
 ];
 
-export const colorPairs = [
+export const colorPairs: [string, string][][] = [
   [
     [red['100'], red['A700']],
     [pink['100'], pink['A700']],

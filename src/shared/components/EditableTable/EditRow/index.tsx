@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {
   Checkbox,
   FormControl,
@@ -15,9 +14,10 @@ import {
 import SubmitIcon from '@mui/icons-material/Check';
 import CancelIcon from '@mui/icons-material/Close';
 import moment from 'moment';
+import { ColumnType, TableItemType } from '../../../types/table';
 
-const getInitialValues = (columns, item) => {
-  const initialValues = {};
+const getInitialValues = (columns: ColumnType[], item: TableItemType) => {
+  const initialValues: Record<string, any> = {};
   columns.forEach((col) => {
     if (col.type === 'date') {
       initialValues[col.name] = moment(item[col.name]).format('YYYY-MM-DD');
@@ -37,7 +37,14 @@ const getInitialValues = (columns, item) => {
   return initialValues;
 };
 
-const PeriodEditRow = ({ item, onSubmit, onCancel, columns }) => {
+type Props = {
+  item: TableItemType;
+  columns: ColumnType[];
+  onSubmit: (values: Record<string, any>) => void;
+  onCancel: () => void;
+};
+
+const PeriodEditRow = ({ item, onSubmit, onCancel, columns }: Props) => {
   const [values, setValues] = React.useState(getInitialValues(columns, item));
 
   return (
@@ -140,10 +147,6 @@ const PeriodEditRow = ({ item, onSubmit, onCancel, columns }) => {
       </TableCell>
     </TableRow>
   );
-};
-
-PeriodEditRow.propTypes = {
-  period: PropTypes.object,
 };
 
 export default PeriodEditRow;

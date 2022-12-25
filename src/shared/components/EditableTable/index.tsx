@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {
   Paper,
   Table,
@@ -10,8 +9,22 @@ import {
   TableRow,
 } from '@mui/material';
 import { useUpdateMutation } from '../../hooks/useUpdateMutation';
+import { ColumnType, TableItemType } from '../../types/table';
 import Row from './Row';
 import EditRow from './EditRow';
+
+type Props = {
+  items: TableItemType[];
+  columns: ColumnType[];
+  isAdd: boolean;
+  onAddSubmit: () => void;
+  cancelAdd: () => void;
+  editMutationFn: () => void;
+  deleteMutationFn: () => void;
+  getNewItemFn: (vals: TableItemType) => Record<string, any>;
+  invalidateQueries: string[];
+  size: 'small' | 'medium' | undefined;
+};
 
 const EditableTable = ({
   items,
@@ -24,8 +37,8 @@ const EditableTable = ({
   invalidateQueries,
   getNewItemFn,
   deleteMutationFn,
-}) => {
-  const [editRow, setEditRow] = React.useState(null);
+}: Props) => {
+  const [editRow, setEditRow] = React.useState<number | null>(null);
   const editMutation = useUpdateMutation(
     editMutationFn,
     invalidateQueries,
@@ -35,8 +48,9 @@ const EditableTable = ({
       setEditRow(null);
     },
   );
-  const onEditSubmit = (id, values) => {
+  const onEditSubmit = (id: string, values: TableItemType) => {
     const data = getNewItemFn(values);
+    // @ts-ignore
     editMutation.mutate({ id, ...data });
   };
   return (
@@ -83,32 +97,6 @@ const EditableTable = ({
       </Table>
     </TableContainer>
   );
-};
-
-EditableTable.propTypes = {
-  items: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-      name: PropTypes.string,
-      start: PropTypes.string,
-      end: PropTypes.string,
-    }),
-  ),
-  columns: PropTypes.arrayOf(
-    PropTypes.shape({
-      name: PropTypes.string,
-      label: PropTypes.string,
-      type: PropTypes.string,
-    }),
-  ),
-  isAdd: PropTypes.bool,
-  onAddSubmit: PropTypes.func,
-  cancelAdd: PropTypes.func,
-  size: PropTypes.string,
-  editMutationFn: PropTypes.func,
-  invalidateQueries: PropTypes.arrayOf(PropTypes.string),
-  getNewItemFn: PropTypes.func,
-  deleteMutationFn: PropTypes.func,
 };
 
 export default EditableTable;

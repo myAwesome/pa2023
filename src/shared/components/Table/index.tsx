@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {
   Table,
   TableBody,
@@ -9,8 +8,15 @@ import {
   TableContainer,
   Paper,
 } from '@mui/material';
+import { TransactionsColumnType, TransactionsRowType } from '../../types/table';
 
-const TransactionsTable = ({ columns, data, size }) => {
+type Props = {
+  data: TransactionsRowType[];
+  columns: TransactionsColumnType[];
+  size: 'small' | 'medium' | undefined;
+};
+
+const TransactionsTable = ({ columns, data, size }: Props) => {
   return (
     <TableContainer component={Paper}>
       <Table size={size}>
@@ -27,6 +33,7 @@ const TransactionsTable = ({ columns, data, size }) => {
               key={
                 row.id ||
                 row.category ||
+                // @ts-ignore
                 row.reduce((prev, cur) => prev + cur.date || 0, 0)
               }
             >
@@ -41,13 +48,6 @@ const TransactionsTable = ({ columns, data, size }) => {
       </Table>
     </TableContainer>
   );
-};
-
-TransactionsTable.propTypes = {
-  data: PropTypes.array,
-  columns: PropTypes.array,
-  size: PropTypes.string,
-  cellStyles: PropTypes.object,
 };
 
 export default TransactionsTable;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FormEvent } from 'react';
 import { Button, Grid, LinearProgress, TextField } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import Typography from '@mui/material/Typography';
@@ -13,15 +13,17 @@ const Search = () => {
   const [posts, setPosts] = React.useState([]);
   const labelsData = useQuery(['labels'], getLabels);
 
-  const handleSearch = (e) => {
+  const handleSearch = (e: FormEvent) => {
     e.preventDefault();
     setSearchLoading(true);
     setSearchSubmitted(false);
     searchPosts(searchQuery)
       .then((response) => {
-        const newPosts = response.data.map(mapPost);
+        if (response?.data) {
+          const newPosts = response.data.map(mapPost);
 
-        setPosts(newPosts);
+          setPosts(newPosts);
+        }
         setSearchLoading(false);
         setSearchSubmitted(true);
       })

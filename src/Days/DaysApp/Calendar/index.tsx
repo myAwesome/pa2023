@@ -1,10 +1,16 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Typography } from '@mui/material';
 import Table from '../../../shared/components/Table';
 import { getCalendar } from '../../../shared/utils/calendar';
+import { PostType } from '../../../shared/types';
 import CalendarCell from './Cell';
+
+type Props = {
+  year: string;
+  month: string;
+  posts: PostType[];
+};
 
 const columns = [
   { title: 'Mon', field: 0, render: CalendarCell },
@@ -19,8 +25,10 @@ const columns = [
 const thisYear = new Date().getFullYear();
 const thisMonth = new Date().getMonth() + 1;
 
-const Calendar = ({ year, month, posts }) => {
-  const [data, setData] = React.useState([]);
+const Calendar = ({ year, month, posts }: Props) => {
+  const [data, setData] = React.useState<
+    { labels?: string[]; isEmpty: boolean; date?: number }[][]
+  >([]);
 
   React.useEffect(() => {
     const calendar = getCalendar(month || thisMonth, year || thisYear);
@@ -43,11 +51,6 @@ const Calendar = ({ year, month, posts }) => {
       <Table columns={columns} data={data} size="small" />
     </div>
   );
-};
-
-Calendar.propTypes = {
-  year: PropTypes.string,
-  month: PropTypes.string,
 };
 
 export default Calendar;

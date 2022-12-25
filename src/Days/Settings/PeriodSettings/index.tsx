@@ -11,23 +11,25 @@ import {
   putPeriod,
 } from '../../../shared/api/routes';
 import { useCreateMutation } from '../../../shared/hooks/useCreateMutation';
+import { PeriodType } from '../../../shared/types';
 
 const PeriodSettings = () => {
   const [isAdd, setIsAdd] = React.useState(false);
   const periodsData = useQuery(['periods'], getPeriods, { initialData: [] });
   const createMutation = useCreateMutation(
-    (vals) => postPeriod(vals),
+    (vals: PeriodType) => postPeriod(vals),
     ['periods'],
-    (old, val) => [...old, val],
+    (old: PeriodType[], val: PeriodType) => [...old, val],
     () => setIsAdd(false),
   );
 
-  const handlePeriodAdd = (values) => {
+  const handlePeriodAdd = (values: PeriodType) => {
     const data = {
       End: values.isendInProgress ? null : moment.utc(values.end).format(),
       Start: moment.utc(values.start).format(),
       Name: values.name,
     };
+    // @ts-ignore
     createMutation.mutate(data);
   };
 

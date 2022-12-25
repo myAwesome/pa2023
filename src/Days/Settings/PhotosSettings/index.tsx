@@ -5,10 +5,14 @@ import Button from '@mui/material/Button';
 import { photosSignIn, photosVerifyToken } from '../../../shared/utils/photos';
 
 const PhotosSettings = () => {
-  const googleUser = useSelector((state) => state.photos);
+  const googleUser = useSelector(
+    (state: {
+      photos: { isLoggedIn: boolean; imageUrl: string; name: string };
+    }) => state.photos,
+  );
   const dispatch = useDispatch();
 
-  React.useState(() => {
+  React.useEffect(() => {
     photosVerifyToken(googleUser, dispatch);
   }, []);
 

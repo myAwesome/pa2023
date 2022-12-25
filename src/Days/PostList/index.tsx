@@ -4,7 +4,11 @@ import { Typography } from '@mui/material';
 import { getLabels, getPosts, getPostsHistory } from '../../shared/api/routes';
 import Posts from './Posts';
 
-const PostList = ({ tab }) => {
+type Props = {
+  tab: 'history' | 'last';
+};
+
+const PostList = ({ tab }: Props) => {
   const { data, isLoading } = useQuery(
     [tab === 'history' ? 'history_posts' : 'recent_posts'],
     tab === 'history' ? getPostsHistory : getPosts,

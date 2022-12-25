@@ -12,17 +12,18 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { getPhotosOnDate, photosSignIn } from '../shared/utils/photos';
 import { getPeriods } from '../shared/api/routes';
+import { PeriodType, PhotoType } from '../shared/types';
 import citiesList from './citiesList.json';
 import countriesList from './countriesList.json';
 
-const getDays = (periods) => {
+const getDays = (periods: PeriodType[]) => {
   return periods.reduce(
     (prev, curr) => prev + moment(curr.end).diff(curr.start, 'days') + 1,
     0,
   );
 };
 
-const getColor = (periods) => {
+const getColor = (periods: PeriodType[]) => {
   if (!periods.length) {
     return '#EBECED';
   }
@@ -44,12 +45,16 @@ const getColor = (periods) => {
 };
 
 function WorldMap() {
-  const [showCountry, setShowCountry] = React.useState(null);
-  const [photos, setPhotos] = React.useState([]);
+  const [showCountry, setShowCountry] = React.useState<PeriodType[] | null>(
+    null,
+  );
+  const [photos, setPhotos] = React.useState<PhotoType[]>([]);
   const [isFetched, setFetched] = React.useState(false);
-  const [showImg, setShowImg] = React.useState(null);
+  const [showImg, setShowImg] = React.useState('');
   const [nextPageToken, setNextPageToken] = React.useState();
-  const oauthToken = useSelector((state) => state.photos.token);
+  const oauthToken = useSelector(
+    (state: { photos: { token: string } }) => state.photos.token,
+  );
   const dispatch = useDispatch();
 
   const periodsData = useQuery(['periods'], getPeriods, { initialData: [] });
@@ -57,14 +62,14 @@ function WorldMap() {
   const visitedCities = React.useMemo(
     () =>
       citiesList.filter((c) =>
-        periodsData.data?.find((d) =>
+        periodsData.data?.find((d: PeriodType) =>
           d.name.toLowerCase().includes(c.id.toLowerCase()),
         ),
       ),
     [periodsData.data],
   );
 
-  const onCountryClick = (periods) => {
+  const onCountryClick = (periods: PeriodType[]) => {
     setPhotos([]);
     setNextPageToken(undefined);
     setFetched(false);
@@ -130,7 +135,7 @@ function WorldMap() {
         </defs>
         <g id="countries">
           {countriesList.map((c) => {
-            const periods = periodsData.data?.filter((p) =>
+            const periods = periodsData.data?.filter((p: PeriodType) =>
               p.name.toLowerCase().includes(c.country_name.toLowerCase()),
             );
             return (
@@ -218,7 +223,7 @@ function WorldMap() {
           ) : null}
         </Box>
       </Dialog>
-      <Dialog open={!!showImg} onClose={() => setShowImg(null)} maxWidth="lg">
+      <Dialog open={!!showImg} onClose={() => setShowImg('')} maxWidth="lg">
         <img
           src={showImg}
           style={{

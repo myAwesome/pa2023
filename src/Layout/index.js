@@ -104,7 +104,7 @@ const Layout = ({ children }) => {
 
   const handleLogout = () => {
     dispatch({ type: USER_SIGN_OUT });
-    navigate('/signin');
+    navigate('/auth/login');
   };
 
   return (

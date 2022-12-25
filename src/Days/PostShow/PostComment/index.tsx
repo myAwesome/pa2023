@@ -1,7 +1,12 @@
 import React from 'react';
 import { Box } from '@mui/material';
+import { CommentType } from '../../../shared/types';
 
-const PostComment = ({ comment }) => {
+type Props = {
+  comment: CommentType;
+};
+
+const PostComment = ({ comment }: Props) => {
   return (
     <Box
       sx={{
@@ -10,7 +15,7 @@ const PostComment = ({ comment }) => {
       }}
     >
       <Box
-        className={{
+        sx={{
           color: (theme) => theme.palette.secondary.light,
         }}
       >

@@ -2,8 +2,9 @@ import React from 'react';
 import { Box } from '@mui/material';
 import PostLabel from '../../../PostLabel';
 import { mapLabel } from '../../../../shared/utils/mappers';
+import { LabelType } from '../../../../shared/types';
 
-const CalendarCell = (row, col) => {
+const CalendarCell = (row: Record<string, any>, col: { field: string }) => {
   const data = row[col.field];
   return (
     <Box
@@ -15,7 +16,7 @@ const CalendarCell = (row, col) => {
         margin: '0 -10px',
         alignItems: 'center',
         justifyContent: 'center',
-        cursor: (props) => !props.isEmpty && 'pointer',
+        cursor: data.isEmpty ? 'pointer' : '',
       }}
       onClick={() => {
         window.location.hash = `#${data.id}`;
@@ -32,7 +33,7 @@ const CalendarCell = (row, col) => {
       </Box>
       {!data.isEmpty && (
         <div>
-          {data.labels?.map((l) => (
+          {data.labels?.map((l: LabelType) => (
             <PostLabel key={l.ID} label={mapLabel(l)} isActive noMargin />
           ))}
         </div>

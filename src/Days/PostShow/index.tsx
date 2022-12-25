@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { FormEvent, Fragment } from 'react';
 import moment from 'moment';
 import { useDispatch } from 'react-redux';
 import Chip from '@mui/material/Chip';
@@ -14,10 +14,19 @@ import {
 } from '../../shared/api/routes';
 import { useUpdateMutation } from '../../shared/hooks/useUpdateMutation';
 import { useDeleteMutation } from '../../shared/hooks/useDeleteMutation';
+import { LabelType, PostType } from '../../shared/types';
 import PostEdit from './PostEdit';
 import PostComment from './PostComment';
 import PostCommentEdit from './PostCommentEdit';
 import PostPhotos from './PostPhotos';
+
+type Props = {
+  post: PostType;
+  labels: LabelType[];
+  searchTerm?: string;
+  oauthToken: string;
+  invalidateQueries?: string[];
+};
 
 const PostShow = ({
   post,
@@ -25,7 +34,7 @@ const PostShow = ({
   searchTerm,
   oauthToken,
   invalidateQueries,
-}) => {
+}: Props) => {
   const [deleteMode, setDeletedMode] = React.useState(false);
   const [isCommentOpen, setCommentOpen] = React.useState(false);
   const [isEdit, setIsEdit] = React.useState(false);
@@ -39,23 +48,26 @@ const PostShow = ({
     post.id,
   );
   const toggleLabelMutation = useUpdateMutation(
-    ({ isActive, labelId }) =>
+    ({ isActive, labelId }: { isActive: boolean; labelId: string }) =>
       isActive
         ? deleteLabelFromPost(post.id, labelId)
         : addLabelToPost(post.id, labelId),
     invalidateQueries,
     post.id,
-    ({ isActive, labelId }, post) => ({
+    (
+      { isActive, labelId }: { isActive: boolean; labelId: string },
+      post: PostType,
+    ) => ({
       labels: isActive
         ? post.labels.filter((l) => l.ID !== labelId)
-        : post.labels.concat({ ID: labelId }),
+        : post.labels.concat({ ID: labelId } as LabelType),
     }),
   );
   const editPostMutation = useUpdateMutation(
-    (body) => editPost(post.id, { body, date: moment.utc(updateDate) }),
+    (body: string) => editPost(post.id, { body, date: moment.utc(updateDate) }),
     invalidateQueries,
     post.id,
-    (body) => ({
+    (body: string) => ({
       body,
       date: moment.utc(updateDate).format('YYYY-MM-DD'),
     }),
@@ -66,12 +78,13 @@ const PostShow = ({
     setDeletedMode(!deleteMode);
   };
 
-  const handleSubmit = (e, updateText) => {
+  const handleSubmit = (e: FormEvent, updateText: string) => {
     e.preventDefault();
+    // @ts-ignore
     editPostMutation.mutate(updateText);
   };
 
-  const getHighlightedText = (text, highlight) => {
+  const getHighlightedText = (text: string, highlight: string) => {
     const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
     return (
       <span>
@@ -153,6 +166,7 @@ const PostShow = ({
               key={l.id}
               label={l}
               onClick={(e, isActive) =>
+                // @ts-ignore
                 toggleLabelMutation.mutate({ isActive, labelId: l.id })
               }
               isActive={!!post.labels.find((pl) => pl.ID === l.id)}
@@ -238,7 +252,7 @@ const PostShow = ({
             </Button>
             <Button
               variant="contained"
-              onClick={deletePostMutation.mutate}
+              onClick={() => deletePostMutation.mutate()}
               sx={{
                 width: '40%',
               }}

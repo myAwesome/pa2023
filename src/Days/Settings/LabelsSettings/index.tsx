@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FormEvent } from 'react';
 import {
   TextField,
   Button,
@@ -22,16 +22,19 @@ import {
 import { useUpdateMutation } from '../../../shared/hooks/useUpdateMutation';
 import { useDeleteMutation } from '../../../shared/hooks/useDeleteMutation';
 import { useCreateMutation } from '../../../shared/hooks/useCreateMutation';
+import { LabelType } from '../../../shared/types';
 
 const LabelsSettings = () => {
-  const [activeLabels, setActiveLabels] = React.useState([]);
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [itemToDelete, setItemToDelete] = React.useState(null);
+  const [activeLabels, setActiveLabels] = React.useState<string[]>([]);
+  const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
+  const [itemToDelete, setItemToDelete] = React.useState<string | null>(null);
   const [isAdd, setIsAdd] = React.useState(false);
   const [newLabelName, setNewLabelName] = React.useState('');
-  const [newLabelColor, setNewLabelColor] = React.useState([]);
+  const [newLabelColor, setNewLabelColor] = React.useState<
+    [string, string] | []
+  >([]);
   const [isNewLabelActive, setIsNewLabelActive] = React.useState(false);
-  const [labelToEdit, setLabelToEdit] = React.useState(null);
+  const [labelToEdit, setLabelToEdit] = React.useState<string | null>(null);
   const [isEdit, setIsEdit] = React.useState(false);
   const labelsData = useQuery(['labels'], getLabels);
 
@@ -64,7 +67,7 @@ const LabelsSettings = () => {
         colorActive: newLabelColor[1],
       }),
     ['labels'],
-    (old) => [
+    (old: LabelType[]) => [
       ...old,
       {
         id: 'new',
@@ -80,7 +83,11 @@ const LabelsSettings = () => {
     itemToDelete,
   );
 
-  const handleLabelClick = (e, isActive, labelId) => {
+  const handleLabelClick = (
+    e: React.MouseEvent<HTMLDivElement>,
+    isActive: boolean,
+    labelId: string,
+  ) => {
     const newLabels = isActive
       ? activeLabels.filter((l) => l !== labelId)
       : [...activeLabels, labelId];
@@ -90,12 +97,12 @@ const LabelsSettings = () => {
     setLabelToEdit(labelId);
   };
 
-  const handleLabelEdit = (e) => {
+  const handleLabelEdit = (e: FormEvent) => {
     e.preventDefault();
     editLabelMutation.mutate();
   };
 
-  const handleLabelAdd = (e) => {
+  const handleLabelAdd = (e: FormEvent) => {
     e.preventDefault();
     addLabelMutation.mutate();
   };
@@ -117,7 +124,9 @@ const LabelsSettings = () => {
   };
 
   const handleLabelEditClick = () => {
-    const editLabel = labelsData.data.find((l) => l.id === labelToEdit);
+    const editLabel = labelsData.data.find(
+      (l: LabelType) => l.id === labelToEdit,
+    );
     setIsEdit(true);
     setIsAdd(false);
     setNewLabelName(editLabel.name);
@@ -140,7 +149,7 @@ const LabelsSettings = () => {
     <Grid container spacing={2}>
       <Grid item xs={12}>
         <Typography variant="h6">My labels: </Typography>
-        {(labelsData.data || []).map((l) => (
+        {(labelsData.data || []).map((l: LabelType) => (
           <PostLabel
             key={l.id}
             label={l}
@@ -166,7 +175,7 @@ const LabelsSettings = () => {
           horizontal: 'center',
         }}
       >
-        <IconButton onClick={deleteLabelMutation.mutate}>
+        <IconButton onClick={() => deleteLabelMutation.mutate()}>
           <DeleteIcon />
         </IconButton>
         <IconButton onClick={handleLabelEditClick}>
@@ -197,11 +206,14 @@ const LabelsSettings = () => {
                 <Typography>Preview</Typography>
                 <PostLabel
                   key="new-label"
-                  label={{
-                    name: newLabelName,
-                    color: newLabelColor[0],
-                    colorActive: newLabelColor[1],
-                  }}
+                  label={
+                    {
+                      id: 'NEW',
+                      name: newLabelName,
+                      color: newLabelColor[0],
+                      colorActive: newLabelColor[1],
+                    } as LabelType
+                  }
                   isActive={isNewLabelActive}
                   onClick={() => setIsNewLabelActive(!isNewLabelActive)}
                 />

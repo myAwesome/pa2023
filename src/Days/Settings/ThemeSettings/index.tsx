@@ -1,27 +1,30 @@
-import React from 'react';
+import React, { FormEvent } from 'react';
 import JSONInput from 'react-json-editor-ajrm';
 import { useSelector, useDispatch } from 'react-redux';
 import { Typography, Grid, Button } from '@mui/material';
+// @ts-ignore
 import locale from 'react-json-editor-ajrm/locale/en';
-import { SketchPicker } from 'react-color';
+import { Color, SketchPicker } from 'react-color';
 import { editUserAction } from '../../../shared/api/handlers';
 
 const ThemeSettings = () => {
-  const { rawUserTheme, userTheme } = useSelector((state) => state.root);
+  const { rawUserTheme, userTheme } = useSelector(
+    (state: { root: any }) => state.root,
+  );
   const [newTheme, setNewTheme] = React.useState(rawUserTheme);
-  const [color, setColor] = React.useState({});
+  const [color, setColor] = React.useState<Color | undefined>();
   const dispatch = useDispatch();
 
   React.useEffect(() => {
     setNewTheme(rawUserTheme);
   }, [rawUserTheme]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     editUserAction(dispatch, { data: { theme: JSON.stringify(newTheme) } });
   };
 
-  const handleChange = (a) => {
+  const handleChange = (a: any) => {
     setNewTheme(a.jsObject);
   };
 
@@ -29,7 +32,7 @@ const ThemeSettings = () => {
     <Grid container spacing={2} direction="column">
       <Grid item>
         <Typography variant="h6">Theme:</Typography>
-        <SketchPicker color={color} onChange={setColor} />
+        <SketchPicker color={color} onChange={(c) => setColor(c.rgb)} />
       </Grid>
       <Grid item container spacing={2}>
         <Grid item xs={12} md={6}>

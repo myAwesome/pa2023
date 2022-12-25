@@ -1,9 +1,8 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { PropsWithChildren } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { getItemFromStorage, TOKEN_KEY } from '../../shared/utils/storage';
 
-const CheckAuth = ({ children }) => {
+const CheckAuth = ({ children }: PropsWithChildren) => {
   const [isOk, setIsOk] = React.useState(true);
   const location = useLocation();
 
@@ -12,11 +11,7 @@ const CheckAuth = ({ children }) => {
     setIsOk(!!token);
   }, [location]);
 
-  return isOk ? children : <Navigate to="/signin" />;
-};
-
-CheckAuth.propTypes = {
-  children: PropTypes.any,
+  return isOk ? children : <Navigate to="/auth/login" />;
 };
 
 export default CheckAuth;
