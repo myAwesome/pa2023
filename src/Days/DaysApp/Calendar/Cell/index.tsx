@@ -4,7 +4,10 @@ import PostLabel from '../../../PostLabel';
 import { mapLabel } from '../../../../shared/utils/mappers';
 import { LabelType } from '../../../../shared/types';
 
-const CalendarCell = (row: Record<string, any>, col: { field: string }) => {
+const CalendarCell = (
+  row: Record<string, any>,
+  col: { field: string | number },
+) => {
   const data = row[col.field];
   return (
     <Box

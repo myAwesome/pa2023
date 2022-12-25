@@ -1,7 +1,7 @@
+import { SET_USER_THEME } from '../redux/rootReducer';
 import * as api from './routes';
-import { SET_ERROR, SET_USER_THEME } from '../redux/rootReducer';
 
-const safeAction = (action, callback, dispatch) => {
+const safeAction = (action, callback) => {
   return action()
     .then(callback)
     .catch((err) => {
@@ -11,7 +11,6 @@ const safeAction = (action, callback, dispatch) => {
         console.log('request will be synced later');
         return true;
       }
-      dispatch({ type: SET_ERROR, payload: err.message });
       throw err;
     });
 };

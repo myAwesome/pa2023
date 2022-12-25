@@ -6,7 +6,7 @@ import { LabelType } from '../../shared/types';
 type Props = {
   isActive: boolean;
   label: LabelType;
-  onClick: (e: React.MouseEvent<HTMLDivElement>, isActive: boolean) => void;
+  onClick?: (e: React.MouseEvent<HTMLDivElement>, isActive: boolean) => void;
   noMargin?: boolean;
 };
 
@@ -29,7 +29,7 @@ const PostLabel = ({ isActive, label, onClick, noMargin }: Props) => {
         backgroundColor: isActive ? label.colorActive : label.color,
         color: isActive ? 'white' : 'black',
       }}
-      onClick={(e) => onClick(e, isActive)}
+      onClick={(e) => onClick?.(e, isActive)}
     >
       {label.name?.substr(0, 1)}
     </Box>

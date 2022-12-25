@@ -2,13 +2,21 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { TextField, Button, Grid } from '@mui/material';
 import moment from 'moment';
+import { LastTimeItemType } from '../../shared/types';
+
+type Props = {
+  handleSubmit: (vals: LastTimeItemType) => void;
+  handleCancel: () => void;
+  handleRemove: () => void;
+  initialValues: LastTimeItemType;
+};
 
 const AddLastTime = ({
   handleSubmit,
   initialValues,
   handleCancel,
   handleRemove,
-}) => {
+}: Props) => {
   const [lt, setLt] = React.useState(
     initialValues || { body: '', date: moment(), remind_after_days: '' },
   );
@@ -23,9 +31,14 @@ const AddLastTime = ({
         e.preventDefault();
         handleSubmit({
           ...lt,
-          remind_after_days: parseInt(lt.remind_after_days, 10),
+          remind_after_days: Number(lt.remind_after_days),
         });
-        setLt({ body: '', date: moment(), remind_after_days: '' });
+        setLt({
+          id: '',
+          body: '',
+          date: moment().format(),
+          remind_after_days: '',
+        });
       }}
     >
       <Grid container spacing={2} alignItems="flex-end">

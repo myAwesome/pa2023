@@ -17,13 +17,13 @@ type Props = {
   items: TableItemType[];
   columns: ColumnType[];
   isAdd: boolean;
-  onAddSubmit: () => void;
+  onAddSubmit: (vals: TableItemType) => void;
   cancelAdd: () => void;
-  editMutationFn: () => void;
-  deleteMutationFn: () => void;
+  editMutationFn: (vals: TableItemType) => void;
+  deleteMutationFn: (id: string) => void;
   getNewItemFn: (vals: TableItemType) => Record<string, any>;
   invalidateQueries: string[];
-  size: 'small' | 'medium' | undefined;
+  size?: 'small' | 'medium';
 };
 
 const EditableTable = ({

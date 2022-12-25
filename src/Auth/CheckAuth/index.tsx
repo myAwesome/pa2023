@@ -11,7 +11,7 @@ const CheckAuth = ({ children }: PropsWithChildren) => {
     setIsOk(!!token);
   }, [location]);
 
-  return isOk ? children : <Navigate to="/auth/login" />;
+  return isOk ? <>{children}</> : <Navigate to="/auth/login" />;
 };
 
 export default CheckAuth;

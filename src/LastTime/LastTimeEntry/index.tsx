@@ -1,13 +1,26 @@
-import { ListItem, ListItemIcon, ListItemText } from '@mui/material';
+import { ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import BeenhereIcon from '@mui/icons-material/Beenhere';
 import moment from 'moment';
 import React from 'react';
+import { LastTimeItemType } from '../../shared/types';
 
-const LastTimeEntry = ({ handleItemClicked, handleListItemClick, item }) => {
+type Props = {
+  handleItemClicked: (item: LastTimeItemType) => void;
+  item: LastTimeItemType;
+  handleListItemClick: (
+    e: React.MouseEvent<HTMLDivElement>,
+    item: LastTimeItemType,
+  ) => void;
+};
+
+const LastTimeEntry = ({
+  handleItemClicked,
+  handleListItemClick,
+  item,
+}: Props) => {
   const [isHovered, setIsHovered] = React.useState(false);
   return (
-    <ListItem
-      button
+    <ListItemButton
       onClick={() => handleItemClicked(item)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -29,7 +42,7 @@ const LastTimeEntry = ({ handleItemClicked, handleListItemClick, item }) => {
             : moment(item.date).fromNow(true)
         }
       />
-    </ListItem>
+    </ListItemButton>
   );
 };
 

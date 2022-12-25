@@ -153,8 +153,8 @@ const LabelsSettings = () => {
           <PostLabel
             key={l.id}
             label={l}
-            isActive={activeLabels.includes(l.id)}
-            onClick={(e, active) => handleLabelClick(e, active, l.id)}
+            isActive={activeLabels.includes(l.id || '')}
+            onClick={(e, active) => handleLabelClick(e, active, l.id || '')}
           />
         ))}
         <IconButton onClick={handleAddClicked}>

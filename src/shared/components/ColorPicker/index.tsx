@@ -4,7 +4,7 @@ import Grid from '@mui/material/Grid';
 import { colorPairs } from '../../utils/colors';
 
 type Props = {
-  value: [string, string];
+  value: [string, string] | [];
   onChange: (c: [string, string]) => void;
 };
 

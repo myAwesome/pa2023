@@ -46,11 +46,15 @@ const PeriodSettings = () => {
           ]}
           isAdd={isAdd}
           cancelAdd={() => setIsAdd(false)}
-          onAddSubmit={handlePeriodAdd}
-          editMutationFn={({ id, ...data }) => putPeriod(id, data)}
+          onAddSubmit={(p) => handlePeriodAdd(p as PeriodType)}
+          editMutationFn={({ id, ...data }) => {
+            putPeriod(id, data);
+          }}
           invalidateQueries={['periods']}
           getNewItemFn={(v) => v}
-          deleteMutationFn={(id) => deletePeriod(id)}
+          deleteMutationFn={(id) => {
+            deletePeriod(id);
+          }}
         />
         <IconButton onClick={() => setIsAdd(true)}>
           <AddIcon />

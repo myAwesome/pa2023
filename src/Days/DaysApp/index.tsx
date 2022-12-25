@@ -1,13 +1,23 @@
 import React from 'react';
-import { Grid, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import {
+  Grid,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  SelectChangeEvent,
+} from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { useSelector } from 'react-redux';
 import PostShow from '../PostShow';
 import { getLabels, getMonth, getYears } from '../../shared/api/routes';
+import { PostType, YearMonthsType } from '../../shared/types';
 import Calendar from './Calendar';
 
 const DaysApp = () => {
-  const oauthToken = useSelector((state) => state.photos.token);
+  const oauthToken = useSelector(
+    (state: { photos: { token: string } }) => state.photos.token,
+  );
   const [selectedMonth, setSelectedMonth] = React.useState('');
   const [selectedYear, setSelectedYear] = React.useState('');
   const labelsData = useQuery(['labels'], getLabels);
@@ -20,11 +30,11 @@ const DaysApp = () => {
     },
   );
 
-  const handleYearChange = (e) => {
+  const handleYearChange = (e: SelectChangeEvent<string>) => {
     setSelectedYear(e.target.value);
   };
 
-  const handleMonthChange = (e) => {
+  const handleMonthChange = (e: SelectChangeEvent<string>) => {
     setSelectedMonth(e.target.value);
   };
 
@@ -66,7 +76,7 @@ const DaysApp = () => {
                 variant="standard"
               >
                 {selectedYear &&
-                  yearsData.data[selectedYear].map((m) => (
+                  yearsData.data[selectedYear].map((m: YearMonthsType) => (
                     <MenuItem key={m.YM} value={m.YM}>
                       {m.M} ({m.Cnt})
                     </MenuItem>
@@ -76,7 +86,7 @@ const DaysApp = () => {
           </Grid>
         </Grid>
         <Grid item container direction="column">
-          {(monthData.data || []).map((p) => (
+          {(monthData.data || []).map((p: PostType) => (
             <Grid
               item
               key={p.id}

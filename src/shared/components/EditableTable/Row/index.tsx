@@ -11,7 +11,7 @@ type Props = {
   columns: ColumnType[];
   invalidateQueries?: string[];
   onEditClicked: () => void;
-  deleteMutationFn: () => void;
+  deleteMutationFn: (id: string) => void;
 };
 
 const Row = ({

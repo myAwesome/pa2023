@@ -1,6 +1,11 @@
 import { USER_SIGN_IN, GOOGLE_USER_SIGN_OUT } from '../redux/photosReducer';
 
-export const getPhotosOnDate = async (authToken, date, ranges, nextPageToken) => {
+export const getPhotosOnDate = async (
+  authToken,
+  date,
+  ranges,
+  nextPageToken,
+) => {
   let photos = [];
   let error = null;
   try {

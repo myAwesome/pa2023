@@ -8,10 +8,10 @@ import {
   TableContainer,
   Paper,
 } from '@mui/material';
-import { TransactionsColumnType, TransactionsRowType } from '../../types/table';
+import { TableItemType, TransactionsColumnType } from '../../types/table';
 
 type Props = {
-  data: TransactionsRowType[];
+  data: TableItemType[];
   columns: TransactionsColumnType[];
   size: 'small' | 'medium' | undefined;
 };

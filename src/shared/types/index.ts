@@ -26,8 +26,8 @@ export type PostType = {
 };
 
 export type LabelType = {
-  ID: string;
-  id: string;
+  ID?: string;
+  id?: string;
   name?: string;
   color?: string;
   colorActive?: string;
@@ -38,4 +38,33 @@ export type CommentType = {
   Body: string;
   Date: string;
   PostId: string;
+};
+
+export type LastTimeItemType = {
+  id: string;
+  body: string;
+  date: string;
+  remind_after_days: string | number;
+};
+
+export type YearMonthsType = {
+  YM: string;
+  Cnt: string;
+  M: string;
+};
+
+export enum TaskStatus {
+  INCOMING = 'incoming',
+  TODO = 'todo',
+  IN_PROGRESS = 'in_progress',
+  DONE = 'done',
+}
+
+export type TaskType = {
+  status: TaskStatus;
+  id: string;
+  body: string;
+  created_at: string;
+  priority: number;
+  outcome: string;
 };

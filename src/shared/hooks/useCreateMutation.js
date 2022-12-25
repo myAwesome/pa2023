@@ -1,17 +1,24 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { SET_ERROR } from '../redux/rootReducer';
-import { useDispatch } from 'react-redux';
+import { useContext } from 'react';
+import UIContext from '../context/UIContext';
 
-export const useCreateMutation = (mutationFn, invalidateQueries, updater, callback) => {
+export const useCreateMutation = (
+  mutationFn,
+  invalidateQueries,
+  updater,
+  callback,
+) => {
   const queryClient = useQueryClient();
-  const dispatch = useDispatch();
+  const { setError } = useContext(UIContext);
   return useMutation(mutationFn, {
     onMutate: async (payload) => {
       await queryClient.cancelQueries(invalidateQueries);
 
       const previousValue = queryClient.getQueryData(invalidateQueries);
 
-      queryClient.setQueryData(invalidateQueries, (old) => updater(old, payload));
+      queryClient.setQueryData(invalidateQueries, (old) =>
+        updater(old, payload),
+      );
       callback?.();
 
       return previousValue;
@@ -19,7 +26,7 @@ export const useCreateMutation = (mutationFn, invalidateQueries, updater, callba
     onError: (err, variables, previousValue) => {
       queryClient.setQueryData(invalidateQueries, previousValue);
       console.error(err);
-      dispatch({ type: SET_ERROR, payload: err.message });
+      setError(err.message);
     },
     onSettled: () => {
       queryClient.invalidateQueries(invalidateQueries);

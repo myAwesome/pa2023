@@ -15,28 +15,35 @@ import { deleteLT, getLts, postLT, putLT } from '../shared/api/routes';
 import { useUpdateMutation } from '../shared/hooks/useUpdateMutation';
 import { useCreateMutation } from '../shared/hooks/useCreateMutation';
 import { useDeleteMutation } from '../shared/hooks/useDeleteMutation';
+import { LastTimeItemType } from '../shared/types';
 import LastTimeEntry from './LastTimeEntry';
 import AddLastTime from './AddLastTime';
 
 const LastTime = () => {
   const [isAdd, setIsAdd] = React.useState(false);
   const [isEdit, setIsEdit] = React.useState(false);
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [itemToUpdate, setItemToUpdate] = React.useState(null);
-  const [itemToEdit, setItemToEdit] = React.useState(null);
+  const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
+  const [itemToUpdate, setItemToUpdate] =
+    React.useState<LastTimeItemType | null>(null);
+  const [itemToEdit, setItemToEdit] = React.useState<LastTimeItemType | null>(
+    null,
+  );
   const [updateDate, setUpdateDate] = React.useState(
     moment().format('YYYY-MM-DDTHH:mm'),
   );
   const lastTimeData = useQuery(['last_times'], getLts);
   const updateMutation = useUpdateMutation(
-    (values) =>
+    (values: LastTimeItemType) =>
       putLT((itemToEdit || itemToUpdate)?.id, {
         ...(itemToEdit || itemToUpdate),
         ...values,
       }),
     ['last_times'],
     (itemToEdit || itemToUpdate)?.id,
-    (values) => ({ ...(itemToEdit || itemToUpdate), ...values }),
+    (values: LastTimeItemType) => ({
+      ...(itemToEdit || itemToUpdate),
+      ...values,
+    }),
     () => {
       setIsEdit(false);
       setIsAdd(false);
@@ -47,9 +54,9 @@ const LastTime = () => {
     ['expired_last_times'],
   );
   const createMutation = useCreateMutation(
-    (data) => postLT(data),
+    (data: LastTimeItemType) => postLT(data),
     ['last_times'],
-    (old, data) => [data, ...old],
+    (old: LastTimeItemType[], data: LastTimeItemType) => [data, ...old],
     () => {
       setIsEdit(false);
       setIsAdd(false);
@@ -65,14 +72,18 @@ const LastTime = () => {
     ['expired_last_times'],
   );
 
-  const handleListItemClick = (e, item) => {
+  const handleListItemClick = (
+    e: React.MouseEvent<HTMLDivElement>,
+    item: LastTimeItemType,
+  ) => {
     e.stopPropagation();
     setAnchorEl(e.currentTarget);
     setItemToUpdate(item);
   };
 
-  const handleSubmit = (values) => {
+  const handleSubmit = (values: LastTimeItemType) => {
     const action = isAdd ? createMutation : updateMutation;
+    // @ts-ignore
     action.mutate(values);
   };
 
@@ -81,7 +92,7 @@ const LastTime = () => {
     setItemToUpdate(null);
   };
 
-  const handleItemClicked = (item) => {
+  const handleItemClicked = (item: LastTimeItemType) => {
     setIsEdit(true);
     setIsAdd(false);
     setItemToEdit(item);
@@ -119,7 +130,7 @@ const LastTime = () => {
             <AddIcon />
           </IconButton>
         </Grid>
-        {isAdd || isEdit ? (
+        {(isAdd || isEdit) && itemToEdit ? (
           <Grid item xs={12} sm={11}>
             <AddLastTime
               handleSubmit={handleSubmit}
@@ -134,7 +145,7 @@ const LastTime = () => {
         'Loading...'
       ) : (
         <List>
-          {lastTimeData.data.map((item) => (
+          {lastTimeData.data.map((item: LastTimeItemType) => (
             <React.Fragment key={item.id}>
               <LastTimeEntry
                 item={item}
@@ -173,9 +184,10 @@ const LastTime = () => {
           </Grid>
           <Grid item>
             <Button
-              onClick={() =>
-                updateMutation.mutate({ date: moment(updateDate) })
-              }
+              onClick={() => {
+                // @ts-ignore
+                updateMutation.mutate({ date: moment(updateDate) });
+              }}
             >
               OK
             </Button>
