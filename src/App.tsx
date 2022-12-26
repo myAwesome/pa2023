@@ -11,6 +11,7 @@ import PostList from './Days/PostList';
 import ErrorSnackbar from './shared/components/ErrorSnackbar';
 import UIContextProvider from './shared/context/UIContextProvider';
 import AuthRoot, { authLoader } from './Auth';
+import GPhotosContextProvider from './shared/context/GPhotosContextProvider';
 const Days = lazy(() => import(/* webpackChunkName: "days" */ './Days'));
 const NewEntry = lazy(
   () => import(/* webpackChunkName: "days" */ './Days/NewEntry'),
@@ -87,61 +88,69 @@ const WishList = lazy(
 
 function App() {
   return (
-    <UIContextProvider>
-      <Router>
-        <Suspense fallback={<div>Loading...</div>}>
-          <Routes>
-            <Route path="/auth" loader={authLoader} element={<AuthRoot />}>
-              <Route path="login" element={<LoginPage />} />
-              <Route path="registration" element={<RegistrationPage />} />
-            </Route>
-            <Route
-              path="/"
-              element={
-                <CheckAuth>
-                  <Layout>
-                    <Suspense fallback="Loading...">
-                      <Outlet />
-                    </Suspense>
-                  </Layout>
-                </CheckAuth>
-              }
-            >
-              <Route path="days" element={<Days />}>
-                <Route index element={<NewEntry />} />
-                <Route path="app" element={<DaysApp />} />
-                <Route path="settings" element={<DaysSettings />} />
-                <Route path="search" element={<Search />} />
-                <Route path="history" element={<PostList tab="history" />} />
+    <Router>
+      <GPhotosContextProvider>
+        <UIContextProvider>
+          <Suspense fallback={<div>Loading...</div>}>
+            <Routes>
+              <Route path="/auth" loader={authLoader} element={<AuthRoot />}>
+                <Route path="login" element={<LoginPage />} />
+                <Route path="registration" element={<RegistrationPage />} />
               </Route>
-              <Route path="transactions" element={<Transactions />}>
-                <Route path="add" element={<TransactionsCreate />} />
-                <Route path="list" element={<TransactionsList />} />
-                <Route path="categories" element={<TransactionsCategories />} />
-                <Route path="statistics" element={<TransactionsStatistics />} />
+              <Route
+                path="/"
+                element={
+                  <CheckAuth>
+                    <Layout>
+                      <Suspense fallback="Loading...">
+                        <Outlet />
+                      </Suspense>
+                    </Layout>
+                  </CheckAuth>
+                }
+              >
+                <Route path="days" element={<Days />}>
+                  <Route index element={<NewEntry />} />
+                  <Route path="app" element={<DaysApp />} />
+                  <Route path="settings" element={<DaysSettings />} />
+                  <Route path="search" element={<Search />} />
+                  <Route path="history" element={<PostList tab="history" />} />
+                </Route>
+                <Route path="transactions" element={<Transactions />}>
+                  <Route path="add" element={<TransactionsCreate />} />
+                  <Route path="list" element={<TransactionsList />} />
+                  <Route
+                    path="categories"
+                    element={<TransactionsCategories />}
+                  />
+                  <Route
+                    path="statistics"
+                    element={<TransactionsStatistics />}
+                  />
+                </Route>
+                <Route path="notes">
+                  <Route index element={<Notes />} />
+                  <Route path=":id" element={<Note />} />
+                </Route>
+                <Route path="projects">
+                  <Route index element={<Projects />} />
+                  <Route path=":id" element={<Project />} />
+                </Route>
+                <Route path="last-time" element={<LastTime />} />
+                <Route path="sandbox" element={<Sandbox />} />
+                <Route path="wishlist" element={<Wishlist />}>
+                  <Route path="add" element={<WishCreate />} />
+                  <Route path="list" element={<WishList />} />
+                </Route>
+                <Route path="world-map" element={<WorldMap />} />
+                <Route path="/" index element={<Navigate to="/days" />} />
               </Route>
-              <Route path="notes">
-                <Route index element={<Notes />} />
-                <Route path=":id" element={<Note />} />
-              </Route>
-              <Route path="projects">
-                <Route index element={<Projects />} />
-                <Route path=":id" element={<Project />} />
-              </Route>
-              <Route path="last-time" element={<LastTime />} />
-              <Route path="sandbox" element={<Sandbox />} />
-              <Route path="wishlist" element={<Wishlist />}>
-                <Route path="add" element={<WishCreate />} />
-                <Route path="list" element={<WishList />} />
-              </Route>
-              <Route path="world-map" element={<WorldMap />} />
-              <Route path="/" index element={<Navigate to="/days" />} />
-            </Route>
-          </Routes>
-        </Suspense>
-        <ErrorSnackbar />
-      </Router>
-    </UIContextProvider>
+            </Routes>
+          </Suspense>
+          <ErrorSnackbar />
+        </UIContextProvider>
+      </GPhotosContextProvider>
+    </Router>
   );
 }
 

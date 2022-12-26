@@ -1,6 +1,6 @@
-import { useDispatch } from 'react-redux';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { SET_ERROR } from '../redux/rootReducer';
+import { useContext } from 'react';
+import UIContext from '../context/UIContext';
 
 export const useDeleteMutation = (
   mutationFn,
@@ -11,7 +11,8 @@ export const useDeleteMutation = (
   updater,
 ) => {
   const queryClient = useQueryClient();
-  const dispatch = useDispatch();
+  const { setError } = useContext(UIContext);
+
   return useMutation(mutationFn, {
     onMutate: async (payloadId) => {
       await queryClient.cancelQueries(invalidateQueries);
@@ -30,7 +31,7 @@ export const useDeleteMutation = (
     },
     onError: (err, variables, previousValue) => {
       queryClient.setQueryData(invalidateQueries, previousValue);
-      dispatch({ type: SET_ERROR, payload: err.message });
+      setError(err.message);
     },
     onSettled: () => {
       queryClient.invalidateQueries(invalidateQueries);

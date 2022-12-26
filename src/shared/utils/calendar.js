@@ -1,4 +1,4 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 const getRange = (len) =>
   Array(len)
@@ -6,8 +6,8 @@ const getRange = (len) =>
     .map((_, i) => i + 1);
 
 export const getCalendar = (month, year) => {
-  const firstWeekDayOfMonth = moment(`${year}-${month}-01`).day() - 1;
-  const daysInMonth = moment(`${year}-${month}-01`).daysInMonth();
+  const firstWeekDayOfMonth = dayjs(`${year}-${month}-01`).day() - 1;
+  const daysInMonth = dayjs(`${year}-${month}-01`).daysInMonth();
   const days = getRange(daysInMonth);
   const weeks = [];
   while (days.length) {
