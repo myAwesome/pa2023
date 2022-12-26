@@ -1,5 +1,4 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import Grid from '@mui/material/Grid';
 import PostShow from '../../PostShow';
 import { LabelType, PostType } from '../../../shared/types';
@@ -12,9 +11,6 @@ type Props = {
 };
 
 const Posts = ({ labels, posts, searchTerm, invalidateQueries }: Props) => {
-  const oauthToken = useSelector(
-    (state: { photos: { token: string } }) => state.photos.token,
-  );
   return (
     <Grid container direction="column" spacing={4}>
       {posts.map((p) => (
@@ -23,7 +19,6 @@ const Posts = ({ labels, posts, searchTerm, invalidateQueries }: Props) => {
             post={{ ...p, labels: p.labels || [] }}
             labels={labels}
             searchTerm={searchTerm}
-            oauthToken={oauthToken}
             invalidateQueries={invalidateQueries}
           />
         </Grid>

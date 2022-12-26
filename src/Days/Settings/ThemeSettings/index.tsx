@@ -1,19 +1,32 @@
-import React, { FormEvent } from 'react';
+import React, { FormEvent, useContext } from 'react';
 import JSONInput from 'react-json-editor-ajrm';
-import { useSelector, useDispatch } from 'react-redux';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Typography, Grid, Button } from '@mui/material';
 // @ts-ignore
 import locale from 'react-json-editor-ajrm/locale/en';
 import { Color, SketchPicker } from 'react-color';
-import { editUserAction } from '../../../shared/api/handlers';
+import UIContext from '../../../shared/context/UIContext';
+import { putUser } from '../../../shared/api/routes';
 
 const ThemeSettings = () => {
-  const { rawUserTheme, userTheme } = useSelector(
-    (state: { root: any }) => state.root,
-  );
+  const { rawUserTheme, userTheme, handleUserThemeChanged } =
+    useContext(UIContext);
   const [newTheme, setNewTheme] = React.useState(rawUserTheme);
   const [color, setColor] = React.useState<Color | undefined>();
-  const dispatch = useDispatch();
+  const queryClient = useQueryClient();
+  const updateMutation = useMutation(
+    () => {
+      return putUser({ theme: JSON.stringify(newTheme) });
+    },
+    {
+      onSuccess: () => {
+        handleUserThemeChanged(newTheme);
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries(['user']);
+      },
+    },
+  );
 
   React.useEffect(() => {
     setNewTheme(rawUserTheme);
@@ -21,10 +34,11 @@ const ThemeSettings = () => {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    editUserAction(dispatch, { data: { theme: JSON.stringify(newTheme) } });
+    updateMutation.mutate();
   };
 
   const handleChange = (a: any) => {
+    console.log('change', a);
     setNewTheme(a.jsObject);
   };
 

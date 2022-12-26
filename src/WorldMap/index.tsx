@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import {
@@ -9,7 +9,7 @@ import {
   LinearProgress,
   Box,
 } from '@mui/material';
-import { useDispatch, useSelector } from 'react-redux';
+import GPhotosContext from '../shared/context/GPhotosContext';
 import { getPhotosOnDate, photosSignIn } from '../shared/utils/photos';
 import { getPeriods } from '../shared/api/routes';
 import { PeriodType, PhotoType } from '../shared/types';
@@ -52,10 +52,10 @@ function WorldMap() {
   const [isFetched, setFetched] = React.useState(false);
   const [showImg, setShowImg] = React.useState('');
   const [nextPageToken, setNextPageToken] = React.useState();
-  const oauthToken = useSelector(
-    (state: { photos: { token: string } }) => state.photos.token,
-  );
-  const dispatch = useDispatch();
+  const {
+    handleSignIn,
+    value: { token: oauthToken },
+  } = useContext(GPhotosContext);
 
   const periodsData = useQuery(['periods'], getPeriods, { initialData: [] });
 
@@ -78,7 +78,7 @@ function WorldMap() {
         setFetched(true);
         if (error) {
           if (error.code === 401) {
-            const newToken = await photosSignIn(dispatch);
+            const newToken = await photosSignIn(handleSignIn);
             getPhotosOnDate(newToken, null, periods)
               .then(({ photos }) => {
                 if (photos?.mediaItems) {

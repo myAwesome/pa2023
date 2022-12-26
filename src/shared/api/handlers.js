@@ -1,4 +1,3 @@
-import { SET_USER_THEME } from '../redux/rootReducer';
 import * as api from './routes';
 
 const safeAction = (action, callback) => {
@@ -15,25 +14,23 @@ const safeAction = (action, callback) => {
     });
 };
 
-export function getUser(dispatch) {
+export function getUser(dispatch, handleUserThemeChanged) {
   return safeAction(
     api.getUser,
     (json) => {
       const theme = JSON.parse(json.data.theme || '{}') || {};
-      localStorage.setItem('theme', JSON.stringify(theme));
-      dispatch({ type: SET_USER_THEME, payload: theme });
+      handleUserThemeChanged(theme);
     },
     dispatch,
   );
 }
 
-export function editUserAction(dispatch, { data }) {
+export function editUserAction(dispatch, handleUserThemeChanged, { data }) {
   return safeAction(
     () => api.putUser(data),
     () => {
       if (data.theme) {
-        localStorage.setItem('theme', data.theme);
-        dispatch({ type: SET_USER_THEME, payload: JSON.parse(data.theme) });
+        handleUserThemeChanged(JSON.parse(data.theme));
       }
     },
     dispatch,

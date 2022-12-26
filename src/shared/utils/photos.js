@@ -1,5 +1,3 @@
-import { USER_SIGN_IN, GOOGLE_USER_SIGN_OUT } from '../redux/photosReducer';
-
 export const getPhotosOnDate = async (
   authToken,
   date,
@@ -76,7 +74,7 @@ const getClient = (callback) => {
   return client;
 };
 
-export const photosSignIn = (dispatch) => {
+export const photosSignIn = (handleUserSignIn) => {
   if (window.google) {
     return new Promise((resolve) => {
       let googleClient = getClient((tokenResponse) => {
@@ -86,14 +84,11 @@ export const photosSignIn = (dispatch) => {
         })
           .then((resp) => resp.json())
           .then((resp) => {
-            dispatch({
-              type: USER_SIGN_IN,
-              payload: {
-                token: access_token,
-                name: resp.name,
-                imageUrl: resp.picture,
-                expiresAt: Date.now() + tokenResponse.expires_in * 1000,
-              },
+            handleUserSignIn({
+              token: access_token,
+              name: resp.name,
+              imageUrl: resp.picture,
+              expiresAt: Date.now() + tokenResponse.expires_in * 1000,
             });
           })
           .catch(console.log);
@@ -106,9 +101,9 @@ export const photosSignIn = (dispatch) => {
   }
 };
 
-export const photosVerifyToken = async (googleUser, dispatch) => {
+export const photosVerifyToken = async (googleUser, handleSignOut) => {
   if (!!googleUser?.token && Date.now() < googleUser.expiresAt) {
     return true;
   }
-  dispatch({ type: GOOGLE_USER_SIGN_OUT });
+  handleSignOut();
 };

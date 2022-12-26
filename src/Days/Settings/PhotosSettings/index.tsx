@@ -1,19 +1,18 @@
-import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useContext } from 'react';
 import { Avatar, Grid, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import { photosSignIn, photosVerifyToken } from '../../../shared/utils/photos';
+import GPhotosContext from '../../../shared/context/GPhotosContext';
 
 const PhotosSettings = () => {
-  const googleUser = useSelector(
-    (state: {
-      photos: { isLoggedIn: boolean; imageUrl: string; name: string };
-    }) => state.photos,
-  );
-  const dispatch = useDispatch();
+  const {
+    handleSignIn,
+    handleSignOut,
+    value: googleUser,
+  } = useContext(GPhotosContext);
 
   React.useEffect(() => {
-    photosVerifyToken(googleUser, dispatch);
+    photosVerifyToken(googleUser, handleSignOut);
   }, []);
 
   return (
@@ -34,13 +33,13 @@ const PhotosSettings = () => {
               </Grid>
             </Grid>
             <Grid item xs={12}>
-              <Button onClick={() => photosSignIn(dispatch)}>
+              <Button onClick={() => photosSignIn(handleSignIn)}>
                 Change user
               </Button>
             </Grid>
           </Grid>
         ) : (
-          <Button onClick={() => photosSignIn(dispatch)}>
+          <Button onClick={() => photosSignIn(handleSignIn)}>
             Connect to Google Photos
           </Button>
         )}

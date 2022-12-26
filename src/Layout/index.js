@@ -1,6 +1,4 @@
-import React, { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router';
+import React, { useContext } from 'react';
 import { styled } from '@mui/material/styles';
 import { Menu, ChevronLeft, ExitToApp } from '@mui/icons-material';
 import {
@@ -17,8 +15,10 @@ import {
   Container,
   Box,
 } from '@mui/material';
-import { getUser } from '../shared/api/handlers';
-import { USER_SIGN_OUT } from '../shared/redux/photosReducer';
+import { useQuery } from '@tanstack/react-query';
+import { getUser } from '../shared/api/routes';
+import GPhotosContext from '../shared/context/GPhotosContext';
+import UIContext from '../shared/context/UIContext';
 import LayoutToolbar from './LayoutToolbar';
 import TasksInProgress from './TasksInProgress';
 import Reminder from './Reminder';
@@ -93,18 +93,19 @@ const Drawer = styled(MuiDrawer, {
 const Layout = ({ children }) => {
   const [open, setOpen] = React.useState(false);
 
-  const { userTheme } = useSelector((state) => state.root);
-  const dispatch = useDispatch();
+  const { userTheme, handleUserThemeChanged } = useContext(UIContext);
+  const { handleUserLoggedOut } = useContext(GPhotosContext);
 
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    getUser(dispatch);
-  }, [dispatch]);
+  useQuery(['user'], () => {
+    return getUser().then((data) => {
+      const theme = JSON.parse(data.theme || '{}') || {};
+      handleUserThemeChanged(theme);
+      return data;
+    });
+  });
 
   const handleLogout = () => {
-    dispatch({ type: USER_SIGN_OUT });
-    navigate('/auth/login');
+    handleUserLoggedOut();
   };
 
   return (

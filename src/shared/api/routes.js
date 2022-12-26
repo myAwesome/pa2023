@@ -178,5 +178,7 @@ export const putPeriod = (id, values) => {
   return apiLocalPutRequest(`periods/${id}`, data).then((resp) => resp.data);
 };
 
-export const getUser = () => apiLocalGetRequest(`user`);
-export const putUser = (data) => apiLocalPutRequest(`user`, data);
+export const getUser = () =>
+  apiLocalGetRequest(`user`).then((resp) => resp.data);
+export const putUser = (data) =>
+  apiLocalPutRequest(`user`, data).then((resp) => resp.data);

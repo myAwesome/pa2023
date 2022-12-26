@@ -2,7 +2,6 @@ import React, { FormEvent, Fragment } from 'react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { useDispatch } from 'react-redux';
 import Chip from '@mui/material/Chip';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
@@ -29,24 +28,16 @@ type Props = {
   post: PostType;
   labels: LabelType[];
   searchTerm?: string;
-  oauthToken: string;
   invalidateQueries?: string[];
 };
 
-const PostShow = ({
-  post,
-  labels,
-  searchTerm,
-  oauthToken,
-  invalidateQueries,
-}: Props) => {
+const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
   const [deleteMode, setDeletedMode] = React.useState(false);
   const [isCommentOpen, setCommentOpen] = React.useState(false);
   const [isEdit, setIsEdit] = React.useState(false);
   const [updateDate, setUpdateDate] = React.useState(
     dayjs(post.date).format('YYYY-MM-DD'),
   );
-  const dispatch = useDispatch();
   const deletePostMutation = useDeleteMutation(
     () => deletePost(post.id),
     invalidateQueries,
@@ -311,11 +302,7 @@ const PostShow = ({
               ))}
             </Grid>
           ) : null}
-          <PostPhotos
-            oauthToken={oauthToken}
-            date={post.date}
-            dispatch={dispatch}
-          />
+          <PostPhotos date={post.date} />
           {post.comments.map((comment) => (
             <PostComment key={comment.ID} comment={comment} />
           ))}

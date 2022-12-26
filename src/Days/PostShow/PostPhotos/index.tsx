@@ -1,21 +1,23 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import Button from '@mui/material/Button';
 import { Dialog, Grid, Typography, Box } from '@mui/material';
-import { Dispatch } from 'redux';
+import GPhotosContext from '../../../shared/context/GPhotosContext';
 import { getPhotosOnDate, photosSignIn } from '../../../shared/utils/photos';
 import { PhotoType } from '../../../shared/types';
 
 type Props = {
-  oauthToken: string;
   date: number;
-  dispatch: Dispatch;
 };
 
-const PostPhotos = ({ oauthToken, date, dispatch }: Props) => {
+const PostPhotos = ({ date }: Props) => {
   const [photos, setPhotos] = React.useState<PhotoType[]>([]);
   const [isFetched, setFetched] = React.useState(false);
   const [showImg, setShowImg] = React.useState('');
+  const {
+    handleSignIn,
+    value: { token: oauthToken },
+  } = useContext(GPhotosContext);
 
   const getPhotos = () => {
     getPhotosOnDate(oauthToken, date)
@@ -23,7 +25,7 @@ const PostPhotos = ({ oauthToken, date, dispatch }: Props) => {
         setFetched(true);
         if (error) {
           if (error.code === 401) {
-            const newToken = await photosSignIn(dispatch);
+            const newToken = await photosSignIn(handleSignIn);
             getPhotosOnDate(newToken, date)
               .then(({ photos }) => {
                 if (photos?.mediaItems) {
@@ -82,12 +84,6 @@ const PostPhotos = ({ oauthToken, date, dispatch }: Props) => {
       </Dialog>
     </Grid>
   );
-};
-
-PostPhotos.propTypes = {
-  dispatch: PropTypes.func.isRequired,
-  date: PropTypes.string.isRequired,
-  oauthToken: PropTypes.string.isRequired,
 };
 
 export default PostPhotos;

@@ -12,6 +12,16 @@ export const setItemToStorage = (key, value) => {
   }
 };
 
+export const removeItemFromStorage = (key) => {
+  try {
+    localStorage.removeItem(key);
+  } catch (err) {
+    console.log(err);
+    messageNode.innerHTML = 'Please, enable cookies to use our site';
+    messageNode.className = 'root-message';
+  }
+};
+
 export const getItemFromStorage = (key) => {
   try {
     return localStorage.getItem(key);

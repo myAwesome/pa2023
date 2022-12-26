@@ -8,16 +8,12 @@ import {
   SelectChangeEvent,
 } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import { useSelector } from 'react-redux';
 import PostShow from '../PostShow';
 import { getLabels, getMonth, getYears } from '../../shared/api/routes';
 import { PostType, YearMonthsType } from '../../shared/types';
 import Calendar from './Calendar';
 
 const DaysApp = () => {
-  const oauthToken = useSelector(
-    (state: { photos: { token: string } }) => state.photos.token,
-  );
   const [selectedMonth, setSelectedMonth] = React.useState('');
   const [selectedYear, setSelectedYear] = React.useState('');
   const labelsData = useQuery(['labels'], getLabels);
@@ -98,7 +94,6 @@ const DaysApp = () => {
               <span id={p.id} style={{ position: 'absolute', top: -100 }} />
               <PostShow
                 post={{ ...p, labels: p.labels || [] }}
-                oauthToken={oauthToken}
                 labels={labelsData.data || []}
                 invalidateQueries={['selected_month', selectedMonth]}
               />
