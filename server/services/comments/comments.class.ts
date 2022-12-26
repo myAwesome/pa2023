@@ -6,7 +6,7 @@ export class Comments extends Service {
   constructor(options: Partial<KnexServiceOptions>, app: Application) {
     super({
       ...options,
-      name: 'comments'
+      name: 'comments',
     });
   }
 }

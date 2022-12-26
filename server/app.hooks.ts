@@ -1,12 +1,24 @@
-// Application hooks that run for every service
-// Don't remove this comment. It's needed to format import lines nicely.
+import { HookContext } from '@feathersjs/feathers';
+import * as authentication from '@feathersjs/authentication';
+const { authenticate } = authentication.hooks;
+import { iffElse } from 'feathers-hooks-common';
+
+const userHook = async (context: HookContext) => {
+  if (context.service.options && context.service.options.userAware) {
+    context.data.user_id = context.params.user?.id;
+  }
+};
+
+const isAuthenticateNeed = async (context: HookContext) => {
+  return context.path !== 'authentication';
+};
 
 export default {
   before: {
-    all: [],
+    all: [iffElse(isAuthenticateNeed, [authenticate('jwt')], [])],
     find: [],
     get: [],
-    create: [],
+    create: [userHook],
     update: [],
     patch: [],
     remove: [],

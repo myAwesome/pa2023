@@ -1,4 +1,3 @@
-// Initializes the `wish` service on path `/wish`
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import createModel from '../../models/wish.model';
@@ -16,10 +15,11 @@ export default function (app: Application): void {
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate'),
+    userAware: true,
   };
 
   // Initialize our service with any options it requires
-  app.use('/wish', new Wish(options, app));
+  app.use('wish', new Wish(options, app));
 
   // Get our initialized service so that we can register hooks
   const service = app.service('wish');

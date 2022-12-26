@@ -1,21 +1,22 @@
 // Initializes the `periods` service on path `/periods`
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
-import { Periods } from './periods.class';
 import createModel from '../../models/periods.model';
+import { Periods } from './periods.class';
 import hooks from './periods.hooks';
 
 // Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
-    'periods': Periods & ServiceAddons<any>;
+    periods: Periods & ServiceAddons<any>;
   }
 }
 
 export default function (app: Application): void {
   const options = {
     Model: createModel(app),
-    paginate: app.get('paginate')
+    paginate: app.get('paginate'),
+    userAware: true,
   };
 
   // Initialize our service with any options it requires

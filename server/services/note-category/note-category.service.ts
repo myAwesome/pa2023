@@ -1,8 +1,8 @@
 // Initializes the `noteCategory` service on path `/note-category`
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
-import { NoteCategory } from './note-category.class';
 import createModel from '../../models/note-category.model';
+import { NoteCategory } from './note-category.class';
 import hooks from './note-category.hooks';
 
 // Add this service to the service type index
@@ -15,7 +15,8 @@ declare module '../../declarations' {
 export default function (app: Application): void {
   const options = {
     Model: createModel(app),
-    paginate: app.get('paginate')
+    paginate: app.get('paginate'),
+    userAware: true,
   };
 
   // Initialize our service with any options it requires
