@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {
   Divider,
   List,
@@ -20,10 +19,14 @@ import {
   Public,
 } from '@mui/icons-material';
 
-const LayoutToolbar = ({ open }) => {
+type Props = {
+  open: boolean;
+};
+
+const LayoutToolbar = ({ open }: Props) => {
   return (
     <List>
-      {open ? <ListSubheader component="spam"> Personal </ListSubheader> : null}
+      {open ? <ListSubheader component="span"> Personal </ListSubheader> : null}
       <MuiLink component={Link} to="/days" underline="none">
         <ListItemButton>
           <ListItemIcon>
@@ -65,7 +68,7 @@ const LayoutToolbar = ({ open }) => {
         </ListItemButton>
       </MuiLink>
       {open ? (
-        <ListSubheader component="spam"> Family </ListSubheader>
+        <ListSubheader component="span"> Family </ListSubheader>
       ) : (
         <Divider />
       )}
@@ -87,10 +90,6 @@ const LayoutToolbar = ({ open }) => {
       </MuiLink>
     </List>
   );
-};
-
-LayoutToolbar.propTypes = {
-  open: PropTypes.bool,
 };
 
 export default LayoutToolbar;

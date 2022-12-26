@@ -12,8 +12,9 @@ import { useNavigate } from 'react-router';
 import { useCreateMutation } from '../../shared/hooks/useCreateMutation';
 import {
   getTransactionsCategories,
-  postTransactionsToMonthAndYear,
+  postTransaction,
 } from '../../shared/api/routes';
+import { TransactionCategoryType, TransactionType } from '../../shared/types';
 
 const initialValues = { description: '', amount: '', category: 31 };
 
@@ -30,14 +31,10 @@ const TransactionsCreate = () => {
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const createMutation = useCreateMutation(
-    (vals) =>
-      postTransactionsToMonthAndYear(
-        thisYear,
-        dayjs().month(thisMonth).format('M'),
-        vals,
-      ),
+    (vals: TransactionType) => postTransaction(vals),
     ['transactions', thisYear, thisMonth],
-    (old, vals) => (old ? [...old, vals] : old),
+    (old: TransactionType[], vals: TransactionType) =>
+      old ? [...old, vals] : old,
     () => {
       setValues(initialValues);
       if (isMobile) {
@@ -46,7 +43,9 @@ const TransactionsCreate = () => {
     },
   );
 
-  const handleChange = (e) => {
+  const handleChange = (e: {
+    target: { name: string; value: number | string };
+  }) => {
     setValues({ ...values, [e.target.name]: e.target.value });
   };
 
@@ -56,6 +55,7 @@ const TransactionsCreate = () => {
       amount: +values.amount,
     };
 
+    // @ts-ignore
     createMutation.mutate(data);
   };
 
@@ -71,7 +71,11 @@ const TransactionsCreate = () => {
                   handleChange({ target: { value: id, name: 'category' } })
                 }
               >
-                {transCatsData.data?.find((c) => c.id === id)?.name}
+                {
+                  transCatsData.data?.find(
+                    (c: TransactionCategoryType) => c.id === id,
+                  )?.name
+                }
               </Button>
             </Grid>
           ))}
@@ -87,7 +91,7 @@ const TransactionsCreate = () => {
               <MenuItem value="">
                 <em>None</em>
               </MenuItem>
-              {transCatsData.data?.map((c) => (
+              {transCatsData.data?.map((c: TransactionCategoryType) => (
                 <MenuItem key={c.id} value={c.id}>
                   {c.name}
                 </MenuItem>

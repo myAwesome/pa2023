@@ -6,14 +6,15 @@ import { Box } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import { useCreateMutation } from '../../shared/hooks/useCreateMutation';
 import { postTask } from '../../shared/api/routes';
+import { TasksByStatus, TaskType } from '../../shared/types';
 
 const AddTask = () => {
   const params = useParams();
   const [newTaskName, setNewTaskName] = React.useState('');
   const createMutation = useCreateMutation(
-    (data) => postTask(data),
+    (data: TaskType) => postTask(data),
     ['tasks', params.id],
-    (old, payload) => ({
+    (old: TasksByStatus, payload: TaskType) => ({
       ...old,
       incoming: [{ ...payload, id: 'new' }, ...old.incoming],
     }),
@@ -30,9 +31,10 @@ const AddTask = () => {
       }}
       onSubmit={(e) => {
         e.preventDefault();
+        // @ts-ignore
         createMutation.mutate({
           body: newTaskName,
-          project_id: parseInt(params.id),
+          project_id: Number(params.id),
           status: 'incoming',
         });
       }}

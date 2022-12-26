@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {
   Typography,
   Button,
@@ -19,17 +18,19 @@ import { deleteWish, getWishes, putWish } from '../../shared/api/routes';
 import { useDeleteMutation } from '../../shared/hooks/useDeleteMutation';
 import WishEdit from '../WishEdit';
 import { useUpdateMutation } from '../../shared/hooks/useUpdateMutation';
+import { WishType } from '../../shared/types';
 
 const WishList = () => {
   const { data: wishes, isLoading } = useQuery(['wishes'], getWishes);
-  const [showImg, setShowImg] = React.useState(null);
+  const [showImg, setShowImg] = React.useState<string>('');
   const [shouldHideDone, setHideDone] = React.useState(true);
   const [wishesToShow, setWishesToShow] = React.useState([]);
+  const [wishToEdit, setWishToEdit] = React.useState<WishType | null>(null);
 
   React.useEffect(() => {
     if (wishes && !isLoading) {
       if (shouldHideDone) {
-        setWishesToShow(wishes.filter((w) => !w.isDone));
+        setWishesToShow(wishes.filter((w: WishType) => !w.isDone));
       } else {
         setWishesToShow(wishes);
       }
@@ -37,20 +38,18 @@ const WishList = () => {
   }, [wishes, shouldHideDone, isLoading]);
 
   const removeWishMutation = useDeleteMutation(
-    (id) => deleteWish(id),
+    (id: string) => deleteWish(id),
     ['wishes'],
   );
-
-  const [wishToEdit, setWishToEdit] = React.useState(null);
 
   const editWishMutation = useUpdateMutation(
-    ({ id, ...values }) => putWish(id, values),
+    ({ id, ...values }: WishType) => putWish(id, values),
     ['wishes'],
     'id-from-payload',
-    ({ id, ...values }) => ({ id, ...values }),
+    ({ id, ...values }: WishType) => ({ id, ...values }),
   );
 
-  const openEditPopup = (w) => {
+  const openEditPopup = (w: WishType) => {
     setWishToEdit(w);
   };
 
@@ -72,7 +71,7 @@ const WishList = () => {
         />
       </FormControl>
       <Grid container spacing={2}>
-        {wishesToShow.map((w) => {
+        {wishesToShow.map((w: WishType) => {
           const isMine = true;
           return (
             <Grid key={w.id} item sx={{ width: { xs: '100%', sm: 400 } }}>
@@ -108,15 +107,19 @@ const WishList = () => {
                     Edit
                   </Button>
                   <Button
-                    onClick={() =>
-                      editWishMutation.mutate({ id: w.id, ...w, isDone: true })
-                    }
+                    onClick={() => {
+                      // @ts-ignore
+                      editWishMutation.mutate({ id: w.id, ...w, isDone: true });
+                    }}
                     disabled={!isMine || w.isDone}
                   >
                     Done
                   </Button>
                   <Button
-                    onClick={() => removeWishMutation.mutate(w.id)}
+                    onClick={() => {
+                      // @ts-ignore
+                      removeWishMutation.mutate(w.id);
+                    }}
                     disabled={!isMine}
                   >
                     Delete
@@ -126,7 +129,7 @@ const WishList = () => {
             </Grid>
           );
         })}
-        <Dialog open={!!showImg} onClose={() => setShowImg(null)}>
+        <Dialog open={!!showImg} onClose={() => setShowImg('')}>
           <img
             src={showImg}
             style={{
@@ -138,20 +141,16 @@ const WishList = () => {
         </Dialog>
       </Grid>
       <WishEdit
-        onSubmit={editWishMutation.mutate}
+        onSubmit={(val) => {
+          // @ts-ignore
+          editWishMutation.mutate(val);
+        }}
         handleClose={handleCloseEdit}
         isOpen={!!wishToEdit}
         wish={wishToEdit}
       />
     </div>
   );
-};
-
-WishList.propTypes = {
-  wishes: PropTypes.array,
-  editWish: PropTypes.func,
-  openEditPopup: PropTypes.func,
-  onSubmit: PropTypes.func,
 };
 
 export default WishList;

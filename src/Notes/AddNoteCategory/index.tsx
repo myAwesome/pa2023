@@ -1,10 +1,22 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { TextField, Button, Grid } from '@mui/material';
+import { NoteCategoryType } from '../../shared/types';
 
-const initialState = { name: '' };
+const initialState = { name: '', id: '' };
 
-const AddNoteCategory = ({ handleSubmit, initialValues, handleCancel }) => {
+type InitialValues = Omit<NoteCategoryType, 'note_count'>;
+
+type Props = {
+  handleSubmit: (val: InitialValues) => void;
+  initialValues: InitialValues | null;
+  handleCancel: () => void;
+};
+
+const AddNoteCategory = ({
+  handleSubmit,
+  initialValues,
+  handleCancel,
+}: Props) => {
   const [values, setValues] = React.useState(initialValues || initialState);
 
   React.useEffect(() => {
@@ -44,10 +56,6 @@ const AddNoteCategory = ({ handleSubmit, initialValues, handleCancel }) => {
       </Grid>
     </form>
   );
-};
-
-AddNoteCategory.propTypes = {
-  handleSubmit: PropTypes.func,
 };
 
 export default AddNoteCategory;

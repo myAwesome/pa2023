@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {
   Button,
   Dialog,
@@ -10,8 +9,21 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
+import { NoteType } from '../../shared/types';
 
-const AddNote = ({ isOpen, initialValue, handleCancel, handleSubmit }) => {
+type Props = {
+  isOpen: boolean;
+  initialValue: string;
+  handleCancel: () => void;
+  handleSubmit: (val: Omit<NoteType, 'id' | 'note_category'>) => void;
+};
+
+const AddNote = ({
+  isOpen,
+  initialValue,
+  handleCancel,
+  handleSubmit,
+}: Props) => {
   const [text, setText] = React.useState(initialValue || '');
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -58,13 +70,6 @@ const AddNote = ({ isOpen, initialValue, handleCancel, handleSubmit }) => {
       </DialogActions>
     </Dialog>
   );
-};
-
-AddNote.propTypes = {
-  isOpen: PropTypes.bool,
-  initialValue: PropTypes.string,
-  handleSubmit: PropTypes.func,
-  handleCancel: PropTypes.func,
 };
 
 export default AddNote;

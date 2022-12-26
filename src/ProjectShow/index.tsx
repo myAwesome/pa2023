@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ChangeEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
@@ -17,43 +17,47 @@ import {
 } from '../shared/api/routes';
 import { useUpdateMutation } from '../shared/hooks/useUpdateMutation';
 import { useDeleteMutation } from '../shared/hooks/useDeleteMutation';
+import { TasksByStatus, TaskStatus, TaskType } from '../shared/types';
 import AddTIL from './AddTIL';
 import AddTask from './AddTask';
 
 const Project = () => {
   const params = useParams();
-  const [menuAnchorElement, setMenuAnchorElement] = React.useState(null);
-  const [pressedTask, setPressedTask] = React.useState(null);
-  const [editedTask, setEditedTask] = React.useState(null);
-  const [editedTaskValue, setEditedTaskValue] = React.useState(null);
-  const [taskForModal, setTaskForModal] = React.useState(null);
+  const [menuAnchorElement, setMenuAnchorElement] =
+    React.useState<HTMLButtonElement | null>(null);
+  const [pressedTask, setPressedTask] = React.useState<TaskType | null>(null);
+  const [editedTask, setEditedTask] = React.useState<TaskType | null>(null);
+  const [editedTaskValue, setEditedTaskValue] = React.useState<string | null>(
+    null,
+  );
+  const [taskForModal, setTaskForModal] = React.useState<TaskType | null>(null);
   const projectData = useQuery(['project', params.id], () =>
     getProject(params.id),
   );
   const tasksData = useQuery(['tasks', params.id], () => getTasks(params.id));
   const editMutation = useUpdateMutation(
-    ({ id, ...values }) => editTask(id, values),
+    ({ id, ...values }: TaskType) => editTask(id, values),
     ['tasks', params.id],
     null,
-    (val) => val,
+    (val: TaskType) => val,
     () => {
       setEditedTask(null);
       setEditedTaskValue(null);
     },
     ['in_progress'],
-    (old, payload) => {
+    (old: TasksByStatus, payload: TaskType) => {
       const entries = Object.entries(old);
       let taskIndex;
-      let status;
+      let status: TaskStatus | undefined;
       for (let i = 0; i < entries.length; i++) {
         const [key, values] = entries[i];
         taskIndex = values.findIndex((t) => t.id === payload.id);
         if (taskIndex >= 0) {
-          status = key;
+          status = key as TaskStatus;
           break;
         }
       }
-      if (status && taskIndex >= 0) {
+      if (status && taskIndex && taskIndex >= 0) {
         if (payload.archived) {
           old[status] = old[status].filter((t) => t.id !== payload.id);
         } else if (payload.status && payload.status !== status) {
@@ -69,14 +73,16 @@ const Project = () => {
     },
   );
   const deleteMutation = useDeleteMutation(
-    (id) => deleteTask(id),
+    (id: string) => deleteTask(id),
     ['tasks', params.id],
     null,
     () => {},
     ['in_progress'],
-    (old, id) => {
+    (old: TasksByStatus, id: string) => {
       Object.keys(old).forEach((key) => {
-        old[key] = old[key].filter((t) => t.id !== id);
+        old[key as TaskStatus] = old[key as TaskStatus].filter(
+          (t) => t.id !== id,
+        );
       });
     },
   );
@@ -86,38 +92,42 @@ const Project = () => {
     setMenuAnchorElement(null);
   };
 
-  const handleMoreClick = (task, element) => {
+  const handleMoreClick = (task: TaskType, element: HTMLButtonElement) => {
     setPressedTask(task);
     setMenuAnchorElement(element);
   };
 
-  const handleStatusChange = (task, status) => {
+  const handleStatusChange = (task: TaskType, status: TaskStatus) => {
     handleMenuClose();
+    // @ts-ignore
     editMutation.mutate({ id: task.id, status });
   };
 
-  const handleEdit = (task) => {
+  const handleEdit = (task: TaskType) => {
     handleMenuClose();
     setEditedTask(task);
     setEditedTaskValue(task.body);
   };
 
-  const handleArchive = (task) => {
+  const handleArchive = (task: TaskType) => {
     handleMenuClose();
+    // @ts-ignore
     editMutation.mutate({ id: task.id, archived: true });
   };
 
-  const handleDelete = (task) => {
+  const handleDelete = (task: TaskType) => {
     handleMenuClose();
+    // @ts-ignore
     deleteMutation.mutate(task.id);
   };
 
-  const handleChangePriority = (task, increment) => {
+  const handleChangePriority = (task: TaskType, increment: number) => {
     handleMenuClose();
+    // @ts-ignore
     editMutation.mutate({ id: task.id, priority: task.priority + increment });
   };
 
-  const handleOpenTILModal = (task) => {
+  const handleOpenTILModal = (task: TaskType) => {
     handleMenuClose();
     setTaskForModal(task);
   };
@@ -126,11 +136,12 @@ const Project = () => {
     setTaskForModal(null);
   };
 
-  const handleChangeTask = (e) => {
+  const handleChangeTask = (e: ChangeEvent<HTMLInputElement>) => {
     setEditedTaskValue(e.target.value);
   };
 
   const handleSubmitTaskEdit = () => {
+    // @ts-ignore
     editMutation.mutate({ id: editedTask.id, body: editedTaskValue });
   };
 
@@ -179,7 +190,7 @@ const Project = () => {
                 <Typography color="primary"> {key} </Typography>
               </Paper>
             </Grid>
-            {tasksData.data[key].map((task) => (
+            {tasksData.data?.[key as TaskStatus].map((task) => (
               <Grid item key={task.id}>
                 <Paper
                   sx={{
@@ -254,43 +265,51 @@ const Project = () => {
       <Menu
         anchorEl={menuAnchorElement}
         open={Boolean(menuAnchorElement)}
-        onClose={handleMenuClose.bind(this)}
+        onClose={handleMenuClose}
       >
-        <ListItem onClick={() => handleOpenTILModal(pressedTask)}>
+        <ListItem onClick={() => handleOpenTILModal(pressedTask!)}>
           Today I learned
         </ListItem>
         <Divider />
-        <ListItem onClick={() => handleChangePriority(pressedTask, 1)}>
+        <ListItem onClick={() => handleChangePriority(pressedTask!, 1)}>
           Up priority
         </ListItem>
-        <ListItem onClick={() => handleChangePriority(pressedTask, -1)}>
+        <ListItem onClick={() => handleChangePriority(pressedTask!, -1)}>
           Down priority
         </ListItem>
         <Divider />
-        <ListItem onClick={() => handleStatusChange(pressedTask, 'incoming')}>
+        <ListItem
+          onClick={() => handleStatusChange(pressedTask!, TaskStatus.INCOMING)}
+        >
           Incoming
         </ListItem>
-        <ListItem onClick={() => handleStatusChange(pressedTask, 'todo')}>
+        <ListItem
+          onClick={() => handleStatusChange(pressedTask!, TaskStatus.TODO)}
+        >
           Todo
         </ListItem>
         <ListItem
-          onClick={() => handleStatusChange(pressedTask, 'in_progress')}
+          onClick={() =>
+            handleStatusChange(pressedTask!, TaskStatus.IN_PROGRESS)
+          }
         >
           InProgress
         </ListItem>
-        <ListItem onClick={() => handleStatusChange(pressedTask, 'done')}>
+        <ListItem
+          onClick={() => handleStatusChange(pressedTask!, TaskStatus.DONE)}
+        >
           Done
         </ListItem>
         <Divider />
-        <ListItem onClick={() => handleEdit(pressedTask)}>Edit</ListItem>
-        <ListItem onClick={() => handleArchive(pressedTask)}>Archive</ListItem>
-        <ListItem onClick={() => handleDelete(pressedTask)}>Delete</ListItem>
+        <ListItem onClick={() => handleEdit(pressedTask!)}>Edit</ListItem>
+        <ListItem onClick={() => handleArchive(pressedTask!)}>Archive</ListItem>
+        <ListItem onClick={() => handleDelete(pressedTask!)}>Delete</ListItem>
       </Menu>
       <AddTIL
         isOpen={Boolean(taskForModal)}
         handleClose={handleCloseTILModal}
         task={taskForModal}
-        projectId={params.id}
+        projectId={params.id || ''}
       />
     </Box>
   );

@@ -29,6 +29,8 @@ const Row = ({
     () => {
       setIsDelete(false);
     },
+    null,
+    (val: any) => val,
   );
   return isDelete ? (
     <TableRow>

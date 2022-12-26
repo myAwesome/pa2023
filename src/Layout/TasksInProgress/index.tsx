@@ -1,9 +1,9 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router';
 import { Grid, Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { getInProgress } from '../../shared/api/routes';
+import { TaskType } from '../../shared/types';
 
 const TasksInProgress = () => {
   const inProgressData = useQuery(['in_progress'], () => getInProgress());
@@ -11,10 +11,9 @@ const TasksInProgress = () => {
 
   return inProgressData.data?.length > 0 ? (
     <Grid container>
-      {inProgressData.data.map((task) => (
+      {inProgressData.data.map((task: TaskType) => (
         <Grid item key={task.id}>
           <Typography
-            variant="b"
             sx={{
               cursor: 'pointer',
             }}
@@ -26,10 +25,6 @@ const TasksInProgress = () => {
       ))}
     </Grid>
   ) : null;
-};
-
-TasksInProgress.propTypes = {
-  inProgress: PropTypes.array,
 };
 
 export default TasksInProgress;

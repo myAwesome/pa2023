@@ -43,10 +43,10 @@ const apiLocalDeleteRequest = (url) =>
   apiDeleteRequest(`${LOCAL}/api/${url}`, authConfig()).catch(redirectUnauth);
 
 export const getTransactionsByMonthAndYear = (year, month) =>
-  apiLocalGetRequest(`transactions?y=${year}&m=${month}`).then(
+  apiLocalGetRequest(`transactions?y=${year}&m=${month + 1}`).then(
     (resp) => resp.data,
   );
-export const postTransactionsToMonthAndYear = (year, month, data) =>
+export const postTransaction = (data) =>
   apiLocalPostRequest(`transactions`, data).then((resp) => resp.data);
 export const putTransaction = (id, data) =>
   apiLocalPutRequest(`transactions/${id}`, data).then((resp) => resp.data);

@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {
   TextField,
   Checkbox,
@@ -7,8 +6,15 @@ import {
   Grid,
   FormControlLabel,
 } from '@mui/material';
+import { ProjectType } from '../../shared/types';
 
-const AddProject = ({ handleSubmit, initialValues, handleCancel }) => {
+type Props = {
+  handleSubmit: (vals: Omit<ProjectType, 'id'>) => void;
+  initialValues: ProjectType | null;
+  handleCancel: () => void;
+};
+
+const AddProject = ({ handleSubmit, initialValues, handleCancel }: Props) => {
   const [values, setValues] = React.useState(
     initialValues || { title: '', description: '', archived: false },
   );
@@ -67,10 +73,6 @@ const AddProject = ({ handleSubmit, initialValues, handleCancel }) => {
       </Grid>
     </form>
   );
-};
-
-AddProject.propTypes = {
-  handleSubmit: PropTypes.func,
 };
 
 export default AddProject;

@@ -1,8 +1,14 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Button, FormGroup, TextField, Box } from '@mui/material';
+import { WishType } from '../../shared/types';
 
-const WishForm = ({ onSubmit, handleChange, values }) => {
+type Props = {
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSubmit: (e: React.FormEvent) => void;
+  values: Omit<WishType, 'id' | 'isDone' | 'createdAt'>;
+};
+
+const WishForm = ({ onSubmit, handleChange, values }: Props) => {
   return (
     <form onSubmit={onSubmit}>
       <FormGroup
@@ -83,12 +89,6 @@ const WishForm = ({ onSubmit, handleChange, values }) => {
       </FormGroup>
     </form>
   );
-};
-
-WishForm.propTypes = {
-  handleChange: PropTypes.func,
-  onSubmit: PropTypes.func,
-  values: PropTypes.object,
 };
 
 export default WishForm;

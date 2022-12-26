@@ -16,9 +16,9 @@ import EditRow from './EditRow';
 type Props = {
   items: TableItemType[];
   columns: ColumnType[];
-  isAdd: boolean;
-  onAddSubmit: (vals: TableItemType) => void;
-  cancelAdd: () => void;
+  isAdd?: boolean;
+  onAddSubmit?: (vals: TableItemType) => void;
+  cancelAdd?: () => void;
   editMutationFn: (vals: TableItemType) => void;
   deleteMutationFn: (id: string) => void;
   getNewItemFn: (vals: TableItemType) => Record<string, any>;
@@ -85,7 +85,7 @@ const EditableTable = ({
               />
             ),
           )}
-          {isAdd && (
+          {isAdd && onAddSubmit && cancelAdd && (
             <EditRow
               item={{}}
               onSubmit={onAddSubmit}

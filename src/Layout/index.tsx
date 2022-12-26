@@ -1,8 +1,7 @@
-import React, { useContext } from 'react';
+import React, { PropsWithChildren, useContext } from 'react';
 import { styled } from '@mui/material/styles';
 import { Menu, ChevronLeft, ExitToApp } from '@mui/icons-material';
 import {
-  AppBar as MuiAppBar,
   IconButton,
   Toolbar,
   ListItemText,
@@ -14,7 +13,10 @@ import {
   ThemeProvider,
   Container,
   Box,
+  Theme,
+  CSSObject,
 } from '@mui/material';
+import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import { useQuery } from '@tanstack/react-query';
 import { getUser } from '../shared/api/routes';
 import GPhotosContext from '../shared/context/GPhotosContext';
@@ -25,7 +27,7 @@ import Reminder from './Reminder';
 
 const drawerWidth = 183;
 
-const openedMixin = (theme) => ({
+const openedMixin = (theme: Theme): CSSObject => ({
   width: drawerWidth,
   transition: theme.transitions.create('width', {
     easing: theme.transitions.easing.sharp,
@@ -34,7 +36,7 @@ const openedMixin = (theme) => ({
   overflowX: 'hidden',
 });
 
-const closedMixin = (theme) => ({
+const closedMixin = (theme: Theme): CSSObject => ({
   transition: theme.transitions.create('width', {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
@@ -55,9 +57,13 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   ...theme.mixins.toolbar,
 }));
 
+interface AppBarProps extends MuiAppBarProps {
+  open?: boolean;
+}
+
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
+})<AppBarProps>(({ theme, open }) => ({
   zIndex: theme.zIndex.drawer + 1,
   transition: theme.transitions.create(['width', 'margin'], {
     easing: theme.transitions.easing.sharp,
@@ -90,7 +96,7 @@ const Drawer = styled(MuiDrawer, {
   }),
 }));
 
-const Layout = ({ children }) => {
+const Layout = ({ children }: PropsWithChildren) => {
   const [open, setOpen] = React.useState(false);
 
   const { userTheme, handleUserThemeChanged } = useContext(UIContext);

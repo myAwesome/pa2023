@@ -3,17 +3,21 @@ import { Chart } from 'react-google-charts';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { useQuery } from '@tanstack/react-query';
+import { SelectChangeEvent } from '@mui/material';
 import {
   getTransactionsCategories,
   getTransactionsStatistics,
 } from '../../shared/api/routes';
+import { TransactionCategoryType } from '../../shared/types';
 
 const TransactionsStatistics = () => {
   const [selectedCategories, setSelectedCategories] = React.useState([
     'Продукты',
   ]);
-  const [data, setData] = React.useState([]);
-  const [chartData, setChartData] = React.useState([]);
+  const [data, setData] = React.useState<any[]>([]);
+  const [chartData, setChartData] = React.useState<
+    ([string, number] | [string])[]
+  >([]);
   const transCatsData = useQuery(
     ['transactions_categories'],
     getTransactionsCategories,
@@ -23,10 +27,10 @@ const TransactionsStatistics = () => {
   );
 
   const getChartData = React.useCallback(
-    (d, cats) => {
-      const cD = [];
-      const grouped = {};
-      d.forEach((i) => {
+    (d: any, cats: string[]) => {
+      const cD: ([string, number] | [string])[] = [];
+      const grouped: Record<string, any> = {};
+      d.forEach((i: any) => {
         if (grouped[i.Date]) {
           grouped[i.Date].push(i);
         } else {
@@ -34,12 +38,14 @@ const TransactionsStatistics = () => {
         }
       });
       Object.entries(grouped).forEach(([month, trans]) => {
-        const row = [month];
+        const row: [string, number] | [string] = [month];
         cats.forEach((cat) => {
-          const category = transCatsData.data.find(({ name }) => name === cat);
+          const category = transCatsData.data.find(
+            ({ name }: TransactionCategoryType) => name === cat,
+          );
           row.push(
-            trans.find((mC) => mC.Category === category?.id.toString())?.Sum ||
-              0,
+            trans.find((mC: any) => mC.Category === category?.id.toString())
+              ?.Sum || 0,
           );
         });
         cD.push(row);
@@ -57,9 +63,9 @@ const TransactionsStatistics = () => {
     });
   }, []);
 
-  const handleSelect = (e) => {
-    setSelectedCategories(e.target.value);
-    getChartData(data, e.target.value);
+  const handleSelect = (e: SelectChangeEvent<string[]>) => {
+    setSelectedCategories(e.target.value as string[]);
+    getChartData(data, e.target.value as string[]);
   };
 
   return (
@@ -72,7 +78,7 @@ const TransactionsStatistics = () => {
         value={selectedCategories}
         onChange={handleSelect}
       >
-        {transCatsData.data.map((cat) => (
+        {transCatsData.data.map((cat: TransactionCategoryType) => (
           <MenuItem key={cat.id} value={cat.name}>
             {cat.name}
           </MenuItem>

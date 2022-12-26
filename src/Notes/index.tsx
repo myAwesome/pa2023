@@ -27,29 +27,32 @@ import {
 import { useCreateMutation } from '../shared/hooks/useCreateMutation';
 import { useUpdateMutation } from '../shared/hooks/useUpdateMutation';
 import { useDeleteMutation } from '../shared/hooks/useDeleteMutation';
+import { NoteCategoryType } from '../shared/types';
 import AddNoteCategory from './AddNoteCategory';
 
 const NoteCategories = () => {
   const [isAdd, setIsAdd] = React.useState(false);
-  const [noteCategoryToEdit, setNoteCategoryToEdit] = React.useState(null);
-  const [noteCategoryToDelete, setNoteCategoryToDelete] = React.useState(null);
+  const [noteCategoryToEdit, setNoteCategoryToEdit] =
+    React.useState<NoteCategoryType | null>(null);
+  const [noteCategoryToDelete, setNoteCategoryToDelete] =
+    React.useState<NoteCategoryType | null>(null);
   const theme = useTheme();
   const navigate = useNavigate();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const noteCategoriesData = useQuery(['note_categories'], getNoteCategories);
   const addMutation = useCreateMutation(
-    (val) => postNoteCategory(val),
+    (val: Omit<NoteCategoryType, 'id'>) => postNoteCategory(val),
     ['note_categories'],
-    (old, vals) => [...old, vals],
+    (old: NoteCategoryType[], vals: NoteCategoryType) => [...old, vals],
     () => {
       setIsAdd(false);
     },
   );
   const editMutation = useUpdateMutation(
-    (vals) => putNoteCategory(noteCategoryToEdit?.id, vals),
+    (vals: NoteCategoryType) => putNoteCategory(noteCategoryToEdit?.id, vals),
     ['note_categories'],
     noteCategoryToEdit?.id,
-    (vals) => vals,
+    (vals: NoteCategoryType) => vals,
     () => {
       setNoteCategoryToEdit(null);
     },
@@ -68,21 +71,29 @@ const NoteCategories = () => {
     handleCancel,
   );
 
-  const handleSubmit = (values) => {
+  const handleSubmit = (values: Omit<NoteCategoryType, 'note_count'>) => {
     if (isAdd) {
-      addMutation.mutate(values);
+      // @ts-ignore
+      addMutation.mutate({ name: values.name });
     } else {
+      // @ts-ignore
       editMutation.mutate(values);
     }
   };
 
-  const handleEditClick = (e, note) => {
+  const handleEditClick = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    note: NoteCategoryType,
+  ) => {
     e.stopPropagation();
     setNoteCategoryToEdit(note);
     setIsAdd(false);
   };
 
-  const handleDeleteClick = (e, note) => {
+  const handleDeleteClick = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    note: NoteCategoryType,
+  ) => {
     e.stopPropagation();
     setNoteCategoryToDelete(note);
   };
@@ -94,7 +105,7 @@ const NoteCategories = () => {
         <div>Loading...</div>
       ) : (
         <List>
-          {noteCategoriesData.data.map((list) => (
+          {noteCategoriesData.data.map((list: NoteCategoryType) => (
             <ListItemButton
               key={list.id}
               onClick={() => navigate(`/notes/${list.id}`)}
@@ -136,7 +147,7 @@ const NoteCategories = () => {
       >
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete {noteCategoryToDelete?.title} with
+            Are you sure you want to delete {noteCategoryToDelete?.name} with
             all notes in it?
           </DialogContentText>
         </DialogContent>
@@ -144,7 +155,7 @@ const NoteCategories = () => {
           <Button onClick={handleCancel} variant="outlined">
             Nooo
           </Button>
-          <Button onClick={deleteMutation.mutate} variant="contained">
+          <Button onClick={() => deleteMutation.mutate()} variant="contained">
             Yes, delete
           </Button>
         </DialogActions>

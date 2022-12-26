@@ -1,20 +1,27 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { TextField, Button, Box } from '@mui/material';
 import Modal from '@mui/material/Modal';
 import { useUpdateMutation } from '../../shared/hooks/useUpdateMutation';
 import { editTask } from '../../shared/api/routes';
+import { TaskType } from '../../shared/types';
 
-const AddTIL = ({ isOpen, handleClose, task, projectId }) => {
+type Props = {
+  isOpen: boolean;
+  handleClose: () => void;
+  task: TaskType | null;
+  projectId: string;
+};
+
+const AddTIL = ({ isOpen, handleClose, task, projectId }: Props) => {
   const [value, setValue] = React.useState(task ? task.outcome : '');
   const editMutation = useUpdateMutation(
-    ({ id, ...values }) => editTask(id, values),
+    ({ id, ...values }: TaskType) => editTask(id, values),
     ['tasks', projectId],
     null,
-    (val) => val,
+    (val: TaskType) => val,
     handleClose,
     null,
-    (old) => old,
+    (old: TaskType) => old,
   );
 
   React.useEffect(() => {
@@ -22,6 +29,7 @@ const AddTIL = ({ isOpen, handleClose, task, projectId }) => {
   }, [task]);
 
   const submitTIL = () => {
+    // @ts-ignore
     editMutation.mutate({ id: task.id, outcome: value, today_i_learned: true });
   };
 
@@ -62,13 +70,6 @@ const AddTIL = ({ isOpen, handleClose, task, projectId }) => {
       </Box>
     </Modal>
   );
-};
-
-AddTIL.propTypes = {
-  isOpen: PropTypes.bool,
-  handleClose: PropTypes.func,
-  task: PropTypes.object,
-  projectId: PropTypes.string,
 };
 
 export default AddTIL;

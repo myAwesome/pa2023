@@ -67,4 +67,56 @@ export type TaskType = {
   created_at: string;
   priority: number;
   outcome: string;
+  project_id: string;
+  archived?: boolean;
+};
+
+export type NoteCategoryType = {
+  id: string;
+  name: string;
+  note_count: number;
+};
+
+export type NoteType = {
+  id: string;
+  body: string;
+  note_category: string;
+};
+
+export type ProjectType = {
+  id: string;
+  title: string;
+  description: string;
+  archived: boolean;
+};
+
+export type TasksByStatus = {
+  [TaskStatus.INCOMING]: TaskType[];
+  [TaskStatus.TODO]: TaskType[];
+  [TaskStatus.IN_PROGRESS]: TaskType[];
+  [TaskStatus.DONE]: TaskType[];
+};
+
+export type TransactionCategoryType = {
+  id: number;
+  name: string;
+};
+
+export type TransactionType = {
+  id: number;
+  amount: string;
+  description: string;
+  date: string;
+  category: number;
+  group_id: number;
+};
+
+export type WishType = {
+  id: string;
+  name: string;
+  picture: string;
+  priceFrom: number;
+  priceTo: number;
+  isDone: boolean;
+  createdAt: string;
 };

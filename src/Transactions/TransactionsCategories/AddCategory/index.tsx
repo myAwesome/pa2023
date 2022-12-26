@@ -3,6 +3,7 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import { useCreateMutation } from '../../../shared/hooks/useCreateMutation';
 import { postTransactionsCategories } from '../../../shared/api/routes';
+import { TransactionCategoryType } from '../../../shared/types';
 
 const TransactionsCategoriesCreate = () => {
   const [showInput, setShowInput] = React.useState(false);
@@ -10,14 +11,17 @@ const TransactionsCategoriesCreate = () => {
   const addMutation = useCreateMutation(
     () => postTransactionsCategories({ name: value }),
     ['transactions_categories'],
-    (old, val) => [...old, { id: 'new', ...val }],
+    (
+      old: TransactionCategoryType[],
+      val: Omit<TransactionCategoryType, 'id'>,
+    ) => [...old, { id: 'new', ...val }],
     () => {
       setValue('');
       toggleInput();
     },
   );
 
-  const handleText = (e) => {
+  const handleText = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
   };
 
@@ -43,7 +47,7 @@ const TransactionsCategoriesCreate = () => {
             value={value}
             onChange={handleText}
           />
-          <Button variant="outlined" onClick={addMutation.mutate}>
+          <Button variant="outlined" onClick={() => addMutation.mutate()}>
             Save
           </Button>
         </span>

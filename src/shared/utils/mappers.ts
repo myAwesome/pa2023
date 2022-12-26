@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { TaskType } from '../types';
+import { TasksByStatus, TaskType } from '../types';
 
 export const mapLabel = (label: {
   ID?: any;
@@ -45,11 +45,11 @@ export const mapPeriod = (period: {
 });
 
 export const mapTasksByStatus = (tasks: TaskType[]) => {
-  const tasksByStatus = {
-    incoming: [] as TaskType[],
-    todo: [] as TaskType[],
-    in_progress: [] as TaskType[],
-    done: [] as TaskType[],
+  const tasksByStatus: TasksByStatus = {
+    incoming: [],
+    todo: [],
+    in_progress: [],
+    done: [],
   };
   tasks.forEach((task) => {
     tasksByStatus[task.status].push({
@@ -59,6 +59,7 @@ export const mapTasksByStatus = (tasks: TaskType[]) => {
       created_at: task.created_at,
       priority: task.priority,
       outcome: task.outcome,
+      project_id: task.project_id,
     });
   });
   return tasksByStatus;

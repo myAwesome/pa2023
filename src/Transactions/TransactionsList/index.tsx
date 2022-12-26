@@ -1,6 +1,7 @@
 import React from 'react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import localeData from 'dayjs/plugin/localeData';
 import {
   Grid,
   MenuItem,
@@ -11,6 +12,7 @@ import {
   Button,
   useMediaQuery,
   useTheme,
+  SelectChangeEvent,
 } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
@@ -22,7 +24,9 @@ import {
   putTransaction,
   deleteTransaction,
 } from '../../shared/api/routes';
+import { TransactionCategoryType, TransactionType } from '../../shared/types';
 dayjs.extend(utc);
+dayjs.extend(localeData);
 
 const thisMonth = dayjs().format('MMMM');
 const thisYear = dayjs().year();
@@ -33,7 +37,7 @@ const mobileColumns = [
   {
     title: '',
     field: 'amount',
-    render: (row) => (
+    render: (row: any) => (
       <div>
         <div>
           <b>{row.amount}</b>
@@ -47,7 +51,7 @@ const mobileColumns = [
   {
     title: '',
     field: 'date',
-    render: (row) => (
+    render: (row: any) => (
       <div>
         <div>{row.category}</div>
         <div>
@@ -63,7 +67,7 @@ const categoryColumns = [
   {
     title: 'Percentage',
     field: 'percentage',
-    render: (row) => (
+    render: (row: any) => (
       <div style={{ width: `${row.percentage}%`, backgroundColor: '#af8f85' }}>
         {row.percentage}
       </div>
@@ -71,6 +75,14 @@ const categoryColumns = [
   },
   { title: 'Category', field: 'category' },
 ];
+
+type CollapsedTransactions = {
+  sum: number;
+  percentage: string;
+  category: string;
+};
+
+const monthsOfYear = dayjs.months();
 
 const getYears = () => {
   const years = [];
@@ -101,7 +113,7 @@ const TransactionsList = () => {
     () => {
       return getTransactionsByMonthAndYear(
         selectedYear,
-        dayjs().month(selectedMonth).format('M'),
+        monthsOfYear.indexOf(selectedMonth),
       );
     },
   );
@@ -109,24 +121,33 @@ const TransactionsList = () => {
     if (!transactionsData.data || !transCatsData.data) {
       return { transactions: [], transactionsByCat: [] };
     }
-    const newTransactions = transactionsData.data.reverse().map((tr) => ({
+    const newTransactions: (Omit<TransactionType, 'category'> & {
+      category: string;
+    })[] = transactionsData.data.reverse().map((tr: TransactionType) => ({
       ...tr,
-      category: transCatsData.data.find((c) => c.id === tr.category)?.name,
+      category: transCatsData.data.find(
+        (c: TransactionCategoryType) => c.id === tr.category,
+      )?.name,
     }));
     const newTotal = newTransactions.reduce(
-      (prev, curr) => prev + curr.amount,
+      (prev, curr) => prev + Number(curr.amount),
       0,
     );
     const newCategoryData = transCatsData.data
-      .map((category) => {
+      .map((category: TransactionCategoryType) => {
         const filtered = newTransactions.filter(
           (tr) => tr.category === category.name,
         );
-        const sum = filtered.reduce((prev, curr) => prev + curr.amount, 0);
+        const sum = filtered.reduce(
+          (prev, curr) => prev + Number(curr.amount),
+          0,
+        );
         const percentage = ((sum / newTotal) * 100).toFixed(1);
         return { sum, percentage, category: category.name };
       })
-      .sort((a, b) => (a.sum > b.sum ? -1 : 1));
+      .sort((a: CollapsedTransactions, b: CollapsedTransactions) =>
+        a.sum > b.sum ? -1 : 1,
+      );
     return {
       total: newTotal,
       categories: transCatsData.data,
@@ -135,15 +156,15 @@ const TransactionsList = () => {
     };
   }, [transactionsData.data, transCatsData.data]);
 
-  const onMonthChange = (e) => {
+  const onMonthChange = (e: SelectChangeEvent<string>) => {
     setSelectedMonth(e.target.value);
   };
 
-  const onYearChange = (e) => {
-    setSelectedYear(e.target.value);
+  const onYearChange = (e: SelectChangeEvent<number>) => {
+    setSelectedYear(Number(e.target.value));
   };
 
-  const onGroupByChange = (e) => {
+  const onGroupByChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setGroupByCategory(e.target.checked);
   };
 
@@ -166,7 +187,7 @@ const TransactionsList = () => {
             onChange={onMonthChange}
             variant="standard"
           >
-            {dayjs.months().map((m) => (
+            {monthsOfYear.map((m) => (
               <MenuItem value={m} key={m}>
                 {m}
               </MenuItem>
@@ -207,8 +228,6 @@ const TransactionsList = () => {
       ) : (
         <EditableTable
           items={trState.transactions}
-          selectedMonth={selectedMonth}
-          selectedYear={selectedYear}
           columns={[
             { label: 'Amount', name: 'amount', type: 'string' },
             {
@@ -226,7 +245,11 @@ const TransactionsList = () => {
             },
           ]}
           editMutationFn={({ id, ...values }) => putTransaction(id, values)}
-          invalidateQueries={['transactions', selectedYear, selectedMonth]}
+          invalidateQueries={[
+            'transactions',
+            selectedYear.toString(),
+            selectedMonth,
+          ]}
           getNewItemFn={(values) => ({
             amount: Number(values.amount),
             category: values.category,

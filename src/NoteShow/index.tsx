@@ -8,28 +8,30 @@ import { useUpdateMutation } from '../shared/hooks/useUpdateMutation';
 import { useCreateMutation } from '../shared/hooks/useCreateMutation';
 import { useDeleteMutation } from '../shared/hooks/useDeleteMutation';
 import { deleteNote, getNotes, postNote, putNote } from '../shared/api/routes';
+import { NoteType } from '../shared/types';
 import AddNote from './AddNote';
 
 const NoteCategoryShow = () => {
   const params = useParams();
-  const [menuAnchorElement, setMenuAnchorElement] = React.useState(null);
-  const [pressedNote, setPressedNote] = React.useState(null);
+  const [menuAnchorElement, setMenuAnchorElement] =
+    React.useState<HTMLButtonElement | null>(null);
+  const [pressedNote, setPressedNote] = React.useState<NoteType | null>(null);
   const [isAdd, setIsAdd] = React.useState(false);
-  const [noteToEdit, setNoteToEdit] = React.useState(null);
+  const [noteToEdit, setNoteToEdit] = React.useState<NoteType | null>(null);
   const notesData = useQuery(['notes', params.id], () => getNotes(params.id));
   const editMutation = useUpdateMutation(
-    (vals) => putNote(noteToEdit?.id, vals),
+    (vals: Omit<NoteType, 'id'>) => putNote(noteToEdit?.id, vals),
     ['notes', params.id],
     noteToEdit?.id,
-    (val) => val,
+    (val: NoteType) => val,
     () => {
       setNoteToEdit(null);
     },
   );
   const addMutation = useCreateMutation(
-    (vals) => postNote({ ...vals, note_category: Number(params.id) }),
+    (vals: NoteType) => postNote({ ...vals, note_category: Number(params.id) }),
     ['notes', params.id],
-    (old, vals) => [...old, vals],
+    (old: NoteType[], vals: NoteType) => [...old, vals],
     () => setIsAdd(false),
   );
 
@@ -39,16 +41,18 @@ const NoteCategoryShow = () => {
   };
 
   const deleteMutation = useDeleteMutation(
-    (id) => deleteNote(id),
+    (id: string) => deleteNote(id),
     ['notes', params.id],
     null,
     handleMenuClose,
   );
 
-  const handleSubmit = (values) => {
+  const handleSubmit = (values: Omit<NoteType, 'id' | 'note_category'>) => {
     if (isAdd) {
+      // @ts-ignore
       addMutation.mutate(values);
     } else {
+      // @ts-ignore
       editMutation.mutate(values);
     }
   };
@@ -58,7 +62,7 @@ const NoteCategoryShow = () => {
     setNoteToEdit(null);
   };
 
-  const handleMoreClick = (note, element) => {
+  const handleMoreClick = (note: NoteType, element: HTMLButtonElement) => {
     setPressedNote(note);
     setMenuAnchorElement(element);
   };
@@ -76,7 +80,7 @@ const NoteCategoryShow = () => {
       {notesData.isLoading ? (
         <div>Loading...</div>
       ) : (
-        notesData.data.map((note, index) => (
+        notesData.data.map((note: NoteType, index: number) => (
           <Paper
             key={note.id}
             sx={{
@@ -128,7 +132,12 @@ const NoteCategoryShow = () => {
         >
           Edit
         </ListItem>
-        <ListItem onClick={() => deleteMutation.mutate(pressedNote.id)}>
+        <ListItem
+          onClick={() => {
+            // @ts-ignore
+            deleteMutation.mutate(pressedNote.id);
+          }}
+        >
           Delete
         </ListItem>
       </Menu>
@@ -136,7 +145,7 @@ const NoteCategoryShow = () => {
         isOpen={isAdd || !!noteToEdit}
         handleSubmit={handleSubmit}
         handleCancel={handleCancel}
-        initialValue={noteToEdit?.body}
+        initialValue={noteToEdit?.body || ''}
       />
     </div>
   );
