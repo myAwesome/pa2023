@@ -53,5 +53,5 @@ export const mapTasksByStatus = (tasks: TaskType[]) => {
 };
 
 export const dateToMySQLFormat = (date?: string) => {
-  return dayjs.utc(date).format('YYYY-MM-DD hh:mm:ss');
+  return dayjs(date).utc().format('YYYY-MM-DD hh:mm:ss');
 };

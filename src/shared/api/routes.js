@@ -132,7 +132,9 @@ export const getTasks = (id) =>
     .then(mapTasksByStatus);
 
 export const getInProgress = () =>
-  apiLocalGetRequest(`tasks-in-progress`).then((resp) => resp.data);
+  apiLocalGetRequest(`tasks?status=in_progress`).then(
+    (resp) => resp.data?.data,
+  );
 export const editTask = (id, data) =>
   apiLocalPutRequest(`tasks/${id}`, data).then((resp) => resp.data);
 export const postTask = (data) =>
@@ -140,15 +142,16 @@ export const postTask = (data) =>
 export const deleteTask = (id) =>
   apiLocalDeleteRequest(`tasks/${id}`).then((resp) => resp.data);
 
-export const getLts = () => apiLocalGetRequest(`lts`).then((resp) => resp.data);
+export const getLts = () =>
+  apiLocalGetRequest(`last-time`).then((resp) => resp.data?.data);
 export const getExpiredLts = () =>
-  apiLocalGetRequest(`lts-expired`).then((resp) => resp.data);
+  apiLocalGetRequest(`last-time?expired=1`).then((resp) => resp.data?.data);
 export const postLT = (data) =>
-  apiLocalPostRequest(`lt`, data).then((resp) => resp.data);
+  apiLocalPostRequest(`last-time`, data).then((resp) => resp.data);
 export const putLT = (id, data) =>
-  apiLocalPutRequest(`lt/${id}`, data).then((resp) => resp.data);
+  apiLocalPutRequest(`last-time/${id}`, data).then((resp) => resp.data);
 export const deleteLT = (id) =>
-  apiLocalDeleteRequest(`lt/${id}`).then((resp) => resp.data);
+  apiLocalDeleteRequest(`last-time/${id}`).then((resp) => resp.data);
 
 export const sendLogin = (data) =>
   apiPostRequest(`${LOCAL}/authentication`, { ...data, strategy: 'local' });

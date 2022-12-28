@@ -16,6 +16,7 @@ import { useUpdateMutation } from '../shared/hooks/useUpdateMutation';
 import { useCreateMutation } from '../shared/hooks/useCreateMutation';
 import { useDeleteMutation } from '../shared/hooks/useDeleteMutation';
 import { LastTimeItemType } from '../shared/types';
+import { dateToMySQLFormat } from '../shared/utils/mappers';
 import LastTimeEntry from './LastTimeEntry';
 import AddLastTime from './AddLastTime';
 
@@ -81,7 +82,7 @@ const LastTime = () => {
     setItemToUpdate(item);
   };
 
-  const handleSubmit = (values: LastTimeItemType) => {
+  const handleSubmit = (values: Omit<LastTimeItemType, 'expired' | 'id'>) => {
     const action = isAdd ? createMutation : updateMutation;
     // @ts-ignore
     action.mutate(values);
@@ -130,7 +131,7 @@ const LastTime = () => {
             <AddIcon />
           </IconButton>
         </Grid>
-        {(isAdd || isEdit) && itemToEdit ? (
+        {isAdd || (isEdit && itemToEdit) ? (
           <Grid item xs={12} sm={11}>
             <AddLastTime
               handleSubmit={handleSubmit}
@@ -186,7 +187,7 @@ const LastTime = () => {
             <Button
               onClick={() => {
                 // @ts-ignore
-                updateMutation.mutate({ date: dayjs(updateDate) });
+                updateMutation.mutate({ date: dateToMySQLFormat(updateDate) });
               }}
             >
               OK

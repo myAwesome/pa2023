@@ -2,12 +2,13 @@ import React from 'react';
 import { TextField, Button, Grid } from '@mui/material';
 import dayjs from 'dayjs';
 import { LastTimeItemType } from '../../shared/types';
+import { dateToMySQLFormat } from '../../shared/utils/mappers';
 
 type Props = {
-  handleSubmit: (vals: LastTimeItemType) => void;
+  handleSubmit: (vals: Omit<LastTimeItemType, 'expired' | 'id'>) => void;
   handleCancel: () => void;
   handleRemove: () => void;
-  initialValues: LastTimeItemType;
+  initialValues: Omit<LastTimeItemType, 'expired'> | null;
 };
 
 const AddLastTime = ({
@@ -17,11 +18,21 @@ const AddLastTime = ({
   handleRemove,
 }: Props) => {
   const [lt, setLt] = React.useState(
-    initialValues || { body: '', date: dayjs(), remind_after_days: '' },
+    initialValues || {
+      body: '',
+      date: dateToMySQLFormat(),
+      remind_after_days: '',
+    },
   );
 
   React.useEffect(() => {
-    setLt(initialValues || { body: '', date: dayjs(), remind_after_days: '' });
+    setLt(
+      initialValues || {
+        body: '',
+        date: dateToMySQLFormat(),
+        remind_after_days: '',
+      },
+    );
   }, [initialValues]);
 
   return (

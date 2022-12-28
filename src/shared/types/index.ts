@@ -45,6 +45,7 @@ export type LastTimeItemType = {
   body: string;
   date: string;
   remind_after_days: string | number;
+  expired: boolean;
 };
 
 export type YearMonthsType = {

@@ -26,20 +26,14 @@ const LastTimeEntry = ({
       onMouseLeave={() => setIsHovered(false)}
     >
       <ListItemIcon onClick={(e) => handleListItemClick(e, item)}>
-        <BeenhereIcon
-          color={
-            dayjs().diff(dayjs(item.date), 'days') >= item.remind_after_days
-              ? 'error'
-              : 'inherit'
-          }
-        />
+        <BeenhereIcon color={item.expired ? 'error' : 'inherit'} />
       </ListItemIcon>
       <ListItemText
         primary={item.body}
         secondary={
           isHovered
-            ? dayjs(item.date).format('HH:mm DD/MM/YYYY')
-            : dayjs(item.date).fromNow(true)
+            ? dayjs(item.date).utc(true).local().format('HH:mm DD/MM/YYYY')
+            : dayjs(item.date).utc(true).local().fromNow()
         }
       />
     </ListItemButton>
