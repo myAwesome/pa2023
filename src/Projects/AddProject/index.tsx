@@ -9,25 +9,38 @@ import {
 import { ProjectType } from '../../shared/types';
 
 type Props = {
-  handleSubmit: (vals: Omit<ProjectType, 'id'>) => void;
+  handleSubmit: (vals: Omit<ProjectType, 'id' | 'created_at'>) => void;
   initialValues: ProjectType | null;
   handleCancel: () => void;
 };
 
 const AddProject = ({ handleSubmit, initialValues, handleCancel }: Props) => {
   const [values, setValues] = React.useState(
-    initialValues || { title: '', description: '', archived: false },
+    initialValues || {
+      title: '',
+      description: '',
+      archived: false,
+      created_at: '',
+    },
   );
 
   React.useEffect(() => {
-    setValues(initialValues || { title: '', description: '', archived: false });
+    setValues(
+      initialValues || {
+        title: '',
+        description: '',
+        archived: false,
+        created_at: '',
+      },
+    );
   }, [initialValues]);
 
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        handleSubmit(values);
+        const { created_at, ...vals } = values;
+        handleSubmit(vals);
       }}
     >
       <Grid container spacing={2} alignItems="flex-end">

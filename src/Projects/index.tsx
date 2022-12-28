@@ -45,7 +45,7 @@ const Projects = () => {
     ['project', projectToEdit?.id],
   );
 
-  const handleSubmit = (values: Omit<ProjectType, 'id'>) => {
+  const handleSubmit = (values: Omit<ProjectType, 'id' | 'created_at'>) => {
     if (isAdd) {
       // @ts-ignore
       addMutation.mutate(values);

@@ -21,8 +21,8 @@ export default {
     find: [filterByGroup],
     get: [],
     create: [addGroup],
-    update: [],
-    patch: [],
+    update: [addGroup],
+    patch: [addGroup],
     remove: [],
   },
 

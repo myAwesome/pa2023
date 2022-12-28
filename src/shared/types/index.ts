@@ -88,6 +88,7 @@ export type ProjectType = {
   title: string;
   description: string;
   archived: boolean;
+  created_at: string;
 };
 
 export type TasksByStatus = {

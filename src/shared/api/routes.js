@@ -10,6 +10,7 @@ dayjs.extend(utc);
 const apiGetRequest = (url, config) => axios.get(url, config);
 const apiPostRequest = (url, data, config) => axios.post(url, data, config);
 const apiPutRequest = (url, data, config) => axios.put(url, data, config);
+const apiPatchRequest = (url, data, config) => axios.patch(url, data, config);
 const apiDeleteRequest = (url, config) => axios.delete(url, config);
 
 const authConfig = () => ({
@@ -30,6 +31,8 @@ const apiLocalPostRequest = (url, data) =>
   apiPostRequest(`${LOCAL}/${url}`, data, authConfig()).catch(redirectUnauth);
 const apiLocalPutRequest = (url, data) =>
   apiPutRequest(`${LOCAL}/${url}`, data, authConfig()).catch(redirectUnauth);
+const apiLocalPatchRequest = (url, data) =>
+  apiPatchRequest(`${LOCAL}/${url}`, data, authConfig()).catch(redirectUnauth);
 const apiLocalDeleteRequest = (url) =>
   apiDeleteRequest(`${LOCAL}/${url}`, authConfig()).catch(redirectUnauth);
 
@@ -119,7 +122,7 @@ export const addLabelToPost = (postId, labelId) =>
   ).then((resp) => resp.data);
 
 export const getProjects = () =>
-  apiLocalGetRequest('projects').then((resp) => resp.data);
+  apiLocalGetRequest('projects').then((resp) => resp.data?.data);
 export const getProject = (id) =>
   apiLocalGetRequest(`projects/${id}`).then((resp) => resp.data);
 export const postProject = (data) =>
@@ -127,8 +130,8 @@ export const postProject = (data) =>
 export const putProject = (id, data) =>
   apiLocalPutRequest(`projects/${id}`, data).then((resp) => resp.data);
 export const getTasks = (id) =>
-  apiLocalGetRequest(`projects/${id}/tasks`)
-    .then((resp) => resp.data)
+  apiLocalGetRequest(`tasks?project_id=${id}`)
+    .then((resp) => resp.data?.data)
     .then(mapTasksByStatus);
 
 export const getInProgress = () =>
@@ -136,7 +139,7 @@ export const getInProgress = () =>
     (resp) => resp.data?.data,
   );
 export const editTask = (id, data) =>
-  apiLocalPutRequest(`tasks/${id}`, data).then((resp) => resp.data);
+  apiLocalPatchRequest(`tasks/${id}`, data).then((resp) => resp.data);
 export const postTask = (data) =>
   apiLocalPostRequest(`tasks`, data).then((resp) => resp.data);
 export const deleteTask = (id) =>

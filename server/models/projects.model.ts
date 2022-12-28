@@ -13,7 +13,7 @@ export default function (app: Application): Knex {
           table.string('description');
           table.integer('priority');
           table.boolean('archived');
-          table.datetime('created_at');
+          table.datetime('created_at').defaultTo(db.fn.now());
           table.integer('user_id');
         })
         .then(() => console.log(`Created ${tableName} table`))

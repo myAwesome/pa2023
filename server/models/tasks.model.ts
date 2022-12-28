@@ -1,4 +1,3 @@
-
 import { Knex } from 'knex';
 import { Application } from '../declarations';
 
@@ -13,8 +12,8 @@ export default function (app: Application): Knex {
           table.string('body');
           table.string('status');
           table.integer('priority');
-          table.boolean('archived');
-          table.datetime('created_at');
+          table.boolean('archived').defaultTo(0);
+          table.datetime('created_at').defaultTo(db.fn.now());
           table.boolean('today_i_learned');
           table.string('outcome');
           table.integer('project_id');
