@@ -32,8 +32,8 @@ export default {
     find: [resetLimit],
     get: [],
     create: [userHook],
-    update: [],
-    patch: [],
+    update: [userHook],
+    patch: [userHook],
     remove: [],
   },
 

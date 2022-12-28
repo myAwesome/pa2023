@@ -75,7 +75,6 @@ export type TaskType = {
 export type NoteCategoryType = {
   id: string;
   name: string;
-  note_count: number;
 };
 
 export type NoteType = {

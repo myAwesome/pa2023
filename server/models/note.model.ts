@@ -10,7 +10,7 @@ export default function (app: Application): Knex {
         .createTable(tableName, (table) => {
           table.increments('id');
           table.string('body');
-          table.datetime('created_at');
+          table.datetime('created_at').defaultTo(db.fn.now());
           table.integer('note_category');
           table.integer('user_id');
         })

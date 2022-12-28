@@ -52,24 +52,24 @@ export const getTransactionsStatistics = () =>
   apiLocalGetRequest(`transaction-statistics`).then((resp) => resp.data);
 
 export const getNoteCategories = () =>
-  apiLocalGetRequest('note-categories').then((resp) => resp.data);
+  apiLocalGetRequest('note-category').then((resp) => resp.data?.data);
 export const postNoteCategory = (data) =>
-  apiLocalPostRequest('note-categories', data).then((resp) => resp.data);
+  apiLocalPostRequest('note-category', data).then((resp) => resp.data);
 export const putNoteCategory = (id, data) =>
-  apiLocalPutRequest(`note-categories/${id}`, data).then((resp) => resp.data);
+  apiLocalPutRequest(`note-category/${id}`, data).then((resp) => resp.data);
 export const deleteNoteCategory = (id) =>
-  apiLocalDeleteRequest(`note-categories/${id}`).then((resp) => resp.data);
+  apiLocalDeleteRequest(`note-category/${id}`).then((resp) => resp.data);
 
 export const getNotes = (categoryId) =>
-  apiLocalGetRequest(`notes?note_category=${categoryId}`).then(
-    (resp) => resp.data,
+  apiLocalGetRequest(`note?note_category=${categoryId}`).then(
+    (resp) => resp.data?.data,
   );
 export const postNote = (data) =>
-  apiLocalPostRequest('notes', data).then((resp) => resp.data);
+  apiLocalPostRequest('note', data).then((resp) => resp.data);
 export const putNote = (id, data) =>
-  apiLocalPutRequest(`notes/${id}`, data).then((resp) => resp.data);
+  apiLocalPutRequest(`note/${id}`, data).then((resp) => resp.data);
 export const deleteNote = (id) =>
-  apiLocalDeleteRequest(`notes/${id}`).then((resp) => resp.data);
+  apiLocalDeleteRequest(`note/${id}`).then((resp) => resp.data);
 
 export const getWishes = () =>
   apiLocalGetRequest('wish').then((resp) => resp.data?.data);

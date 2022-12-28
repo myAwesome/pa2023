@@ -53,7 +53,7 @@ const NoteCategoryShow = () => {
       addMutation.mutate(values);
     } else {
       // @ts-ignore
-      editMutation.mutate(values);
+      editMutation.mutate({ ...noteToEdit, ...values });
     }
   };
 

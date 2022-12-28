@@ -110,7 +110,7 @@ const NoteCategories = () => {
               key={list.id}
               onClick={() => navigate(`/notes/${list.id}`)}
             >
-              <ListItemText primary={`${list.name} (${list.note_count})`} />
+              <ListItemText primary={list.name} />
               <ListItemIcon>
                 <IconButton onClick={(e) => handleEditClick(e, list)}>
                   <EditIcon />
