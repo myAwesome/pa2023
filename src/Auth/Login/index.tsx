@@ -28,7 +28,7 @@ const LoginPage = () => {
     e.preventDefault();
     sendLogin(form)
       .then((resp) => {
-        setItemToStorage(TOKEN_KEY, resp.data.Token);
+        setItemToStorage(TOKEN_KEY, resp.data.accessToken);
         navigate('/days');
       })
       .catch((err) => {

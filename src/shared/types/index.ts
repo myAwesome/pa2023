@@ -115,8 +115,8 @@ export type WishType = {
   id: string;
   name: string;
   picture: string;
-  priceFrom: number;
-  priceTo: number;
-  isDone: boolean;
-  createdAt: string;
+  price_from: number;
+  price_to: number;
+  is_done: boolean;
+  created_at: string;
 };

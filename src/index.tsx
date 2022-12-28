@@ -11,11 +11,10 @@ import reportWebVitals from './reportWebVitals';
 const queryClient = new QueryClient();
 
 /*
- * TODO: update all libraries
+ * TODO:
  * use react-router instead of react-query?
  * toggle light-dark mode
  * do redesign
- * use typescript
  * */
 
 const container = document.getElementById('root');

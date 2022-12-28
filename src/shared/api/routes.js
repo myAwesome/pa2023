@@ -3,12 +3,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { LOCAL } from '../config/const';
 import { getItemFromStorage, TOKEN_KEY } from '../utils/storage';
-import {
-  mapLabel,
-  mapPeriod,
-  mapPost,
-  mapTasksByStatus,
-} from '../utils/mappers';
+import { mapLabel, mapTasksByStatus } from '../utils/mappers';
 
 dayjs.extend(utc);
 
@@ -30,17 +25,13 @@ const redirectUnauth = (err) => {
 };
 
 const apiLocalGetRequest = (url) =>
-  apiGetRequest(`${LOCAL}/api/${url}`, authConfig()).catch(redirectUnauth);
+  apiGetRequest(`${LOCAL}/${url}`, authConfig()).catch(redirectUnauth);
 const apiLocalPostRequest = (url, data) =>
-  apiPostRequest(`${LOCAL}/api/${url}`, data, authConfig()).catch(
-    redirectUnauth,
-  );
+  apiPostRequest(`${LOCAL}/${url}`, data, authConfig()).catch(redirectUnauth);
 const apiLocalPutRequest = (url, data) =>
-  apiPutRequest(`${LOCAL}/api/${url}`, data, authConfig()).catch(
-    redirectUnauth,
-  );
+  apiPutRequest(`${LOCAL}/${url}`, data, authConfig()).catch(redirectUnauth);
 const apiLocalDeleteRequest = (url) =>
-  apiDeleteRequest(`${LOCAL}/api/${url}`, authConfig()).catch(redirectUnauth);
+  apiDeleteRequest(`${LOCAL}/${url}`, authConfig()).catch(redirectUnauth);
 
 export const getTransactionsByMonthAndYear = (year, month) =>
   apiLocalGetRequest(`transactions?y=${year}&m=${month + 1}`).then(
@@ -81,18 +72,20 @@ export const deleteNote = (id) =>
   apiLocalDeleteRequest(`notes/${id}`).then((resp) => resp.data);
 
 export const getWishes = () =>
-  apiLocalGetRequest('wishes').then((resp) => resp.data);
+  apiLocalGetRequest('wish').then((resp) => resp.data?.data);
 export const postWish = (data) =>
-  apiLocalPostRequest('wishes', data).then((resp) => resp.data);
+  apiLocalPostRequest('wish', data).then((resp) => resp.data);
 export const putWish = (id, data) =>
-  apiLocalPutRequest(`wishes/${id}`, data).then((resp) => resp.data);
+  apiLocalPutRequest(`wish/${id}`, data).then((resp) => resp.data);
 export const deleteWish = (id) =>
-  apiLocalDeleteRequest(`wishes/${id}`).then((resp) => resp.data);
+  apiLocalDeleteRequest(`wish/${id}`).then((resp) => resp.data);
 
 export const getPosts = () =>
-  apiLocalGetRequest(`posts?sort=-date`).then((resp) => resp.data.map(mapPost));
+  apiLocalGetRequest(`posts?&$sort[date]=-1&$limit=25`).then(
+    (resp) => resp.data,
+  );
 export const getPostsHistory = () =>
-  apiLocalGetRequest(`posts-history`).then((resp) => resp.data.map(mapPost));
+  apiLocalGetRequest(`posts-history`).then((resp) => resp.data);
 export const deletePost = (id) =>
   apiLocalDeleteRequest(`posts/${id}`).then((resp) => resp.data);
 export const editPost = (id, data) =>
@@ -104,9 +97,7 @@ export const postPost = (data) =>
 export const getYears = () =>
   apiLocalGetRequest(`posts-months/`).then((resp) => resp.data);
 export const getMonth = (month) =>
-  apiLocalGetRequest(`posts-by-month/?ym=${month}`).then((resp) =>
-    resp.data.map(mapPost),
-  );
+  apiLocalGetRequest(`posts-by-month/?ym=${month}`).then((resp) => resp.data);
 export const searchPosts = (q) => apiLocalGetRequest(`posts-search/?q=${q}`);
 
 export const getLabels = () =>
@@ -159,12 +150,13 @@ export const putLT = (id, data) =>
 export const deleteLT = (id) =>
   apiLocalDeleteRequest(`lt/${id}`).then((resp) => resp.data);
 
-export const sendLogin = (data) => apiPostRequest(`${LOCAL}/login`, data);
+export const sendLogin = (data) =>
+  apiPostRequest(`${LOCAL}/authentication`, { ...data, strategy: 'local' });
 export const sendRegistration = (data) =>
   apiPostRequest(`${LOCAL}/register`, data);
 
 export const getPeriods = () =>
-  apiLocalGetRequest(`periods`).then((resp) => resp.data.map(mapPeriod));
+  apiLocalGetRequest(`periods`).then((resp) => resp.data?.data);
 export const postPeriod = (data) =>
   apiLocalPostRequest(`periods`, data).then((resp) => resp.data);
 export const deletePeriod = (id) =>
@@ -179,6 +171,6 @@ export const putPeriod = (id, values) => {
 };
 
 export const getUser = () =>
-  apiLocalGetRequest(`user`).then((resp) => resp.data);
+  apiLocalGetRequest(`users/me`).then((resp) => resp.data);
 export const putUser = (data) =>
-  apiLocalPutRequest(`user`, data).then((resp) => resp.data);
+  apiLocalPutRequest(`users/me`, data).then((resp) => resp.data);

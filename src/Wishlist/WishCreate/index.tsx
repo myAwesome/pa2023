@@ -8,13 +8,13 @@ import { WishType } from '../../shared/types';
 const initialValues = {
   name: '',
   picture: '',
-  priceFrom: 0,
-  priceTo: 0,
+  price_from: 0,
+  price_to: 0,
 };
 
 const WishCreate = () => {
   const [values, setValues] =
-    React.useState<Omit<WishType, 'id' | 'isDone' | 'createdAt'>>(
+    React.useState<Omit<WishType, 'id' | 'is_done' | 'created_at'>>(
       initialValues,
     );
   const navigate = useNavigate();
@@ -25,11 +25,10 @@ const WishCreate = () => {
     () =>
       postWish({
         ...values,
-        priceFrom: Number(values.priceFrom),
-        priceTo: Number(values.priceTo),
-        userId: process.env.REACT_APP_USER_ID,
-        createdAt: new Date(),
-        isDone: false,
+        price_from: Number(values.price_from),
+        price_to: Number(values.price_to),
+        user_id: process.env.REACT_APP_USER_ID,
+        is_done: false,
       }),
     ['wishes'],
     (old: WishType[]) => [...old, values],

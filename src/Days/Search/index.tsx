@@ -4,7 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import Typography from '@mui/material/Typography';
 import PostList from '../PostList/Posts';
 import { getLabels, searchPosts } from '../../shared/api/routes';
-import { mapPost } from '../../shared/utils/mappers';
 
 const Search = () => {
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -20,7 +19,7 @@ const Search = () => {
     searchPosts(searchQuery)
       .then((response) => {
         if (response?.data) {
-          const newPosts = response.data.map(mapPost);
+          const newPosts = response.data;
 
           setPosts(newPosts);
         }

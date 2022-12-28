@@ -6,7 +6,7 @@ import { WishType } from '../../shared/types';
 type Props = {
   isOpen: boolean;
   wish: WishType | null;
-  onSubmit: (val: WishType) => void;
+  onSubmit: (val: Omit<WishType, 'is_done' | 'created_at'>) => void;
   handleClose: () => void;
 };
 
@@ -14,10 +14,10 @@ const emptyWish = {
   id: '',
   name: '',
   picture: '',
-  priceFrom: 0,
-  priceTo: 0,
-  isDone: false,
-  createdAt: '',
+  price_from: 0,
+  price_to: 0,
+  is_done: false,
+  created_at: '',
 };
 
 const WishEdit = ({ isOpen, wish, onSubmit, handleClose }: Props) => {
@@ -37,11 +37,12 @@ const WishEdit = ({ isOpen, wish, onSubmit, handleClose }: Props) => {
           onSubmit={(e) => {
             e.preventDefault();
             handleClose();
+            const { created_at, ...vals } = values;
             onSubmit({
-              ...values,
+              ...vals,
               id: wish?.id || '',
-              priceFrom: Number(values.priceFrom),
-              priceTo: Number(values.priceTo),
+              price_from: Number(values.price_from),
+              price_to: Number(values.price_to),
             });
           }}
         />

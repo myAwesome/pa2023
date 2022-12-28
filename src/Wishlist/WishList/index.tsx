@@ -21,21 +21,21 @@ import { useUpdateMutation } from '../../shared/hooks/useUpdateMutation';
 import { WishType } from '../../shared/types';
 
 const WishList = () => {
-  const { data: wishes, isLoading } = useQuery(['wishes'], getWishes);
+  const { data, isLoading } = useQuery(['wishes'], getWishes);
   const [showImg, setShowImg] = React.useState<string>('');
   const [shouldHideDone, setHideDone] = React.useState(true);
   const [wishesToShow, setWishesToShow] = React.useState([]);
   const [wishToEdit, setWishToEdit] = React.useState<WishType | null>(null);
 
   React.useEffect(() => {
-    if (wishes && !isLoading) {
+    if (data && !isLoading) {
       if (shouldHideDone) {
-        setWishesToShow(wishes.filter((w: WishType) => !w.isDone));
+        setWishesToShow(data.filter((w: WishType) => !w.is_done));
       } else {
-        setWishesToShow(wishes);
+        setWishesToShow(data);
       }
     }
-  }, [wishes, shouldHideDone, isLoading]);
+  }, [data, shouldHideDone, isLoading]);
 
   const removeWishMutation = useDeleteMutation(
     (id: string) => deleteWish(id),
@@ -78,7 +78,7 @@ const WishList = () => {
               <Card
                 sx={{
                   border: (theme) =>
-                    w.isDone
+                    w.is_done
                       ? `3px dotted ${theme.palette.secondary.main}`
                       : '',
                 }}
@@ -96,10 +96,10 @@ const WishList = () => {
                     {w.name}
                   </Typography>
                   <Typography variant="body2" gutterBottom>
-                    {w.priceFrom} - {w.priceTo} грн.
+                    {w.price_from} - {w.price_to} грн.
                   </Typography>
                   <Typography variant="caption">
-                    {dayjs(w.createdAt).format('DD-MM-YYYY')}
+                    {dayjs(w.created_at).format('DD-MM-YYYY')}
                   </Typography>
                 </CardContent>
                 <CardActions>
@@ -108,10 +108,14 @@ const WishList = () => {
                   </Button>
                   <Button
                     onClick={() => {
+                      const { created_at, ...vals } = w;
                       // @ts-ignore
-                      editWishMutation.mutate({ id: w.id, ...w, isDone: true });
+                      editWishMutation.mutate({
+                        ...vals,
+                        is_done: true,
+                      });
                     }}
-                    disabled={!isMine || w.isDone}
+                    disabled={!isMine || w.is_done}
                   >
                     Done
                   </Button>

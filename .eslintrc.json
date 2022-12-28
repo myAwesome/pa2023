@@ -40,6 +40,7 @@
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/no-empty-function": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/no-unused-vars": ["error", { "ignoreRestSiblings": true }],
     "space-before-function-paren": ["error", {"anonymous": "always", "named": "never", "asyncArrow": "always"}],
     "curly": ["error", "multi-line"],
     "no-new": "off",

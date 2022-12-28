@@ -1,5 +1,8 @@
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import { TasksByStatus, TaskType } from '../types';
+
+dayjs.extend(utc);
 
 export const mapLabel = (label: {
   ID?: any;
@@ -11,22 +14,6 @@ export const mapLabel = (label: {
   name: label.Name,
   color: label.Color,
   colorActive: label.ColorActive,
-});
-
-export const mapPost = (post: {
-  ID: any;
-  Labels: any;
-  Comments: any;
-  Periods: any;
-  Body: any;
-  Date: string | any[];
-}) => ({
-  id: post.ID,
-  labels: post.Labels,
-  comments: post.Comments,
-  periods: post.Periods,
-  body: post.Body,
-  date: post.Date.slice(0, 10),
 });
 
 export const mapPeriod = (period: {
@@ -63,4 +50,8 @@ export const mapTasksByStatus = (tasks: TaskType[]) => {
     });
   });
   return tasksByStatus;
+};
+
+export const dateToMySQLFormat = (date?: string) => {
+  return dayjs.utc(date).format('YYYY-MM-DD hh:mm:ss');
 };

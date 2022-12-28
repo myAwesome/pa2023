@@ -5,7 +5,7 @@ import { WishType } from '../../shared/types';
 type Props = {
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
-  values: Omit<WishType, 'id' | 'isDone' | 'createdAt'>;
+  values: Omit<WishType, 'id' | 'is_done' | 'created_at'>;
 };
 
 const WishForm = ({ onSubmit, handleChange, values }: Props) => {
@@ -68,16 +68,16 @@ const WishForm = ({ onSubmit, handleChange, values }: Props) => {
           sx={{ marginRight: (theme) => theme.spacing(2) }}
           type="number"
           variant="standard"
-          value={values.priceFrom}
-          name="priceFrom"
+          value={values.price_from}
+          name="price_from"
           onChange={handleChange}
           label="Price From"
         />
         <TextField
           type="number"
           variant="standard"
-          value={values.priceTo}
-          name="priceTo"
+          value={values.price_to}
+          name="price_to"
           onChange={handleChange}
           label="Price To"
         />

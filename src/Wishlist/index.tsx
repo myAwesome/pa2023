@@ -1,10 +1,14 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Tabs from '../shared/components/Tabs';
 
 const Wishlist = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = React.useState(location.pathname);
+
+  useEffect(() => {
+    setActiveTab(location.pathname);
+  }, [location.pathname]);
 
   return (
     <div>
