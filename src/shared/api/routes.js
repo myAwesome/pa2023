@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { LOCAL } from '../config/const';
 import { getItemFromStorage, TOKEN_KEY } from '../utils/storage';
-import { mapLabel, mapTasksByStatus } from '../utils/mappers';
+import { mapTasksByStatus } from '../utils/mappers';
 
 dayjs.extend(utc);
 
@@ -104,7 +104,7 @@ export const getMonth = (month) =>
 export const searchPosts = (q) => apiLocalGetRequest(`posts-search/?q=${q}`);
 
 export const getLabels = () =>
-  apiLocalGetRequest('labels').then((resp) => resp.data.map(mapLabel));
+  apiLocalGetRequest('labels').then((resp) => resp.data?.data);
 export const postLabel = (data) =>
   apiLocalPostRequest('labels', data).then((resp) => resp.data);
 export const putLabel = (id, data) =>
@@ -113,13 +113,14 @@ export const deleteLabel = (id) =>
   apiLocalDeleteRequest(`labels/${id}`).then((resp) => resp.data);
 
 export const deleteLabelFromPost = (postId, labelId) =>
-  apiLocalGetRequest(
-    `posts-delete-label/?post_id=${postId}&label_id=${labelId}`,
+  apiLocalDeleteRequest(
+    `post-labels/?post_id=${postId}&label_id=${labelId}`,
   ).then((resp) => resp.data);
 export const addLabelToPost = (postId, labelId) =>
-  apiLocalGetRequest(
-    `posts-add-label/?post_id=${postId}&label_id=${labelId}`,
-  ).then((resp) => resp.data);
+  apiLocalPostRequest(`post-labels`, {
+    post_id: postId,
+    label_id: labelId,
+  }).then((resp) => resp.data);
 
 export const getProjects = () =>
   apiLocalGetRequest('projects').then((resp) => resp.data?.data);
@@ -162,19 +163,13 @@ export const sendRegistration = (data) =>
   apiPostRequest(`${LOCAL}/register`, data);
 
 export const getPeriods = () =>
-  apiLocalGetRequest(`periods`).then((resp) => resp.data?.data);
+  apiLocalGetRequest(`periods?$limit=200`).then((resp) => resp.data?.data);
 export const postPeriod = (data) =>
   apiLocalPostRequest(`periods`, data).then((resp) => resp.data);
 export const deletePeriod = (id) =>
   apiLocalDeleteRequest(`periods/${id}`).then((resp) => resp.data);
-export const putPeriod = (id, values) => {
-  const data = {
-    End: values.isendInProgress ? null : dayjs.utc(values.end).format(),
-    Start: dayjs.utc(values.start).format(),
-    Name: values.name,
-  };
-  return apiLocalPutRequest(`periods/${id}`, data).then((resp) => resp.data);
-};
+export const putPeriod = (id, data) =>
+  apiLocalPutRequest(`periods/${id}`, data).then((resp) => resp.data);
 
 export const getUser = () =>
   apiLocalGetRequest(`users/me`).then((resp) => resp.data);

@@ -11,7 +11,9 @@ const PostComment = ({ comment }: Props) => {
     <Box
       sx={{
         color: (theme) => theme.palette.primary.light,
-        paddingLeft: 10,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 2,
       }}
     >
       <Box
@@ -19,9 +21,9 @@ const PostComment = ({ comment }: Props) => {
           color: (theme) => theme.palette.secondary.light,
         }}
       >
-        {comment.Date.substr(0, 10)}
+        {comment.date.slice(0, 10)}
       </Box>
-      <span> {comment.Body}</span>
+      <span> {comment.body}</span>
     </Box>
   );
 };

@@ -16,6 +16,7 @@ import {
 import { useUpdateMutation } from '../../shared/hooks/useUpdateMutation';
 import { useDeleteMutation } from '../../shared/hooks/useDeleteMutation';
 import { LabelType, PostType } from '../../shared/types';
+import { dateToMySQLFormat } from '../../shared/utils/mappers';
 import PostEdit from './PostEdit';
 import PostComment from './PostComment';
 import PostCommentEdit from './PostCommentEdit';
@@ -36,7 +37,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
   const [isCommentOpen, setCommentOpen] = React.useState(false);
   const [isEdit, setIsEdit] = React.useState(false);
   const [updateDate, setUpdateDate] = React.useState(
-    dayjs(post.date).format('YYYY-MM-DD'),
+    dayjs(post.date).local().format('YYYY-MM-DD'),
   );
   const deletePostMutation = useDeleteMutation(
     () => deletePost(post.id),
@@ -44,28 +45,29 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
     post.id,
   );
   const toggleLabelMutation = useUpdateMutation(
-    ({ isActive, labelId }: { isActive: boolean; labelId: string }) =>
+    ({ isActive, labelId }: { isActive: boolean; labelId: number }) =>
       isActive
         ? deleteLabelFromPost(post.id, labelId)
         : addLabelToPost(post.id, labelId),
     invalidateQueries,
     post.id,
     (
-      { isActive, labelId }: { isActive: boolean; labelId: string },
+      { isActive, labelId }: { isActive: boolean; labelId: number },
       post: PostType,
     ) => ({
       labels: isActive
-        ? post.labels.filter((l) => l.ID !== labelId)
-        : post.labels.concat({ ID: labelId } as LabelType),
+        ? post.labels.filter((l) => l !== labelId)
+        : post.labels.concat(labelId),
     }),
   );
   const editPostMutation = useUpdateMutation(
-    (body: string) => editPost(post.id, { body, date: dayjs.utc(updateDate) }),
+    (body: string) =>
+      editPost(post.id, { body, date: dateToMySQLFormat(updateDate) }),
     invalidateQueries,
     post.id,
     (body: string) => ({
       body,
-      date: dayjs.utc(updateDate).format('YYYY-MM-DD'),
+      date: dateToMySQLFormat(updateDate),
     }),
     () => setIsEdit(false),
   );
@@ -165,7 +167,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 // @ts-ignore
                 toggleLabelMutation.mutate({ isActive, labelId: l.id })
               }
-              isActive={!!post.labels.find((pl) => pl.ID === l.id)}
+              isActive={!!post.labels.find((pl) => pl === l.id)}
             />
           ))}
         </Grid>
@@ -290,9 +292,9 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
           {post.periods && post.periods.length > 0 ? (
             <Grid container flexWrap="wrap" gap={1}>
               {post.periods.map((period) => (
-                <Grid item key={period.ID}>
+                <Grid item key={period.id}>
                   <Chip
-                    label={period.Name}
+                    label={period.name}
                     sx={{
                       color: (theme) => theme.palette.primary.light,
                     }}
@@ -304,7 +306,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
           ) : null}
           <PostPhotos date={post.date} />
           {post.comments.map((comment) => (
-            <PostComment key={comment.ID} comment={comment} />
+            <PostComment key={comment.id} comment={comment} />
           ))}
           {isCommentOpen ? (
             <PostCommentEdit

@@ -26,7 +26,9 @@ const getInitialValues = (columns: ColumnType[], item: TableItemType) => {
     if (col.type === 'date') {
       initialValues[col.name] = dayjs(item[col.name]).format('YYYY-MM-DD');
     } else if (col.type === 'nullable-date') {
-      initialValues[col.name] = item[col.name] || '';
+      initialValues[col.name] = item[col.name]
+        ? dayjs(item[col.name]).format('YYYY-MM-DD')
+        : '';
       initialValues[`is${col.name}InProgress`] = item.id
         ? !item[col.name]
         : false;

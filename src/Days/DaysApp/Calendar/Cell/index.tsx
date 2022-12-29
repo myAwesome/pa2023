@@ -1,7 +1,6 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import PostLabel from '../../../PostLabel';
-import { mapLabel } from '../../../../shared/utils/mappers';
 import { LabelType } from '../../../../shared/types';
 
 const CalendarCell = (
@@ -37,7 +36,7 @@ const CalendarCell = (
       {!data.isEmpty && (
         <div>
           {data.labels?.map((l: LabelType) => (
-            <PostLabel key={l.ID} label={mapLabel(l)} isActive noMargin />
+            <PostLabel key={l.id} label={l} isActive noMargin />
           ))}
         </div>
       )}

@@ -25,16 +25,16 @@ import { useCreateMutation } from '../../../shared/hooks/useCreateMutation';
 import { LabelType } from '../../../shared/types';
 
 const LabelsSettings = () => {
-  const [activeLabels, setActiveLabels] = React.useState<string[]>([]);
+  const [activeLabels, setActiveLabels] = React.useState<number[]>([]);
   const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
-  const [itemToDelete, setItemToDelete] = React.useState<string | null>(null);
+  const [itemToDelete, setItemToDelete] = React.useState<number | null>(null);
   const [isAdd, setIsAdd] = React.useState(false);
   const [newLabelName, setNewLabelName] = React.useState('');
   const [newLabelColor, setNewLabelColor] = React.useState<
     [string, string] | []
   >([]);
   const [isNewLabelActive, setIsNewLabelActive] = React.useState(false);
-  const [labelToEdit, setLabelToEdit] = React.useState<string | null>(null);
+  const [labelToEdit, setLabelToEdit] = React.useState<number | null>(null);
   const [isEdit, setIsEdit] = React.useState(false);
   const labelsData = useQuery(['labels'], getLabels);
 
@@ -43,14 +43,14 @@ const LabelsSettings = () => {
       putLabel(labelToEdit, {
         name: newLabelName,
         color: newLabelColor[0],
-        colorActive: newLabelColor[1],
+        color_active: newLabelColor[1],
       }),
     ['labels'],
     labelToEdit,
     () => ({
       name: newLabelName,
       color: newLabelColor[0],
-      colorActive: newLabelColor[1],
+      color_active: newLabelColor[1],
     }),
     () => {
       setIsEdit(false);
@@ -64,7 +64,7 @@ const LabelsSettings = () => {
       postLabel({
         name: newLabelName,
         color: newLabelColor[0],
-        colorActive: newLabelColor[1],
+        color_active: newLabelColor[1],
       }),
     ['labels'],
     (old: LabelType[]) => [
@@ -73,7 +73,7 @@ const LabelsSettings = () => {
         id: 'new',
         name: newLabelName,
         color: newLabelColor[0],
-        colorActive: newLabelColor[1],
+        color_active: newLabelColor[1],
       },
     ],
   );
@@ -86,7 +86,7 @@ const LabelsSettings = () => {
   const handleLabelClick = (
     e: React.MouseEvent<HTMLDivElement>,
     isActive: boolean,
-    labelId: string,
+    labelId: number,
   ) => {
     const newLabels = isActive
       ? activeLabels.filter((l) => l !== labelId)
@@ -130,7 +130,7 @@ const LabelsSettings = () => {
     setIsEdit(true);
     setIsAdd(false);
     setNewLabelName(editLabel.name);
-    setNewLabelColor([editLabel.color, editLabel.colorActive]);
+    setNewLabelColor([editLabel.color, editLabel.color_active]);
   };
 
   const handleAddClicked = () => {
@@ -153,8 +153,8 @@ const LabelsSettings = () => {
           <PostLabel
             key={l.id}
             label={l}
-            isActive={activeLabels.includes(l.id || '')}
-            onClick={(e, active) => handleLabelClick(e, active, l.id || '')}
+            isActive={activeLabels.includes(l.id)}
+            onClick={(e, active) => handleLabelClick(e, active, l.id)}
           />
         ))}
         <IconButton onClick={handleAddClicked}>
@@ -208,10 +208,10 @@ const LabelsSettings = () => {
                   key="new-label"
                   label={
                     {
-                      id: 'NEW',
+                      id: -1,
                       name: newLabelName,
                       color: newLabelColor[0],
-                      colorActive: newLabelColor[1],
+                      color_active: newLabelColor[1],
                     } as LabelType
                   }
                   isActive={isNewLabelActive}

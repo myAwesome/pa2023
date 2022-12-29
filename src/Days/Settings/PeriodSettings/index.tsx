@@ -1,6 +1,4 @@
 import React from 'react';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
 import { Grid, IconButton, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useQuery } from '@tanstack/react-query';
@@ -13,7 +11,7 @@ import {
 } from '../../../shared/api/routes';
 import { useCreateMutation } from '../../../shared/hooks/useCreateMutation';
 import { PeriodType } from '../../../shared/types';
-dayjs.extend(utc);
+import { dateToMySQLFormat } from '../../../shared/utils/mappers';
 
 const PeriodSettings = () => {
   const [isAdd, setIsAdd] = React.useState(false);
@@ -27,9 +25,9 @@ const PeriodSettings = () => {
 
   const handlePeriodAdd = (values: PeriodType) => {
     const data = {
-      End: values.isendInProgress ? null : dayjs.utc(values.end).format(),
-      Start: dayjs.utc(values.start).format(),
-      Name: values.name,
+      end: values.isendInProgress ? null : dateToMySQLFormat(values.end),
+      start: dateToMySQLFormat(values.start),
+      name: values.name,
     };
     // @ts-ignore
     createMutation.mutate(data);
@@ -43,14 +41,29 @@ const PeriodSettings = () => {
           items={periodsData.data}
           columns={[
             { name: 'name', label: 'Name', type: 'string' },
-            { name: 'start', label: 'Start date', type: 'date' },
-            { name: 'end', label: 'End date', type: 'nullable-date' },
+            {
+              name: 'start',
+              label: 'Start date',
+              type: 'date',
+              render: (row) => row.start.slice(0, 10),
+            },
+            {
+              name: 'end',
+              label: 'End date',
+              type: 'nullable-date',
+              render: (row) => (row.end ? row.end.slice(0, 10) : ''),
+            },
           ]}
           isAdd={isAdd}
           cancelAdd={() => setIsAdd(false)}
           onAddSubmit={(p) => handlePeriodAdd(p as PeriodType)}
           editMutationFn={({ id, ...data }) => {
-            putPeriod(id, data);
+            const values = {
+              end: data.isendInProgress ? null : dateToMySQLFormat(data.end),
+              start: dateToMySQLFormat(data.start),
+              name: data.name,
+            };
+            putPeriod(id, values);
           }}
           invalidateQueries={['periods']}
           getNewItemFn={(v) => v}

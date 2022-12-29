@@ -5,6 +5,7 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { postPost } from '../../../shared/api/routes';
 import { useCreateMutation } from '../../../shared/hooks/useCreateMutation';
+import { dateToMySQLFormat } from '../../../shared/utils/mappers';
 
 dayjs.extend(utc);
 
@@ -12,7 +13,7 @@ const today = dayjs().format('YYYY-MM-DD');
 const yesterday = dayjs().subtract(1, 'days').format('YYYY-MM-DD');
 const createPost = (body: string, date: string) => ({
   body,
-  date: dayjs.utc(date),
+  date: dateToMySQLFormat(date),
 });
 
 const PostCreate = () => {

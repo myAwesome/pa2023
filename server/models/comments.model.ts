@@ -10,14 +10,13 @@ export default function (app: Application): Knex {
         .createTable(tableName, (table) => {
           table.increments('id');
           table.string('body');
-          table.datetime('date');
+          table.datetime('date').defaultTo(db.fn.now());
           table.integer('post_id');
         })
         .then(() => console.log(`Created ${tableName} table`))
         .catch((e) => console.error(`Error creating ${tableName} table`, e));
     }
   });
-
 
   return db;
 }

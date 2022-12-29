@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import { Typography } from '@mui/material';
 import Table from '../../../shared/components/Table';
 import { getCalendar } from '../../../shared/utils/calendar';
-import { LabelType, PostType } from '../../../shared/types';
+import { PostType } from '../../../shared/types';
 import CalendarCell from './Cell';
 
 type Props = {
@@ -27,7 +27,7 @@ const thisMonth = new Date().getMonth() + 1;
 
 const Calendar = ({ year, month, posts }: Props) => {
   const [data, setData] = React.useState<
-    { labels?: LabelType[]; isEmpty: boolean; date?: number }[][]
+    { labels?: number[]; isEmpty: boolean; date?: number }[][]
   >([]);
 
   React.useEffect(() => {

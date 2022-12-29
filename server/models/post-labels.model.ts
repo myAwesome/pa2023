@@ -13,12 +13,8 @@ export default function (app: Application): Knex {
       db.schema
         .createTable(tableName, (table) => {
           table.increments('id');
-          table.string('title');
-          table.string('description');
-          table.integer('priority');
-          table.boolean('archived');
-          table.datetime('created_at');
-          table.integer('user_id');
+          table.integer('post_id');
+          table.integer('label_id');
         })
         .then(() => console.log(`Created ${tableName} table`))
         .catch((e) => console.error(`Error creating ${tableName} table`, e));

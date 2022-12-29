@@ -26,6 +26,13 @@ const isAuthenticateNeed = async (context: HookContext) => {
   return context.path !== 'authentication';
 };
 
+export const removeUserId = (context: HookContext) => {
+  if (context.data.user_id) {
+    const { user_id, ...rest } = context.data;
+    context.data = rest;
+  }
+};
+
 export default {
   before: {
     all: [iffElse(isAuthenticateNeed, [authenticate('jwt')], [])],

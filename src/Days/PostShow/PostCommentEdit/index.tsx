@@ -7,6 +7,7 @@ import Grid from '@mui/material/Grid';
 import { useCreateMutation } from '../../../shared/hooks/useCreateMutation';
 import { postComment } from '../../../shared/api/routes';
 import { PostType } from '../../../shared/types';
+import { dateToMySQLFormat } from '../../../shared/utils/mappers';
 
 let today: string | Date = new Date();
 let dd: string | number = today.getDate();
@@ -42,10 +43,10 @@ const PostCommentEdit = ({ postId, onCancel, invalidateQueries }: Props) => {
         comments: [
           ...newItems[thisPostIndex].comments,
           {
-            ID: 'new',
-            Date: new Date().toISOString(),
-            Body: vals.body,
-            PostId: postId,
+            id: -1,
+            date: new Date().toISOString(),
+            body: vals.body,
+            post_id: postId,
           },
         ],
       };
@@ -63,7 +64,8 @@ const PostCommentEdit = ({ postId, onCancel, invalidateQueries }: Props) => {
     // @ts-ignore
     addMutation.mutate({
       body: commentBody,
-      PostId: postId,
+      post_id: postId,
+      date: dateToMySQLFormat(),
     });
   };
 
