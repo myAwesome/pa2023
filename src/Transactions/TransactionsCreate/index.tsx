@@ -15,6 +15,7 @@ import {
   postTransaction,
 } from '../../shared/api/routes';
 import { TransactionCategoryType, TransactionType } from '../../shared/types';
+import { dateToMySQLFormat } from '../../shared/utils/mappers';
 
 const initialValues = { description: '', amount: '', category: 31 };
 
@@ -53,6 +54,7 @@ const TransactionsCreate = () => {
     const data = {
       ...values,
       amount: +values.amount,
+      date: dateToMySQLFormat(),
     };
 
     // @ts-ignore

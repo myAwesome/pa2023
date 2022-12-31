@@ -22,7 +22,7 @@ type Props = {
   editMutationFn: (vals: TableItemType) => void;
   deleteMutationFn: (id: string) => void;
   getNewItemFn: (vals: TableItemType) => Record<string, any>;
-  invalidateQueries: string[];
+  invalidateQueries: (string | number)[];
   size?: 'small' | 'medium';
 };
 

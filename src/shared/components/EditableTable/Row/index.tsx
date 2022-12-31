@@ -9,7 +9,7 @@ import { ColumnType, TableItemType } from '../../../types/table';
 type Props = {
   item: TableItemType;
   columns: ColumnType[];
-  invalidateQueries?: string[];
+  invalidateQueries?: (string | number)[];
   onEditClicked: () => void;
   deleteMutationFn: (id: string) => void;
 };

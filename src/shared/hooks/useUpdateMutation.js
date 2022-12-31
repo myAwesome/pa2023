@@ -32,6 +32,9 @@ export const useUpdateMutation = (
           };
           return newItems;
         }
+        if (!old) {
+          return old;
+        }
         return updater(old, payload);
       });
       callback?.();

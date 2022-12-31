@@ -37,22 +37,22 @@ const apiLocalDeleteRequest = (url) =>
   apiDeleteRequest(`${LOCAL}/${url}`, authConfig()).catch(redirectUnauth);
 
 export const getTransactionsByMonthAndYear = (year, month) =>
-  apiLocalGetRequest(`transactions?y=${year}&m=${month + 1}`).then(
-    (resp) => resp.data,
+  apiLocalGetRequest(`transaction?y=${year}&m=${month + 1}`).then(
+    (resp) => resp.data?.data,
   );
 export const postTransaction = (data) =>
-  apiLocalPostRequest(`transactions`, data).then((resp) => resp.data);
+  apiLocalPostRequest(`transaction`, data).then((resp) => resp.data);
 export const putTransaction = (id, data) =>
-  apiLocalPutRequest(`transactions/${id}`, data).then((resp) => resp.data);
+  apiLocalPutRequest(`transaction/${id}`, data).then((resp) => resp.data);
 export const deleteTransaction = (id) =>
-  apiLocalDeleteRequest(`transactions/${id}`).then((resp) => resp.data);
+  apiLocalDeleteRequest(`transaction/${id}`).then((resp) => resp.data);
 
 export const getTransactionsCategories = () =>
-  apiLocalGetRequest(`transaction-categories`).then((resp) => resp.data);
+  apiLocalGetRequest(`transaction-category`).then((resp) => resp.data?.data);
 export const postTransactionsCategories = (data) =>
-  apiLocalPostRequest(`transaction-categories`, data).then((resp) => resp.data);
+  apiLocalPostRequest(`transaction-category`, data).then((resp) => resp.data);
 export const getTransactionsStatistics = () =>
-  apiLocalGetRequest(`transaction-statistics`).then((resp) => resp.data);
+  apiLocalGetRequest(`transaction?statistics=1`).then((resp) => resp.data);
 
 export const getNoteCategories = () =>
   apiLocalGetRequest('note-category').then((resp) => resp.data?.data);

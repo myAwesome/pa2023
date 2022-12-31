@@ -25,6 +25,7 @@ import {
   deleteTransaction,
 } from '../../shared/api/routes';
 import { TransactionCategoryType, TransactionType } from '../../shared/types';
+import { dateToMySQLFormat } from '../../shared/utils/mappers';
 dayjs.extend(utc);
 dayjs.extend(localeData);
 
@@ -244,12 +245,14 @@ const TransactionsList = () => {
               type: 'date',
             },
           ]}
-          editMutationFn={({ id, ...values }) => putTransaction(id, values)}
-          invalidateQueries={[
-            'transactions',
-            selectedYear.toString(),
-            selectedMonth,
-          ]}
+          editMutationFn={({ id, ...values }) => {
+            const data = {
+              ...values,
+              date: dateToMySQLFormat(values.date),
+            };
+            return putTransaction(id, data);
+          }}
+          invalidateQueries={['transactions', selectedYear, selectedMonth]}
           getNewItemFn={(values) => ({
             amount: Number(values.amount),
             category: values.category,

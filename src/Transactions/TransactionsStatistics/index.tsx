@@ -11,9 +11,7 @@ import {
 import { TransactionCategoryType } from '../../shared/types';
 
 const TransactionsStatistics = () => {
-  const [selectedCategories, setSelectedCategories] = React.useState([
-    'Продукты',
-  ]);
+  const [selectedCategories, setSelectedCategories] = React.useState([31]);
   const [data, setData] = React.useState<any[]>([]);
   const [chartData, setChartData] = React.useState<
     ([string, number] | [string])[]
@@ -27,25 +25,28 @@ const TransactionsStatistics = () => {
   );
 
   const getChartData = React.useCallback(
-    (d: any, cats: string[]) => {
+    (d: any, cats: number[]) => {
       const cD: ([string, number] | [string])[] = [];
       const grouped: Record<string, any> = {};
       d.forEach((i: any) => {
-        if (grouped[i.Date]) {
-          grouped[i.Date].push(i);
+        if (grouped[i.date]) {
+          grouped[i.date].push(i);
         } else {
-          grouped[i.Date] = [i];
+          grouped[i.date] = [i];
         }
       });
       Object.entries(grouped).forEach(([month, trans]) => {
         const row: [string, number] | [string] = [month];
         cats.forEach((cat) => {
           const category = transCatsData.data.find(
-            ({ name }: TransactionCategoryType) => name === cat,
+            ({ id }: TransactionCategoryType) => id === cat,
+          );
+          const transactionByCategory = trans.find(
+            (mC: any) => mC.category === category?.id,
           );
           row.push(
-            trans.find((mC: any) => mC.Category === category?.id.toString())
-              ?.Sum || 0,
+            // @ts-ignore
+            transactionByCategory ? Number(transactionByCategory.sum) : 0,
           );
         });
         cD.push(row);
@@ -59,13 +60,13 @@ const TransactionsStatistics = () => {
     getTransactionsStatistics().then((resp) => {
       const d = Object.values(resp);
       setData(d);
-      getChartData(d, ['Продукты']);
+      getChartData(d, [31]);
     });
-  }, []);
+  }, [transCatsData.data]);
 
-  const handleSelect = (e: SelectChangeEvent<string[]>) => {
-    setSelectedCategories(e.target.value as string[]);
-    getChartData(data, e.target.value as string[]);
+  const handleSelect = (e: SelectChangeEvent<number[]>) => {
+    setSelectedCategories(e.target.value as number[]);
+    getChartData(data, e.target.value as number[]);
   };
 
   return (
@@ -79,8 +80,8 @@ const TransactionsStatistics = () => {
         onChange={handleSelect}
       >
         {transCatsData.data.map((cat: TransactionCategoryType) => (
-          <MenuItem key={cat.id} value={cat.name}>
-            {cat.name}
+          <MenuItem key={cat.id} value={cat.id}>
+            {cat.name} ({cat.id})
           </MenuItem>
         ))}
       </Select>
@@ -88,7 +89,18 @@ const TransactionsStatistics = () => {
         height={400}
         chartType="ColumnChart"
         loader={<div>Loading Chart</div>}
-        data={[['Date', ...selectedCategories], ...chartData]}
+        data={[
+          [
+            'Date',
+            ...selectedCategories.map(
+              (cat) =>
+                transCatsData.data?.find(
+                  ({ id }: TransactionCategoryType) => id === Number(cat),
+                )?.name || cat.toString(),
+            ),
+          ],
+          ...chartData,
+        ]}
         legendToggle
       />
     </div>
