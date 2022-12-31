@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { LOCAL } from '../config/const';
 import { getItemFromStorage, TOKEN_KEY } from '../utils/storage';
-import { mapTasksByStatus } from '../utils/mappers';
+import { mapPostMonthsByYear, mapTasksByStatus } from '../utils/mappers';
 
 dayjs.extend(utc);
 
@@ -98,9 +98,11 @@ export const postPost = (data) =>
   apiLocalPostRequest(`posts`, data).then((resp) => resp.data);
 
 export const getYears = () =>
-  apiLocalGetRequest(`posts-months/`).then((resp) => resp.data);
+  apiLocalGetRequest(`posts-history?get=months`).then((resp) =>
+    mapPostMonthsByYear(resp.data),
+  );
 export const getMonth = (month) =>
-  apiLocalGetRequest(`posts-by-month/?ym=${month}`).then((resp) => resp.data);
+  apiLocalGetRequest(`posts-history?ym=${month}`).then((resp) => resp.data);
 export const searchPosts = (q) => apiLocalGetRequest(`posts-search/?q=${q}`);
 
 export const getLabels = () =>

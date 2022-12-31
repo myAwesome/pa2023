@@ -27,17 +27,25 @@ const thisMonth = new Date().getMonth() + 1;
 
 const Calendar = ({ year, month, posts }: Props) => {
   const [data, setData] = React.useState<
-    { labels?: number[]; isEmpty: boolean; date?: number }[][]
+    { labels?: number[]; isEmpty: boolean; date?: number | string }[][]
   >([]);
 
   React.useEffect(() => {
     const calendar = getCalendar(month || thisMonth, year || thisYear);
     const dataToSet = calendar.map((week) => {
       return week.map((d) => {
-        const post = posts.find(
+        let post = posts.find(
           (post) => dayjs(post?.date).format('D') === d?.date?.toString(),
         );
-        return { ...d, ...post, labels: post?.labels, isEmpty: !post };
+        if (post) {
+          post = { ...post, date: dayjs(post?.date).format('DD-MM-YY') };
+        }
+        return {
+          ...d,
+          ...post,
+          labels: post?.labels,
+          isEmpty: !post,
+        };
       });
     });
     setData(dataToSet);

@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import { TasksByStatus, TaskType } from '../types';
+import { PostMonth, PostMonthsByYear, TasksByStatus, TaskType } from '../types';
 
 dayjs.extend(utc);
 
@@ -23,6 +23,21 @@ export const mapTasksByStatus = (tasks: TaskType[]) => {
     });
   });
   return tasksByStatus;
+};
+
+export const mapPostMonthsByYear = (data: PostMonth[]) => {
+  if (!data?.length) {
+    return [];
+  }
+  const byYear: PostMonthsByYear = {};
+  data.forEach((m) => {
+    if (!byYear[m.y]) {
+      byYear[m.y] = [m];
+    } else {
+      byYear[m.y].push(m);
+    }
+  });
+  return byYear;
 };
 
 export const dateToMySQLFormat = (date?: string) => {

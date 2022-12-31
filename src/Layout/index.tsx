@@ -126,7 +126,7 @@ const Layout = ({ children }: PropsWithChildren) => {
               onClick={() => setOpen(true)}
               edge="start"
               sx={{
-                marginRight: 36,
+                marginRight: 3,
                 ...(open && { display: 'none' }),
               }}
             >

@@ -16,7 +16,7 @@ export type PhotoType = {
 
 export type PostType = {
   id: string;
-  date: number;
+  date: string;
   labels: number[];
   comments: CommentType[];
   body: string;
@@ -43,12 +43,6 @@ export type LastTimeItemType = {
   date: string;
   remind_after_days: string | number;
   expired: boolean;
-};
-
-export type YearMonthsType = {
-  YM: string;
-  Cnt: string;
-  M: string;
 };
 
 export enum TaskStatus {
@@ -118,3 +112,12 @@ export type WishType = {
   is_done: boolean;
   created_at: string;
 };
+
+export type PostMonth = {
+  y: string;
+  m: string;
+  ym: string;
+  count: number;
+};
+
+export type PostMonthsByYear = Record<string, PostMonth[]>;

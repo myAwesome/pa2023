@@ -10,7 +10,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import PostShow from '../PostShow';
 import { getLabels, getMonth, getYears } from '../../shared/api/routes';
-import { PostType, YearMonthsType } from '../../shared/types';
+import { PostMonth, PostMonthsByYear, PostType } from '../../shared/types';
 import Calendar from './Calendar';
 
 const DaysApp = () => {
@@ -72,11 +72,13 @@ const DaysApp = () => {
                 variant="standard"
               >
                 {selectedYear &&
-                  yearsData.data[selectedYear].map((m: YearMonthsType) => (
-                    <MenuItem key={m.YM} value={m.YM}>
-                      {m.M} ({m.Cnt})
-                    </MenuItem>
-                  ))}
+                  (yearsData.data as PostMonthsByYear)[selectedYear].map(
+                    (m: PostMonth) => (
+                      <MenuItem key={m.ym} value={m.ym}>
+                        {m.m} ({m.count})
+                      </MenuItem>
+                    ),
+                  )}
               </Select>
             </FormControl>
           </Grid>

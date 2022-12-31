@@ -21,7 +21,7 @@ const Reminder = () => {
           <Notifications />
         </Badge>
       </Hidden>
-      <Hidden xsDown>
+      <Hidden smDown>
         <Grid container>
           {reminderData.data.map((lt: LastTimeItemType) => (
             <Grid item key={lt.id}>

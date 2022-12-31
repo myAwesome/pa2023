@@ -6,7 +6,7 @@ import { getPhotosOnDate, photosSignIn } from '../../../shared/utils/photos';
 import { PhotoType } from '../../../shared/types';
 
 type Props = {
-  date: number;
+  date: number | string;
 };
 
 const PostPhotos = ({ date }: Props) => {

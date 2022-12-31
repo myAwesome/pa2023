@@ -116,22 +116,10 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
         container
         justifyContent="center"
         alignItems="center"
+        gap={2}
         sx={{
-          position: 'absolute',
+          position: 'relative',
           top: -13,
-          left: 0,
-          width: '100%',
-          '& > div:not(:last-child)': {
-            marginRight: (theme) => theme.spacing(2),
-          },
-          '@media screen and (max-width: 555px)': {
-            position: 'relative',
-            top: 0,
-            padding: (theme) => theme.spacing(1),
-            '& > div:not(:last-child)': {
-              marginBottom: (theme) => theme.spacing(1),
-            },
-          },
         }}
       >
         <Grid
