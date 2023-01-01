@@ -23,13 +23,13 @@ jobs:
     - run: npm run build-server
     - run: npm run build-client
     - name: Setup SSH key
-      run: |
-        echo "${{ secrets.PEM_KEY }}" >> ./key.pem
-        chmod 400 ./key.pem
+      run: echo "${{ secrets.PEM_KEY }}" >> ./key.pem
+    - name: Setup SSH key mod
+      run: chmod 400 ./key.pem
     - name: Set known hosts
-      run: |
-        echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> ./known_hosts
-        chmod 600 ./known_hosts
+      run: echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> ./known_hosts
+    - name: Set known hosts mod
+      run: chmod 600 ./known_hosts
     - name: Deploy Frontend
       run: scp -r -i ./key.pem -o UserKnownHostsFile=./known_hosts build/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDRESS }}:pa2020/frontend
     - name: Deploy Backend
