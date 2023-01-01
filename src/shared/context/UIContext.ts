@@ -1,19 +1,17 @@
 import { createContext } from 'react';
-import { Theme } from '@mui/material';
+import { Theme } from '../types';
 
 type UIContextType = {
   error: string;
   setError: (e: string) => void;
-  userTheme: Theme | object;
-  rawUserTheme: Record<string, any>;
-  handleUserThemeChanged: (newTheme: Record<string, any>) => void;
+  userTheme: Theme;
+  handleUserThemeChanged: (newTheme: Theme) => void;
 };
 
 const UIContext = createContext<UIContextType>({
   error: '',
   setError: () => {},
-  userTheme: {},
-  rawUserTheme: {},
+  userTheme: Theme.SYSTEM,
   handleUserThemeChanged: () => {},
 });
 

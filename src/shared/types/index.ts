@@ -121,3 +121,9 @@ export type PostMonth = {
 };
 
 export type PostMonthsByYear = Record<string, PostMonth[]>;
+
+export enum Theme {
+  LIGHT = 'light',
+  DARK = 'dark',
+  SYSTEM = 'system',
+}

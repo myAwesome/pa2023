@@ -175,5 +175,5 @@ export const putPeriod = (id, data) =>
 
 export const getUser = () =>
   apiLocalGetRequest(`users/me`).then((resp) => resp.data);
-export const putUser = (data) =>
-  apiLocalPutRequest(`users/me`, data).then((resp) => resp.data);
+export const editUser = (data) =>
+  apiLocalPatchRequest(`users/me`, data).then((resp) => resp.data);

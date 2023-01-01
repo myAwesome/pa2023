@@ -88,9 +88,9 @@ const WishList = lazy(
 
 function App() {
   return (
-    <Router>
-      <GPhotosContextProvider>
-        <UIContextProvider>
+    <UIContextProvider>
+      <Router>
+        <GPhotosContextProvider>
           <Suspense fallback={<div>Loading...</div>}>
             <Routes>
               <Route path="/auth" loader={authLoader} element={<AuthRoot />}>
@@ -148,9 +148,9 @@ function App() {
             </Routes>
           </Suspense>
           <ErrorSnackbar />
-        </UIContextProvider>
-      </GPhotosContextProvider>
-    </Router>
+        </GPhotosContextProvider>
+      </Router>
+    </UIContextProvider>
   );
 }
 

@@ -1,30 +1,25 @@
-import teal from '@mui/material/colors/teal';
-import blue from '@mui/material/colors/blue';
-import { createTheme } from '@mui/material';
+import { createTheme, Theme } from '@mui/material';
+import { cyan, pink } from '@mui/material/colors';
 
-const theme = createTheme({
-  palette: {
-    mode: 'dark',
-    primary: {
-      main: teal[700],
-      light: teal[500],
-      dark: teal[900],
-    },
-    secondary: {
-      main: blue[900],
-      light: blue[500],
-      dark: blue[900],
-    },
+export const themeConfig = (mode: 'dark' | 'light' = 'dark') => ({
+  shape: {
+    borderRadius: 0,
   },
+  palette: {
+    mode,
+    primary: cyan,
+    secondary: pink,
+  },
+  shadows: Array(25).fill('none') as Theme['shadows'],
   components: {
     MuiButton: {
       defaultProps: {
-        type: 'button',
+        type: 'button' as const,
       },
     },
     MuiTextField: {
       defaultProps: {
-        variant: 'standard',
+        variant: 'standard' as const,
       },
     },
   },
@@ -32,5 +27,7 @@ const theme = createTheme({
     fontSize: 14,
   },
 });
+
+const theme = createTheme(themeConfig('dark'));
 
 export default theme;

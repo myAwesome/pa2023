@@ -15,4 +15,11 @@ export class Users extends Service {
     if (id === 'me') return user;
     return await super.get(id, params);
   }
+  async patch(id: string, params: Params): Promise<any> {
+    const { user } = params;
+    if (id === 'me') {
+      id = user?.id;
+    }
+    return await super.patch(id, params);
+  }
 }

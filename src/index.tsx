@@ -22,11 +22,8 @@ const root = createRoot(container!);
 root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <App />
-      </ThemeProvider>
-      <ReactQueryDevtools initialIsOpen />
+      <App />
+      <ReactQueryDevtools />
     </QueryClientProvider>
   </React.StrictMode>,
 );
