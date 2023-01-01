@@ -5,7 +5,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import Chip from '@mui/material/Chip';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
-import { Box, TextField } from '@mui/material';
+import { Box, Paper, TextField } from '@mui/material';
 import PostLabel from '../PostLabel';
 import {
   addLabelToPost,
@@ -109,206 +109,203 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
     <Box
       sx={{
         position: 'relative',
-        border: post.id === 'new' ? '1px solid gray' : '1px solid black',
       }}
     >
-      <Grid
-        container
-        justifyContent="center"
-        alignItems="center"
-        gap={2}
-        sx={{
-          position: 'relative',
-          top: -13,
-        }}
-      >
+      <Paper>
         <Grid
-          item
+          container
+          justifyContent="center"
+          alignItems="center"
+          gap={2}
           sx={{
-            padding: (theme) => theme.spacing(0, 1),
-            backgroundColor: (theme) => theme.palette.background.default,
-          }}
-          title={dayjs(post.date).fromNow(true)}
-        >
-          {isEdit ? (
-            <TextField
-              name="update Date"
-              value={updateDate}
-              onChange={(e) => setUpdateDate(e.target.value)}
-              type="date-local"
-              sx={{
-                width: 140,
-              }}
-              size="small"
-              variant="standard"
-            />
-          ) : (
-            dayjs(post.date).format('dddd YYYY-MM-DD')
-          )}
-        </Grid>
-        <Grid item>
-          {labels.map((l) => (
-            <PostLabel
-              key={l.id}
-              label={l}
-              onClick={(e, isActive) =>
-                // @ts-ignore
-                toggleLabelMutation.mutate({ isActive, labelId: l.id })
-              }
-              isActive={!!post.labels.find((pl) => pl === l.id)}
-            />
-          ))}
-        </Grid>
-        <Grid item gap={2}>
-          <Button
-            onClick={() => setIsEdit(true)}
-            color="inherit"
-            sx={{
-              textTransform: 'lowercase',
-              padding: (theme) => theme.spacing(0, 1),
-              minWidth: 32,
-              backgroundColor: (theme) => theme.palette.background.default,
-            }}
-            disabled={post.id === 'new' || editPostMutation.isLoading}
-          >
-            edit
-          </Button>
-          <Button
-            onClick={() => setCommentOpen(true)}
-            color="inherit"
-            sx={{
-              textTransform: 'lowercase',
-              padding: (theme) => theme.spacing(0, 1),
-              minWidth: 32,
-              backgroundColor: (theme) => theme.palette.background.default,
-            }}
-            disabled={post.id === 'new' || editPostMutation.isLoading}
-          >
-            cmnt
-          </Button>
-          <Button
-            onClick={toggleDeleteMode}
-            color="inherit"
-            sx={{
-              textTransform: 'lowercase',
-              padding: (theme) => theme.spacing(0, 1),
-              minWidth: 32,
-              backgroundColor: (theme) => theme.palette.background.default,
-            }}
-            disabled={post.id === 'new' || editPostMutation.isLoading}
-          >
-            x
-          </Button>
-        </Grid>
-      </Grid>
-
-      {deleteMode ? (
-        <Box
-          sx={{
-            margin: 'auto',
-            minHeight: 70,
-            width: '100%',
-            textAlign: 'left',
-            lineHeight: '150%',
             position: 'relative',
-            padding: (theme) => theme.spacing(1.2),
-            paddingTop: 0,
-            marginTop: (theme) => theme.spacing(1.5),
+            top: -14,
           }}
         >
+          <Grid
+            item
+            sx={{
+              padding: (theme) => theme.spacing(0, 1),
+            }}
+            title={dayjs(post.date).fromNow(true)}
+          >
+            {isEdit ? (
+              <TextField
+                name="update Date"
+                value={updateDate}
+                onChange={(e) => setUpdateDate(e.target.value)}
+                type="date-local"
+                sx={{
+                  width: 140,
+                }}
+                size="small"
+                variant="standard"
+              />
+            ) : (
+              dayjs(post.date).format('dddd YYYY-MM-DD')
+            )}
+          </Grid>
+          <Grid item>
+            {labels.map((l) => (
+              <PostLabel
+                key={l.id}
+                label={l}
+                onClick={(e, isActive) =>
+                  // @ts-ignore
+                  toggleLabelMutation.mutate({ isActive, labelId: l.id })
+                }
+                isActive={!!post.labels.find((pl) => pl === l.id)}
+              />
+            ))}
+          </Grid>
+          <Grid item gap={2}>
+            <Button
+              onClick={() => setIsEdit(true)}
+              color="inherit"
+              sx={{
+                textTransform: 'lowercase',
+                padding: (theme) => theme.spacing(0, 1),
+                minWidth: 32,
+              }}
+              disabled={post.id === 'new' || editPostMutation.isLoading}
+            >
+              edit
+            </Button>
+            <Button
+              onClick={() => setCommentOpen(true)}
+              color="inherit"
+              sx={{
+                textTransform: 'lowercase',
+                padding: (theme) => theme.spacing(0, 1),
+                minWidth: 32,
+              }}
+              disabled={post.id === 'new' || editPostMutation.isLoading}
+            >
+              cmnt
+            </Button>
+            <Button
+              onClick={toggleDeleteMode}
+              color="inherit"
+              sx={{
+                textTransform: 'lowercase',
+                padding: (theme) => theme.spacing(0, 1),
+                minWidth: 32,
+              }}
+              disabled={post.id === 'new' || editPostMutation.isLoading}
+            >
+              x
+            </Button>
+          </Grid>
+        </Grid>
+
+        {deleteMode ? (
           <Box
             sx={{
-              width: '95%',
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              display: 'flex',
-              justifyContent: 'space-around',
+              margin: 'auto',
+              minHeight: 70,
+              width: '100%',
+              textAlign: 'left',
+              lineHeight: '150%',
+              position: 'relative',
+              padding: (theme) => theme.spacing(1.2),
+              paddingTop: 0,
+              marginTop: (theme) => theme.spacing(1.5),
             }}
           >
-            <Button
-              variant="contained"
-              onClick={() => setDeletedMode(false)}
+            <Box
               sx={{
-                width: '40%',
+                width: '95%',
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                display: 'flex',
+                justifyContent: 'space-around',
               }}
             >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              onClick={() => deletePostMutation.mutate()}
-              sx={{
-                width: '40%',
-              }}
-            >
-              Delete
-            </Button>
+              <Button
+                variant="contained"
+                onClick={() => setDeletedMode(false)}
+                sx={{
+                  width: '40%',
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                onClick={() => deletePostMutation.mutate()}
+                sx={{
+                  width: '40%',
+                }}
+              >
+                Delete
+              </Button>
+            </Box>
           </Box>
-        </Box>
-      ) : (
-        <Box
-          sx={{
-            margin: 'auto',
-            minHeight: 70,
-            width: '100%',
-            textAlign: 'left',
-            lineHeight: '150%',
-            position: 'relative',
-            padding: (theme) => theme.spacing(1.2),
-            paddingTop: 0,
-            marginTop: (theme) => theme.spacing(1.5),
-          }}
-        >
-          {isEdit ? (
-            <PostEdit
-              body={post.body}
-              onCancel={() => setIsEdit(false)}
-              handleSubmit={handleSubmit}
-            />
-          ) : (
-            <p>
-              {post.body.split('\n').map((item, key) => (
-                <Fragment key={key}>
-                  {searchTerm ? getHighlightedText(item, searchTerm) : item}
-                  <br />
-                </Fragment>
-              ))}
-            </p>
-          )}
-          {post.periods && post.periods.length > 0 ? (
-            <Grid container flexWrap="wrap" gap={1}>
-              {post.periods.map((period) => (
-                <Grid item key={period.id}>
-                  <Chip
-                    label={period.name}
-                    sx={{
-                      color: (theme) => theme.palette.primary.light,
-                    }}
-                    variant="outlined"
-                  />
-                </Grid>
-              ))}
-            </Grid>
-          ) : null}
-          <PostPhotos date={post.date} />
-          {post.comments.map((comment) => (
-            <PostComment key={comment.id} comment={comment} />
-          ))}
-          {isCommentOpen ? (
-            <PostCommentEdit
-              postId={post.id}
-              onCancel={() => {
-                setCommentOpen(false);
-              }}
-              invalidateQueries={invalidateQueries}
-            />
-          ) : (
-            ''
-          )}
-        </Box>
-      )}
+        ) : (
+          <Box
+            sx={{
+              margin: 'auto',
+              minHeight: 70,
+              width: '100%',
+              textAlign: 'left',
+              lineHeight: '150%',
+              position: 'relative',
+              padding: (theme) => theme.spacing(1.2),
+              paddingTop: 0,
+              marginTop: (theme) => theme.spacing(1.5),
+            }}
+          >
+            {isEdit ? (
+              <PostEdit
+                body={post.body}
+                onCancel={() => setIsEdit(false)}
+                handleSubmit={handleSubmit}
+              />
+            ) : (
+              <p>
+                {post.body.split('\n').map((item, key) => (
+                  <Fragment key={key}>
+                    {searchTerm ? getHighlightedText(item, searchTerm) : item}
+                    <br />
+                  </Fragment>
+                ))}
+              </p>
+            )}
+            {post.periods && post.periods.length > 0 ? (
+              <Grid container flexWrap="wrap" gap={1}>
+                {post.periods.map((period) => (
+                  <Grid item key={period.id}>
+                    <Chip
+                      label={period.name}
+                      sx={{
+                        color: (theme) => theme.palette.primary.light,
+                      }}
+                      variant="outlined"
+                    />
+                  </Grid>
+                ))}
+              </Grid>
+            ) : null}
+            <PostPhotos date={post.date} />
+            {post.comments.map((comment) => (
+              <PostComment key={comment.id} comment={comment} />
+            ))}
+            {isCommentOpen ? (
+              <PostCommentEdit
+                postId={post.id}
+                onCancel={() => {
+                  setCommentOpen(false);
+                }}
+                invalidateQueries={invalidateQueries}
+              />
+            ) : (
+              ''
+            )}
+          </Box>
+        )}
+      </Paper>
     </Box>
   );
 };

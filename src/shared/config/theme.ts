@@ -22,6 +22,13 @@ export const themeConfig = (mode: 'dark' | 'light' = 'dark') => ({
         variant: 'standard' as const,
       },
     },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          border: '1px solid ' + (mode === 'light' ? '#ccc' : '#333'),
+        },
+      },
+    },
   },
   typography: {
     fontSize: 14,

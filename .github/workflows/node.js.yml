@@ -26,8 +26,12 @@ jobs:
     - run: npm ci
     - name: Set env
       run: echo "REACT_APP_OAUTH_ID=${{ secrets.REACT_APP_OAUTH_ID }}\nREACT_APP_CLIENT_SECRET=${{ secrets.REACT_APP_CLIENT_SECRET }}" >> ./.env
+    - name: Check files
+      run: ls -la
     - run: npm run build-server
     - run: npm run build-client
+      env:
+        REACT_APP_OAUTH_ID: ${{ secrets.REACT_APP_OAUTH_ID }}
     - name: Setup SSH key
       run: echo "${{ secrets.PEM_KEY }}" >> ./key.pem
     - name: Setup SSH key mod
