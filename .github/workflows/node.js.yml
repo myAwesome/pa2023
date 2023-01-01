@@ -22,9 +22,11 @@ jobs:
     - run: npm ci
     - run: npm run build-server
     - run: npm run build-client
+    - name: Setup SSH key
+      run: echo "${{ secrets.PEM_KEY }}" >> ./key.pem
     - name: Deploy Frontend
-      run: scp -r -i ${{ secrets.PEM_KEY }} build/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDRESS }}:pa2020/frontend
+      run: scp -r -i ./key.pem build/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDRESS }}:pa2020/frontend
     - name: Deploy Backend
-      run: scp -r -i ${{ secrets.PEM_KEY }} lib/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDRESS }}:pa2020/backend
+      run: scp -r -i ./key.pem lib/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDRESS }}:pa2020/backend
     - name: Restart pm2
-      run: ssh -i ${{ secrets.PEM_KEY }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDRESS }} "pm2 restart all"
+      run: ssh -i ./key.pem ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDRESS }} "pm2 restart all"
