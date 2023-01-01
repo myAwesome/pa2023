@@ -3,13 +3,14 @@ import dayjs from 'dayjs';
 import { Typography } from '@mui/material';
 import Table from '../../../shared/components/Table';
 import { getCalendar } from '../../../shared/utils/calendar';
-import { PostType } from '../../../shared/types';
+import { LabelType, PostType } from '../../../shared/types';
 import CalendarCell from './Cell';
 
 type Props = {
   year: string;
   month: string;
   posts: PostType[];
+  labels: LabelType[];
 };
 
 const columns = [
@@ -25,9 +26,13 @@ const columns = [
 const thisYear = new Date().getFullYear();
 const thisMonth = new Date().getMonth() + 1;
 
-const Calendar = ({ year, month, posts }: Props) => {
+const Calendar = ({ year, month, posts, labels }: Props) => {
   const [data, setData] = React.useState<
-    { labels?: number[]; isEmpty: boolean; date?: number | string }[][]
+    {
+      labels?: (LabelType | undefined)[];
+      isEmpty: boolean;
+      date?: number | string;
+    }[][]
   >([]);
 
   React.useEffect(() => {
@@ -43,7 +48,7 @@ const Calendar = ({ year, month, posts }: Props) => {
         return {
           ...d,
           ...post,
-          labels: post?.labels,
+          labels: post?.labels?.map((lId) => labels.find((l) => l.id === lId)),
           isEmpty: !post,
         };
       });

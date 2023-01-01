@@ -35,9 +35,9 @@ const CalendarCell = (
       </Box>
       {!data.isEmpty && (
         <div>
-          {data.labels?.map((l: LabelType) => (
-            <PostLabel key={l.id} label={l} isActive noMargin />
-          ))}
+          {data.labels?.map((l: LabelType | undefined) =>
+            l ? <PostLabel key={l.id} label={l} isActive noMargin /> : null,
+          )}
         </div>
       )}
     </Box>

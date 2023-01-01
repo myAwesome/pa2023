@@ -108,6 +108,7 @@ const DaysApp = () => {
           year={selectedYear}
           month={selectedMonth?.slice(3)}
           posts={monthData.data || []}
+          labels={labelsData.data || []}
         />
       </Grid>
     </Grid>
