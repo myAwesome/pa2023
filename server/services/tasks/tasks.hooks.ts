@@ -1,5 +1,6 @@
 import { HookContext } from '@feathersjs/feathers';
 import * as authentication from '@feathersjs/authentication';
+import { removeUserId } from '../../app.hooks';
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = authentication.hooks;
@@ -16,9 +17,9 @@ export default {
     all: [authenticate('jwt')],
     find: [filterArchived],
     get: [],
-    create: [],
-    update: [],
-    patch: [],
+    create: [removeUserId],
+    update: [removeUserId],
+    patch: [removeUserId],
     remove: [],
   },
 
