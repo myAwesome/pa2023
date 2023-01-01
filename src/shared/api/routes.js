@@ -69,8 +69,8 @@ export const getNotes = (categoryId) =>
   );
 export const postNote = (data) =>
   apiLocalPostRequest('note', data).then((resp) => resp.data);
-export const putNote = (id, data) =>
-  apiLocalPutRequest(`note/${id}`, data).then((resp) => resp.data);
+export const editNote = (id, data) =>
+  apiLocalPatchRequest(`note/${id}`, data).then((resp) => resp.data);
 export const deleteNote = (id) =>
   apiLocalDeleteRequest(`note/${id}`).then((resp) => resp.data);
 

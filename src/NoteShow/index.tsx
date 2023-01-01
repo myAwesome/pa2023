@@ -7,7 +7,7 @@ import { useParams } from 'react-router-dom';
 import { useUpdateMutation } from '../shared/hooks/useUpdateMutation';
 import { useCreateMutation } from '../shared/hooks/useCreateMutation';
 import { useDeleteMutation } from '../shared/hooks/useDeleteMutation';
-import { deleteNote, getNotes, postNote, putNote } from '../shared/api/routes';
+import { deleteNote, getNotes, postNote, editNote } from '../shared/api/routes';
 import { NoteType } from '../shared/types';
 import AddNote from './AddNote';
 
@@ -20,7 +20,7 @@ const NoteCategoryShow = () => {
   const [noteToEdit, setNoteToEdit] = React.useState<NoteType | null>(null);
   const notesData = useQuery(['notes', params.id], () => getNotes(params.id));
   const editMutation = useUpdateMutation(
-    (vals: Omit<NoteType, 'id'>) => putNote(noteToEdit?.id, vals),
+    (vals: Omit<NoteType, 'id'>) => editNote(noteToEdit?.id, vals),
     ['notes', params.id],
     noteToEdit?.id,
     (val: NoteType) => val,
@@ -53,7 +53,7 @@ const NoteCategoryShow = () => {
       addMutation.mutate(values);
     } else {
       // @ts-ignore
-      editMutation.mutate({ ...noteToEdit, ...values });
+      editMutation.mutate(values);
     }
   };
 
