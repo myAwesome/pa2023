@@ -23,7 +23,9 @@ jobs:
     - run: npm run build-server
     - run: npm run build-client
     - name: Setup SSH key
-      run: echo "${{ secrets.PEM_KEY }}" >> ./key.pem
+      run: |
+        echo "${{ secrets.PEM_KEY }}" >> ./key.pem
+        chmod 400 ./key.pem
     - name: Deploy Frontend
       run: scp -r -i ./key.pem build/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDRESS }}:pa2020/frontend
     - name: Deploy Backend
