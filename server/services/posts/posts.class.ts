@@ -29,6 +29,7 @@ export class Posts extends Service {
             .where({ post_id: post.id }),
           this.app
             .get('knexClient')('periods')
+            .select('periods.*')
             .join(
               this.app
                 .get('knexClient')
