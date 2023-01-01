@@ -27,6 +27,27 @@ export class PostsHistory extends Service {
           "DATE_FORMAT(date, '%y-%m'), DATE_FORMAT(date, '%M'), DATE_FORMAT(date, '%Y')",
         );
     }
+    if (params.query?.get === 'labels' && params.query?.y) {
+      const posts = await knex('posts')
+        .select(
+          knex.raw(
+            "id, date, DATE_FORMAT(date, '%m') as m, DATE_FORMAT(date, '%d') as d",
+          ),
+        )
+        .whereRaw(`DATE_FORMAT(date, '%Y') = ? and user_id = ?`, [
+          params.query?.y,
+          params.user?.id,
+        ]);
+      return Promise.all(
+        posts.map(async (post: { id: number; date: string }) => {
+          const labels = await knex('labels')
+            .pluck('labels.id')
+            .join('post_labels', 'post_labels.label_id', 'labels.id')
+            .where({ post_id: post.id });
+          return { labels, ...post };
+        }),
+      );
+    }
     let ym = new Date().toISOString().slice(5, 10);
     let dateFormat = '%m-%d';
     if (params.query?.ym) {

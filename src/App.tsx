@@ -52,6 +52,9 @@ const DaysApp = lazy(
 const DaysSettings = lazy(
   /* webpackChunkName: "days-settings" */ () => import('./Days/Settings'),
 );
+const DaysCalendar = lazy(
+  /* webpackChunkName: "days-settings" */ () => import('./Days/DaysCalendar'),
+);
 const Search = lazy(
   /* webpackChunkName: "days-search" */ () => import('./Days/Search'),
 );
@@ -113,6 +116,7 @@ function App() {
                   <Route index element={<NewEntry />} />
                   <Route path="app" element={<DaysApp />} />
                   <Route path="settings" element={<DaysSettings />} />
+                  <Route path="calendar" element={<DaysCalendar />} />
                   <Route path="search" element={<Search />} />
                   <Route path="history" element={<PostList tab="history" />} />
                 </Route>

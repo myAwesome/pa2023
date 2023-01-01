@@ -124,7 +124,7 @@ const Layout = ({ children }: PropsWithChildren) => {
   return (
     <Box sx={{ display: 'flex' }}>
       <AppBar position="fixed" open={open}>
-        <Toolbar>
+        <Toolbar variant="dense">
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -183,7 +183,7 @@ const Layout = ({ children }: PropsWithChildren) => {
         }}
       >
         <Toolbar />
-        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+        <Container maxWidth="lg" sx={{ mb: 4 }}>
           <div>{children}</div>
         </Container>
       </Box>

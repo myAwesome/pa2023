@@ -103,6 +103,10 @@ export const getYears = () =>
   );
 export const getMonth = (month) =>
   apiLocalGetRequest(`posts-history?ym=${month}`).then((resp) => resp.data);
+export const getYearLabels = (year = new Date().getFullYear()) =>
+  apiLocalGetRequest(`posts-history?y=${year}&get=labels`).then(
+    (resp) => resp.data,
+  );
 export const searchPosts = (q) => apiLocalGetRequest(`posts-search/?q=${q}`);
 
 export const getLabels = () =>

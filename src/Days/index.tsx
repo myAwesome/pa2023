@@ -35,8 +35,15 @@ const Days = () => {
             path: '/days/app',
           },
           {
-            label: 'Settings',
-            // icon: <SettingsIcon />,
+            label: 'Calendar',
+            mobile: {
+              label: 'Calendar',
+            },
+            path: '/days/calendar',
+          },
+          {
+            // label: 'Settings',
+            icon: <SettingsIcon />,
             mobile: {
               icon: <SettingsIcon />,
             },
@@ -51,7 +58,7 @@ const Days = () => {
           },
         ]}
       />
-      <br /> <br />
+      <br />
       <Outlet />
     </div>
   );

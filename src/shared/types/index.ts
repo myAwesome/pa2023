@@ -127,3 +127,26 @@ export enum Theme {
   DARK = 'dark',
   SYSTEM = 'system',
 }
+
+export type YearLabelsType = {
+  d: string;
+  m: string;
+  date: string;
+  id: number;
+  labels: number[];
+};
+
+export type LabelsPerMonthType = {
+  1?: YearLabelsType[];
+  2?: YearLabelsType[];
+  3?: YearLabelsType[];
+  4?: YearLabelsType[];
+  5?: YearLabelsType[];
+  6?: YearLabelsType[];
+  7?: YearLabelsType[];
+  8?: YearLabelsType[];
+  9?: YearLabelsType[];
+  10?: YearLabelsType[];
+  11?: YearLabelsType[];
+  12?: YearLabelsType[];
+};
