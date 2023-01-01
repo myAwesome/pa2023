@@ -70,7 +70,11 @@ const LayoutToolbar = ({ open }: Props) => {
       {open ? (
         <ListSubheader component="span"> Family </ListSubheader>
       ) : (
-        <Divider />
+        <Divider
+          sx={{
+            borderColor: (theme) => theme.palette.primary[theme.palette.mode],
+          }}
+        />
       )}
       <MuiLink component={Link} to="/transactions/list" underline="none">
         <ListItemButton>

@@ -24,19 +24,21 @@ const UIContextProvider = ({ children }: PropsWithChildren) => {
       ? (cachedTheme as Theme)
       : Theme.SYSTEM,
   );
-  const userTheme = useMemo(
+  const resolvedSystemTheme = useMemo(
+    () => (prefersDarkMode ? Theme.DARK : Theme.LIGHT),
+    [prefersDarkMode],
+  );
+  const resolvedThemeName = useMemo(
     () =>
-      createTheme(
-        themeConfig(
-          themeName === Theme.SYSTEM
-            ? prefersDarkMode
-              ? Theme.DARK
-              : Theme.LIGHT
-            : themeName === Theme.DARK
-            ? Theme.DARK
-            : Theme.LIGHT,
-        ),
-      ),
+      themeName === Theme.SYSTEM
+        ? resolvedSystemTheme
+        : themeName === Theme.DARK
+        ? Theme.DARK
+        : Theme.LIGHT,
+    [themeName, resolvedSystemTheme],
+  );
+  const userTheme = useMemo(
+    () => createTheme(themeConfig(resolvedThemeName)),
     [themeName],
   );
 

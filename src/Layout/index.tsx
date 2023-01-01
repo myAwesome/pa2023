@@ -9,8 +9,6 @@ import {
   ListItemIcon,
   Divider,
   Drawer as MuiDrawer,
-  CssBaseline,
-  ThemeProvider,
   Container,
   Box,
   Theme,
@@ -34,6 +32,11 @@ const openedMixin = (theme: Theme): CSSObject => ({
     duration: theme.transitions.duration.enteringScreen,
   }),
   overflowX: 'hidden',
+  backgroundImage: `linear-gradient(${
+    theme.palette.mode === 'light' ? '#eee' : '#222'
+  } 0.1em, transparent 0.1em)`,
+  backgroundSize: '100% 1.2em',
+  borderRight: `2px solid ${theme.palette.primary[theme.palette.mode]}`,
 });
 
 const closedMixin = (theme: Theme): CSSObject => ({
@@ -43,6 +46,11 @@ const closedMixin = (theme: Theme): CSSObject => ({
   }),
   overflowX: 'hidden',
   width: `calc(${theme.spacing(7)} + 1px)`,
+  backgroundImage: `linear-gradient(${
+    theme.palette.mode === 'light' ? '#eee' : '#222'
+  } 0.1em, transparent 0.1em)`,
+  backgroundSize: '100% 1.2em',
+  borderRight: `2px solid ${theme.palette.primary[theme.palette.mode]}`,
   [theme.breakpoints.up('sm')]: {
     width: `calc(${theme.spacing(8)} + 1px)`,
   },
@@ -99,13 +107,12 @@ const Drawer = styled(MuiDrawer, {
 const Layout = ({ children }: PropsWithChildren) => {
   const [open, setOpen] = React.useState(false);
 
-  const { userTheme, handleUserThemeChanged } = useContext(UIContext);
+  const { handleUserThemeChanged } = useContext(UIContext);
   const { handleUserLoggedOut } = useContext(GPhotosContext);
 
   useQuery(['user'], () => {
     return getUser().then((data) => {
-      const theme = JSON.parse(data.theme || '{}') || {};
-      handleUserThemeChanged(theme);
+      handleUserThemeChanged(data.theme);
       return data;
     });
   });
@@ -115,67 +122,72 @@ const Layout = ({ children }: PropsWithChildren) => {
   };
 
   return (
-    <ThemeProvider theme={userTheme}>
-      <Box sx={{ display: 'flex' }}>
-        <CssBaseline />
-        <AppBar position="fixed" open={open}>
-          <Toolbar>
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              onClick={() => setOpen(true)}
-              edge="start"
-              sx={{
-                marginRight: 3,
-                ...(open && { display: 'none' }),
-              }}
-            >
-              <Menu />
-            </IconButton>
-            <TasksInProgress />
-            <Reminder />
-          </Toolbar>
-        </AppBar>
-        <Drawer variant="permanent" open={open}>
-          <DrawerHeader>
-            <IconButton onClick={() => setOpen(false)}>
-              <ChevronLeft />
-            </IconButton>
-          </DrawerHeader>
-          <Divider />
-          <LayoutToolbar open={open} />
-          <Box
+    <Box sx={{ display: 'flex' }}>
+      <AppBar position="fixed" open={open}>
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={() => setOpen(true)}
+            edge="start"
             sx={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              width: '100%',
+              marginRight: 3,
+              ...(open && { display: 'none' }),
             }}
           >
-            <Divider />
-            <ListItemButton onClick={handleLogout}>
-              <ListItemIcon>
-                <ExitToApp />
-              </ListItemIcon>
-              <ListItemText primary="Logout" />
-            </ListItemButton>
-          </Box>
-        </Drawer>
+            <Menu />
+          </IconButton>
+          <TasksInProgress />
+          <Reminder />
+        </Toolbar>
+      </AppBar>
+      <Drawer variant="permanent" open={open}>
+        <DrawerHeader>
+          <IconButton onClick={() => setOpen(false)}>
+            <ChevronLeft />
+          </IconButton>
+        </DrawerHeader>
+        <LayoutToolbar open={open} />
         <Box
-          component="main"
           sx={{
-            flexGrow: 1,
-            height: '100vh',
-            overflow: 'auto',
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            width: '100%',
           }}
         >
-          <Toolbar />
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <div>{children}</div>
-          </Container>
+          <Divider
+            sx={{
+              borderColor: (theme) => theme.palette.primary[theme.palette.mode],
+            }}
+          />
+          <ListItemButton onClick={handleLogout}>
+            <ListItemIcon>
+              <ExitToApp />
+            </ListItemIcon>
+            <ListItemText primary="Logout" />
+          </ListItemButton>
         </Box>
+      </Drawer>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          height: '100vh',
+          overflow: 'auto',
+          backgroundImage: (theme) =>
+            `linear-gradient(${
+              theme.palette.mode === 'light' ? '#eee' : '#222'
+            } 0.1em, transparent 0.1em)`,
+          backgroundSize: '100% 1.2em',
+        }}
+      >
+        <Toolbar />
+        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+          <div>{children}</div>
+        </Container>
       </Box>
-    </ThemeProvider>
+    </Box>
   );
 };
 
