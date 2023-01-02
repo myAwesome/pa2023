@@ -54,10 +54,12 @@ export class PostsHistory extends Service {
       dateFormat = '%y-%m';
       ym = params.query?.ym;
     }
-    const posts = await knex('posts').whereRaw(
-      `DATE_FORMAT(date, '${dateFormat}') = ? and posts.user_id = ?`,
-      [ym, params.user?.id],
-    );
+    const posts = await knex('posts')
+      .whereRaw(
+        `DATE_FORMAT(date, '${dateFormat}') = ? and posts.user_id = ?`,
+        [ym, params.user?.id],
+      )
+      .orderBy('date', 'desc');
     const populated = await Promise.all(
       posts.map(async (post: any) => {
         const [comments, labels, periods] = await Promise.all([
