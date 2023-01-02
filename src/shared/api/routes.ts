@@ -120,7 +120,7 @@ export const getYearLabels = (year = new Date().getFullYear()) =>
     (resp) => resp.data,
   );
 export const searchPosts = (q: string) =>
-  apiLocalGetRequest(`posts-search/?q=${q}`);
+  apiLocalGetRequest(`posts?body[$like]=${encodeURIComponent(`%${q}%`)}`);
 
 export const getLabels = () =>
   apiLocalGetRequest('labels').then((resp) => resp.data?.data);

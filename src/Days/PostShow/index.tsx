@@ -89,11 +89,15 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
         {' '}
         {parts.map((part, i) => (
           <Box
+            component="span"
             key={i}
             sx={
               part.toLowerCase() === highlight.toLowerCase()
                 ? {
-                    backgroundColor: (theme) => theme.palette.secondary.dark,
+                    backgroundColor: (theme) =>
+                      theme.palette.secondary[theme.palette.mode],
+                    borderRadius: '6px',
+                    padding: '1px 3px',
                   }
                 : {}
             }
