@@ -6,6 +6,7 @@ import Chip from '@mui/material/Chip';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import { Box, Paper, TextField } from '@mui/material';
+import { QueryKey } from '@tanstack/react-query';
 import PostLabel from '../PostLabel';
 import {
   addLabelToPost,
@@ -29,7 +30,7 @@ type Props = {
   post: PostType;
   labels: LabelType[];
   searchTerm?: string;
-  invalidateQueries?: string[];
+  invalidateQueries: QueryKey;
 };
 
 const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
@@ -78,7 +79,6 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
 
   const handleSubmit = (e: FormEvent, updateText: string) => {
     e.preventDefault();
-    // @ts-ignore
     editPostMutation.mutate(updateText);
   };
 
@@ -151,7 +151,6 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 key={l.id}
                 label={l}
                 onClick={(e, isActive) =>
-                  // @ts-ignore
                   toggleLabelMutation.mutate({ isActive, labelId: l.id })
                 }
                 isActive={!!post.labels.find((pl) => pl === l.id)}
@@ -167,7 +166,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 padding: (theme) => theme.spacing(0, 1),
                 minWidth: 32,
               }}
-              disabled={post.id === 'new' || editPostMutation.isLoading}
+              disabled={post.id === 0 || editPostMutation.isLoading}
             >
               edit
             </Button>
@@ -179,7 +178,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 padding: (theme) => theme.spacing(0, 1),
                 minWidth: 32,
               }}
-              disabled={post.id === 'new' || editPostMutation.isLoading}
+              disabled={post.id === 0 || editPostMutation.isLoading}
             >
               cmnt
             </Button>
@@ -191,7 +190,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 padding: (theme) => theme.spacing(0, 1),
                 minWidth: 32,
               }}
-              disabled={post.id === 'new' || editPostMutation.isLoading}
+              disabled={post.id === 0 || editPostMutation.isLoading}
             >
               x
             </Button>
@@ -234,7 +233,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
               </Button>
               <Button
                 variant="contained"
-                onClick={() => deletePostMutation.mutate()}
+                onClick={deletePostMutation.mutate}
                 sx={{
                   width: '40%',
                 }}

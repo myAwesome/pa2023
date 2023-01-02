@@ -40,7 +40,7 @@ const LabelsSettings = () => {
 
   const editLabelMutation = useUpdateMutation(
     () =>
-      putLabel(labelToEdit, {
+      putLabel(labelToEdit || 0, {
         name: newLabelName,
         color: newLabelColor[0],
         color_active: newLabelColor[1],
@@ -78,7 +78,7 @@ const LabelsSettings = () => {
     ],
   );
   const deleteLabelMutation = useDeleteMutation(
-    () => deleteLabel(itemToDelete),
+    () => deleteLabel(itemToDelete || 0),
     ['labels'],
     itemToDelete,
   );
@@ -99,12 +99,12 @@ const LabelsSettings = () => {
 
   const handleLabelEdit = (e: FormEvent) => {
     e.preventDefault();
-    editLabelMutation.mutate();
+    editLabelMutation.mutate('');
   };
 
   const handleLabelAdd = (e: FormEvent) => {
     e.preventDefault();
-    addLabelMutation.mutate();
+    addLabelMutation.mutate('');
   };
 
   const handleClose = () => {
@@ -175,7 +175,7 @@ const LabelsSettings = () => {
           horizontal: 'center',
         }}
       >
-        <IconButton onClick={() => deleteLabelMutation.mutate()}>
+        <IconButton onClick={deleteLabelMutation.mutate}>
           <DeleteIcon />
         </IconButton>
         <IconButton onClick={handleLabelEditClick}>

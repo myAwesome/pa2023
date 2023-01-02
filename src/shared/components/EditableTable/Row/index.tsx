@@ -3,15 +3,17 @@ import PropTypes from 'prop-types';
 import { IconButton, TableCell, TableRow, Button } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
+import { MutationFunction } from '@tanstack/query-core';
+import { QueryKey } from '@tanstack/react-query';
 import { useDeleteMutation } from '../../../hooks/useDeleteMutation';
 import { ColumnType, TableItemType } from '../../../types/table';
 
 type Props = {
   item: TableItemType;
   columns: ColumnType[];
-  invalidateQueries?: (string | number)[];
+  invalidateQueries: QueryKey;
   onEditClicked: () => void;
-  deleteMutationFn: (id: string) => void;
+  deleteMutationFn: MutationFunction<any, any>;
 };
 
 const Row = ({
@@ -29,7 +31,7 @@ const Row = ({
     () => {
       setIsDelete(false);
     },
-    null,
+    undefined,
     (val: any) => val,
   );
   return isDelete ? (

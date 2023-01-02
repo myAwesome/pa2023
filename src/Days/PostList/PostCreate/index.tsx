@@ -23,7 +23,7 @@ const PostCreate = () => {
     () => postPost(createPost(value, date)),
     ['recent_posts'],
     (old: any[]) => [
-      { ...createPost(value, date), id: 'new', labels: [], comments: [] },
+      { ...createPost(value, date), id: 0, labels: [], comments: [] },
       ...old,
     ],
     () => {
@@ -41,7 +41,7 @@ const PostCreate = () => {
 
   const handleSubmit = () => {
     if (value) {
-      createPostMutation.mutate();
+      createPostMutation.mutate(value);
     }
   };
 

@@ -93,7 +93,10 @@ const DaysApp = () => {
                 position: 'relative',
               }}
             >
-              <span id={p.id} style={{ position: 'absolute', top: -100 }} />
+              <span
+                id={p.id.toString()}
+                style={{ position: 'absolute', top: -100 }}
+              />
               <PostShow
                 post={{ ...p, labels: p.labels || [] }}
                 labels={labelsData.data || []}

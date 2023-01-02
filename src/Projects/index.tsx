@@ -34,7 +34,7 @@ const Projects = () => {
     },
   );
   const editMutation = useUpdateMutation(
-    (values: ProjectType) => putProject(projectToEdit?.id, values),
+    (values: ProjectType) => putProject(projectToEdit?.id || 0, values),
     ['projects'],
     projectToEdit?.id,
     (values: ProjectType) => values,
@@ -47,10 +47,8 @@ const Projects = () => {
 
   const handleSubmit = (values: Omit<ProjectType, 'id' | 'created_at'>) => {
     if (isAdd) {
-      // @ts-ignore
       addMutation.mutate(values);
     } else {
-      // @ts-ignore
       editMutation.mutate(values);
     }
   };

@@ -44,7 +44,7 @@ const AddLastTime = ({
           remind_after_days: Number(lt.remind_after_days),
         });
         setLt({
-          id: '',
+          id: 0,
           body: '',
           date: dayjs().format(),
           remind_after_days: '',

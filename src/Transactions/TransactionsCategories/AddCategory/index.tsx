@@ -47,7 +47,7 @@ const TransactionsCategoriesCreate = () => {
             value={value}
             onChange={handleText}
           />
-          <Button variant="outlined" onClick={() => addMutation.mutate()}>
+          <Button variant="outlined" onClick={addMutation.mutate}>
             Save
           </Button>
         </span>

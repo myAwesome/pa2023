@@ -1,12 +1,13 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { QueryKey, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useContext } from 'react';
+import { MutationFunction } from '@tanstack/query-core';
 import UIContext from '../context/UIContext';
 
 export const useCreateMutation = (
-  mutationFn,
-  invalidateQueries,
-  updater,
-  callback,
+  mutationFn: MutationFunction<any, any>,
+  invalidateQueries: QueryKey,
+  updater: (old: any, payload: any) => any,
+  callback?: () => void,
 ) => {
   const queryClient = useQueryClient();
   const { setError } = useContext(UIContext);
@@ -23,7 +24,7 @@ export const useCreateMutation = (
 
       return previousValue;
     },
-    onError: (err, variables, previousValue) => {
+    onError: (err: Error, variables, previousValue) => {
       queryClient.setQueryData(invalidateQueries, previousValue);
       console.error(err);
       setError(err.message);

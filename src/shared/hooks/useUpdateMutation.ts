@@ -1,20 +1,21 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { QueryKey, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useContext } from 'react';
+import { MutationFunction } from '@tanstack/query-core';
 import UIContext from '../context/UIContext';
 
 export const useUpdateMutation = (
-  mutationFn,
-  invalidateQueries,
-  id,
-  getNewItem,
-  callback,
-  additionalRefetchQuery,
-  updater,
+  mutationFn: MutationFunction<any, any>,
+  invalidateQueries: QueryKey,
+  id?: number | string | null,
+  getNewItem?: (payload: any, item: any) => any,
+  callback?: () => void,
+  additionalRefetchQuery?: QueryKey,
+  updater?: (old: any, payload: any) => any,
 ) => {
   const queryClient = useQueryClient();
   const { setError } = useContext(UIContext);
 
-  return useMutation(mutationFn, {
+  return useMutation<any, any, any>(mutationFn, {
     onMutate: async (payload) => {
       await queryClient.cancelQueries(invalidateQueries);
 
@@ -35,7 +36,7 @@ export const useUpdateMutation = (
         if (!old) {
           return old;
         }
-        return updater(old, payload);
+        return updater?.(old, payload);
       });
       callback?.();
 

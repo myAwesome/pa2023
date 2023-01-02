@@ -27,7 +27,6 @@ const WishCreate = () => {
         ...values,
         price_from: Number(values.price_from),
         price_to: Number(values.price_to),
-        user_id: process.env.REACT_APP_USER_ID,
         is_done: false,
       }),
     ['wishes'],
@@ -42,7 +41,7 @@ const WishCreate = () => {
       <WishForm
         onSubmit={(e) => {
           e.preventDefault();
-          addWishMutation.mutate();
+          addWishMutation.mutate('');
         }}
         handleChange={handleChange}
         values={values}

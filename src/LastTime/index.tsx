@@ -35,7 +35,7 @@ const LastTime = () => {
   const lastTimeData = useQuery(['last_times'], getLts);
   const updateMutation = useUpdateMutation(
     (values: LastTimeItemType) =>
-      putLT((itemToEdit || itemToUpdate)?.id, {
+      putLT((itemToEdit || itemToUpdate)?.id || 0, {
         ...(itemToEdit || itemToUpdate),
         ...values,
       }),
@@ -66,7 +66,7 @@ const LastTime = () => {
     },
   );
   const deleteMutation = useDeleteMutation(
-    () => deleteLT(itemToEdit?.id),
+    () => deleteLT(itemToEdit?.id || 0),
     ['last_times'],
     itemToEdit?.id,
     () => {},
@@ -84,7 +84,6 @@ const LastTime = () => {
 
   const handleSubmit = (values: Omit<LastTimeItemType, 'expired' | 'id'>) => {
     const action = isAdd ? createMutation : updateMutation;
-    // @ts-ignore
     action.mutate(values);
   };
 
@@ -115,7 +114,7 @@ const LastTime = () => {
     setIsEdit(false);
     setIsAdd(false);
     if (itemToEdit?.id) {
-      deleteMutation.mutate();
+      deleteMutation.mutate(itemToEdit?.id);
     }
   };
 
@@ -186,7 +185,6 @@ const LastTime = () => {
           <Grid item>
             <Button
               onClick={() => {
-                // @ts-ignore
                 updateMutation.mutate({ date: dateToMySQLFormat(updateDate) });
               }}
             >

@@ -38,7 +38,7 @@ const WishList = () => {
   }, [data, shouldHideDone, isLoading]);
 
   const removeWishMutation = useDeleteMutation(
-    (id: string) => deleteWish(id),
+    (id: number) => deleteWish(id),
     ['wishes'],
   );
 
@@ -109,7 +109,6 @@ const WishList = () => {
                   <Button
                     onClick={() => {
                       const { created_at, ...vals } = w;
-                      // @ts-ignore
                       editWishMutation.mutate({
                         ...vals,
                         is_done: true,
@@ -121,7 +120,6 @@ const WishList = () => {
                   </Button>
                   <Button
                     onClick={() => {
-                      // @ts-ignore
                       removeWishMutation.mutate(w.id);
                     }}
                     disabled={!isMine}
@@ -146,7 +144,6 @@ const WishList = () => {
       </Grid>
       <WishEdit
         onSubmit={(val) => {
-          // @ts-ignore
           editWishMutation.mutate(val);
         }}
         handleClose={handleCloseEdit}

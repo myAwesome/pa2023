@@ -1,5 +1,5 @@
 export type PeriodType = {
-  id: string;
+  id: number;
   name: string;
   start: string;
   end: string;
@@ -15,7 +15,7 @@ export type PhotoType = {
 };
 
 export type PostType = {
-  id: string;
+  id: number;
   date: string;
   labels: number[];
   comments: CommentType[];
@@ -34,11 +34,11 @@ export type CommentType = {
   id: number;
   body: string;
   date: string;
-  post_id: string;
+  post_id: number;
 };
 
 export type LastTimeItemType = {
-  id: string;
+  id: number;
   body: string;
   date: string;
   remind_after_days: string | number;
@@ -54,7 +54,7 @@ export enum TaskStatus {
 
 export type TaskType = {
   status: TaskStatus;
-  id: string;
+  id: number;
   body: string;
   created_at: string;
   priority: number;
@@ -64,18 +64,18 @@ export type TaskType = {
 };
 
 export type NoteCategoryType = {
-  id: string;
+  id: number;
   name: string;
 };
 
 export type NoteType = {
-  id: string;
+  id: number;
   body: string;
   note_category: string;
 };
 
 export type ProjectType = {
-  id: string;
+  id: number;
   title: string;
   description: string;
   archived: boolean;
@@ -104,7 +104,7 @@ export type TransactionType = {
 };
 
 export type WishType = {
-  id: string;
+  id: number;
   name: string;
   picture: string;
   price_from: number;

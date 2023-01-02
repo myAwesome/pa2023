@@ -49,7 +49,8 @@ const NoteCategories = () => {
     },
   );
   const editMutation = useUpdateMutation(
-    (vals: NoteCategoryType) => putNoteCategory(noteCategoryToEdit?.id, vals),
+    (vals: NoteCategoryType) =>
+      putNoteCategory(noteCategoryToEdit?.id || 0, vals),
     ['note_categories'],
     noteCategoryToEdit?.id,
     (vals: NoteCategoryType) => vals,
@@ -65,7 +66,7 @@ const NoteCategories = () => {
   };
 
   const deleteMutation = useDeleteMutation(
-    () => deleteNoteCategory(noteCategoryToDelete?.id),
+    () => deleteNoteCategory(noteCategoryToDelete?.id || 0),
     ['note_categories'],
     noteCategoryToDelete?.id,
     handleCancel,
@@ -73,10 +74,8 @@ const NoteCategories = () => {
 
   const handleSubmit = (values: Omit<NoteCategoryType, 'note_count'>) => {
     if (isAdd) {
-      // @ts-ignore
       addMutation.mutate({ name: values.name });
     } else {
-      // @ts-ignore
       editMutation.mutate(values);
     }
   };
@@ -155,7 +154,7 @@ const NoteCategories = () => {
           <Button onClick={handleCancel} variant="outlined">
             Nooo
           </Button>
-          <Button onClick={() => deleteMutation.mutate()} variant="contained">
+          <Button onClick={deleteMutation.mutate} variant="contained">
             Yes, delete
           </Button>
         </DialogActions>

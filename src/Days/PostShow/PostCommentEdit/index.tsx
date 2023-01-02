@@ -4,6 +4,7 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
+import { QueryKey } from '@tanstack/react-query';
 import { useCreateMutation } from '../../../shared/hooks/useCreateMutation';
 import { postComment } from '../../../shared/api/routes';
 import { PostType } from '../../../shared/types';
@@ -25,9 +26,9 @@ if (mm < 10) {
 today = `${yyyy}-${mm}-${dd}`;
 
 type Props = {
-  postId: string;
+  postId: number;
   onCancel: () => void;
-  invalidateQueries?: string[];
+  invalidateQueries: QueryKey;
 };
 
 const PostCommentEdit = ({ postId, onCancel, invalidateQueries }: Props) => {
@@ -35,7 +36,7 @@ const PostCommentEdit = ({ postId, onCancel, invalidateQueries }: Props) => {
   const addMutation = useCreateMutation(
     (d: { body: string; postId: string }) => postComment(d),
     invalidateQueries,
-    (old: PostType[], vals: { body: string; postId: string }) => {
+    (old: PostType[], vals: { body: string; postId: number }) => {
       const newItems = [...old];
       const thisPostIndex = newItems.findIndex((p) => p.id === postId);
       newItems[thisPostIndex] = {
@@ -61,7 +62,6 @@ const PostCommentEdit = ({ postId, onCancel, invalidateQueries }: Props) => {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    // @ts-ignore
     addMutation.mutate({
       body: commentBody,
       post_id: postId,

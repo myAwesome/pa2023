@@ -33,8 +33,7 @@ const TransactionsTable = ({ columns, data, size }: Props) => {
               key={
                 row.id ||
                 row.category ||
-                // @ts-ignore
-                row.reduce((prev, cur) => prev + cur.date || 0, 0)
+                row.reduce((prev: number, cur: any) => prev + cur.date || 0, 0)
               }
             >
               {columns.map((col, i) => (

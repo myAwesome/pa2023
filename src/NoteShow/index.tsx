@@ -18,9 +18,11 @@ const NoteCategoryShow = () => {
   const [pressedNote, setPressedNote] = React.useState<NoteType | null>(null);
   const [isAdd, setIsAdd] = React.useState(false);
   const [noteToEdit, setNoteToEdit] = React.useState<NoteType | null>(null);
-  const notesData = useQuery(['notes', params.id], () => getNotes(params.id));
+  const notesData = useQuery(['notes', params.id], () =>
+    getNotes(params.id || 0),
+  );
   const editMutation = useUpdateMutation(
-    (vals: Omit<NoteType, 'id'>) => editNote(noteToEdit?.id, vals),
+    (vals: Omit<NoteType, 'id'>) => editNote(noteToEdit?.id || 0, vals),
     ['notes', params.id],
     noteToEdit?.id,
     (val: NoteType) => val,
@@ -41,7 +43,7 @@ const NoteCategoryShow = () => {
   };
 
   const deleteMutation = useDeleteMutation(
-    (id: string) => deleteNote(id),
+    (id: number) => deleteNote(id),
     ['notes', params.id],
     null,
     handleMenuClose,
@@ -49,10 +51,8 @@ const NoteCategoryShow = () => {
 
   const handleSubmit = (values: Omit<NoteType, 'id' | 'note_category'>) => {
     if (isAdd) {
-      // @ts-ignore
       addMutation.mutate(values);
     } else {
-      // @ts-ignore
       editMutation.mutate(values);
     }
   };
@@ -134,8 +134,7 @@ const NoteCategoryShow = () => {
         </ListItem>
         <ListItem
           onClick={() => {
-            // @ts-ignore
-            deleteMutation.mutate(pressedNote.id);
+            deleteMutation.mutate(pressedNote!.id);
           }}
         >
           Delete

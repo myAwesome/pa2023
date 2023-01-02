@@ -57,7 +57,6 @@ const TransactionsCreate = () => {
       date: dateToMySQLFormat(),
     };
 
-    // @ts-ignore
     createMutation.mutate(data);
   };
 

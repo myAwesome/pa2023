@@ -8,6 +8,8 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
+import { MutationFunction } from '@tanstack/query-core';
+import { QueryKey } from '@tanstack/react-query';
 import { useUpdateMutation } from '../../hooks/useUpdateMutation';
 import { ColumnType, TableItemType } from '../../types/table';
 import Row from './Row';
@@ -19,10 +21,10 @@ type Props = {
   isAdd?: boolean;
   onAddSubmit?: (vals: TableItemType) => void;
   cancelAdd?: () => void;
-  editMutationFn: (vals: TableItemType) => void;
-  deleteMutationFn: (id: string) => void;
+  editMutationFn: MutationFunction<any, any>;
+  deleteMutationFn: MutationFunction<any, any>;
   getNewItemFn: (vals: TableItemType) => Record<string, any>;
-  invalidateQueries: (string | number)[];
+  invalidateQueries: QueryKey;
   size?: 'small' | 'medium';
 };
 
@@ -50,7 +52,6 @@ const EditableTable = ({
   );
   const onEditSubmit = (id: string, values: TableItemType) => {
     const data = getNewItemFn(values);
-    // @ts-ignore
     editMutation.mutate({ id, ...data });
   };
   return (

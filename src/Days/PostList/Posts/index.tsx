@@ -1,5 +1,6 @@
 import React from 'react';
 import Grid from '@mui/material/Grid';
+import { QueryKey } from '@tanstack/react-query';
 import PostShow from '../../PostShow';
 import { LabelType, PostType } from '../../../shared/types';
 
@@ -7,7 +8,7 @@ type Props = {
   labels: LabelType[];
   posts: PostType[];
   searchTerm?: string;
-  invalidateQueries?: string[];
+  invalidateQueries: QueryKey;
 };
 
 const Posts = ({ labels, posts, searchTerm, invalidateQueries }: Props) => {

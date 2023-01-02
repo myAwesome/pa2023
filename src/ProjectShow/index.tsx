@@ -32,9 +32,9 @@ const Project = () => {
   );
   const [taskForModal, setTaskForModal] = React.useState<TaskType | null>(null);
   const projectData = useQuery(['project', params.id], () =>
-    getProject(params.id),
+    getProject(params.id!),
   );
-  const tasksData = useQuery(['tasks', params.id], () => getTasks(params.id));
+  const tasksData = useQuery(['tasks', params.id], () => getTasks(params.id!));
   const editMutation = useUpdateMutation(
     ({ id, ...values }: TaskType) => editTask(id, values),
     ['tasks', params.id],
@@ -70,20 +70,22 @@ const Project = () => {
           old[status][taskIndex] = { ...old[status][taskIndex], ...payload };
         }
       }
+      return old;
     },
   );
   const deleteMutation = useDeleteMutation(
-    (id: string) => deleteTask(id),
+    (id: number) => deleteTask(id),
     ['tasks', params.id],
     null,
     () => {},
     ['in_progress'],
-    (old: TasksByStatus, id: string) => {
+    (old: TasksByStatus, id: number) => {
       Object.keys(old).forEach((key) => {
         old[key as TaskStatus] = old[key as TaskStatus].filter(
           (t) => t.id !== id,
         );
       });
+      return old;
     },
   );
 
@@ -99,7 +101,6 @@ const Project = () => {
 
   const handleStatusChange = (task: TaskType, status: TaskStatus) => {
     handleMenuClose();
-    // @ts-ignore
     editMutation.mutate({ id: task.id, status });
   };
 
@@ -111,19 +112,16 @@ const Project = () => {
 
   const handleArchive = (task: TaskType) => {
     handleMenuClose();
-    // @ts-ignore
     editMutation.mutate({ id: task.id, archived: true });
   };
 
   const handleDelete = (task: TaskType) => {
     handleMenuClose();
-    // @ts-ignore
     deleteMutation.mutate(task.id);
   };
 
   const handleChangePriority = (task: TaskType, increment: number) => {
     handleMenuClose();
-    // @ts-ignore
     editMutation.mutate({ id: task.id, priority: task.priority + increment });
   };
 
@@ -141,8 +139,7 @@ const Project = () => {
   };
 
   const handleSubmitTaskEdit = () => {
-    // @ts-ignore
-    editMutation.mutate({ id: editedTask.id, body: editedTaskValue });
+    editMutation.mutate({ id: editedTask!.id, body: editedTaskValue });
   };
 
   return projectData.isLoading ? (

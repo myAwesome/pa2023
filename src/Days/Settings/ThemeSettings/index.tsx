@@ -14,7 +14,7 @@ import { Theme } from '../../../shared/types';
 const ThemeSettings = () => {
   const { userTheme, handleUserThemeChanged } = useContext(UIContext);
   const queryClient = useQueryClient();
-  const updateMutation = useMutation(
+  const updateMutation = useMutation<any, any, string>(
     (theme) => {
       return editUser({ theme });
     },
@@ -27,7 +27,6 @@ const ThemeSettings = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleUserThemeChanged(e.target.value as Theme);
-    // @ts-ignore
     updateMutation.mutate(e.target.value);
   };
 

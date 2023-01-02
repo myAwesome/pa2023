@@ -2,7 +2,7 @@ import React from 'react';
 import { TextField, Button, Grid } from '@mui/material';
 import { NoteCategoryType } from '../../shared/types';
 
-const initialState = { name: '', id: '' };
+const initialState = { name: '', id: 0 };
 
 type InitialValues = Omit<NoteCategoryType, 'note_count'>;
 

@@ -54,6 +54,7 @@ const Search = () => {
           labels={labelsData.data || []}
           posts={posts}
           searchTerm={searchQuery}
+          invalidateQueries={[]}
         />
       </Grid>
     </Grid>

@@ -40,7 +40,7 @@ const WishEdit = ({ isOpen, wish, onSubmit, handleClose }: Props) => {
             const { created_at, ...vals } = values;
             onSubmit({
               ...vals,
-              id: wish?.id || '',
+              id: wish?.id || 0,
               price_from: Number(values.price_from),
               price_to: Number(values.price_to),
             });

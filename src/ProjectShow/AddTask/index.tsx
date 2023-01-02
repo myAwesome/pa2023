@@ -31,7 +31,6 @@ const AddTask = () => {
       }}
       onSubmit={(e) => {
         e.preventDefault();
-        // @ts-ignore
         createMutation.mutate({
           body: newTaskName,
           project_id: Number(params.id),

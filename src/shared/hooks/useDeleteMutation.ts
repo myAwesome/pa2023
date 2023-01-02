@@ -1,19 +1,20 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { QueryKey, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useContext } from 'react';
+import { MutationFunction } from '@tanstack/query-core';
 import UIContext from '../context/UIContext';
 
 export const useDeleteMutation = (
-  mutationFn,
-  invalidateQueries,
-  id,
-  callback = () => {},
-  additionalRefetchQuery,
-  updater,
+  mutationFn: MutationFunction<any, any | undefined>,
+  invalidateQueries: QueryKey,
+  id?: number | string | null,
+  callback?: () => void,
+  additionalRefetchQuery?: QueryKey,
+  updater?: (old: any, payload: any) => any,
 ) => {
   const queryClient = useQueryClient();
   const { setError } = useContext(UIContext);
 
-  return useMutation(mutationFn, {
+  return useMutation<any, any, any>(mutationFn, {
     onMutate: async (payloadId) => {
       await queryClient.cancelQueries(invalidateQueries);
 
@@ -23,13 +24,13 @@ export const useDeleteMutation = (
         if (Array.isArray(old)) {
           return old.filter((o) => o.id !== (id || payloadId));
         }
-        return updater(old, payloadId);
+        return updater?.(old, payloadId);
       });
-      callback();
+      callback?.();
 
       return previousValue;
     },
-    onError: (err, variables, previousValue) => {
+    onError: (err: Error, variables, previousValue) => {
       queryClient.setQueryData(invalidateQueries, previousValue);
       setError(err.message);
     },

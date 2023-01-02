@@ -32,7 +32,6 @@ const PeriodSettings = () => {
       start: dateToMySQLFormat(values.start),
       name: values.name,
     };
-    // @ts-ignore
     createMutation.mutate(data);
   };
 
@@ -73,13 +72,11 @@ const PeriodSettings = () => {
                 start: dateToMySQLFormat(data.start),
                 name: data.name,
               };
-              putPeriod(id, values);
+              return putPeriod(id, values);
             }}
             invalidateQueries={['periods']}
             getNewItemFn={(v) => v}
-            deleteMutationFn={(id) => {
-              deletePeriod(id);
-            }}
+            deleteMutationFn={deletePeriod}
           />
           <IconButton onClick={() => setIsAdd(true)}>
             <AddIcon />

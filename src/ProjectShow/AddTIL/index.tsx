@@ -20,7 +20,7 @@ const AddTIL = ({ isOpen, handleClose, task, projectId }: Props) => {
     null,
     (val: TaskType) => val,
     handleClose,
-    null,
+    undefined,
     (old: TaskType) => old,
   );
 
@@ -29,8 +29,11 @@ const AddTIL = ({ isOpen, handleClose, task, projectId }: Props) => {
   }, [task]);
 
   const submitTIL = () => {
-    // @ts-ignore
-    editMutation.mutate({ id: task.id, outcome: value, today_i_learned: true });
+    editMutation.mutate({
+      id: task!.id,
+      outcome: value,
+      today_i_learned: true,
+    });
   };
 
   return (
