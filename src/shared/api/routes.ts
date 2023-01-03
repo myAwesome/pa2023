@@ -194,3 +194,12 @@ export const getUser = () =>
   apiLocalGetRequest(`users/me`).then((resp) => resp.data);
 export const editUser = (data: any) =>
   apiLocalPatchRequest(`users/me`, data).then((resp) => resp.data);
+
+export const getCountdowns = () =>
+  apiLocalGetRequest(`countdown`).then((resp) => resp.data?.data);
+export const postCountdown = (data: any) =>
+  apiLocalPostRequest(`countdown`, data).then((resp) => resp.data);
+export const deleteCountdown = (id: number) =>
+  apiLocalDeleteRequest(`countdown/${id}`).then((resp) => resp.data);
+export const editCountdown = (id: number, data: any) =>
+  apiLocalPutRequest(`countdown/${id}`, data).then((resp) => resp.data);

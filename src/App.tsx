@@ -39,6 +39,9 @@ const WorldMap = lazy(
 const LastTime = lazy(
   () => import(/* webpackChunkName: "last-time" */ './LastTime'),
 );
+const Countdown = lazy(
+  () => import(/* webpackChunkName: "last-time" */ './Countdown'),
+);
 const LoginPage = lazy(
   () => import(/* webpackChunkName: "login" */ './Auth/Login'),
 );
@@ -141,6 +144,7 @@ function App() {
                   <Route path=":id" element={<Project />} />
                 </Route>
                 <Route path="last-time" element={<LastTime />} />
+                <Route path="countdown" element={<Countdown />} />
                 <Route path="sandbox" element={<Sandbox />} />
                 <Route path="wishlist" element={<Wishlist />}>
                   <Route path="add" element={<WishCreate />} />

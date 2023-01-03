@@ -150,3 +150,11 @@ export type LabelsPerMonthType = {
   11?: YearLabelsType[];
   12?: YearLabelsType[];
 };
+
+export type CountdownType = {
+  id: number;
+  user_id: number;
+  name: string;
+  date: string;
+  is_done: boolean;
+};

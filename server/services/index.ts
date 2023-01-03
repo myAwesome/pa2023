@@ -13,6 +13,7 @@ import posts from './posts/posts.service';
 import postLabels from './post-labels/post-labels.service';
 import labels from './labels/labels.service';
 import comments from './comments/comments.service';
+import countdown from './countdown/countdown.service';
 // Don't remove this comment. It's needed to format import lines nicely.
 
 export default function (app: Application): void {
@@ -30,4 +31,5 @@ export default function (app: Application): void {
   app.configure(postLabels);
   app.configure(labels);
   app.configure(comments);
+  app.configure(countdown);
 }

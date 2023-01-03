@@ -17,6 +17,7 @@ import {
   ListAlt,
   ViewWeek,
   Public,
+  HourglassTop,
 } from '@mui/icons-material';
 
 type Props = {
@@ -49,6 +50,14 @@ const LayoutToolbar = ({ open }: Props) => {
             <Alarm />
           </ListItemIcon>
           <ListItemText primary="Last Time" />
+        </ListItemButton>
+      </MuiLink>
+      <MuiLink component={Link} to="/countdown" underline="none">
+        <ListItemButton>
+          <ListItemIcon>
+            <HourglassTop />
+          </ListItemIcon>
+          <ListItemText primary="Countdown" />
         </ListItemButton>
       </MuiLink>
       <MuiLink component={Link} to="/notes" underline="none">

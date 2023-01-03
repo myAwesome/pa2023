@@ -180,6 +180,9 @@ const LastTime = () => {
               value={updateDate}
               onChange={(e) => setUpdateDate(e.target.value)}
               type="datetime-local"
+              InputProps={{
+                sx: { colorScheme: (theme) => theme.palette.mode },
+              }}
             />
           </Grid>
           <Grid item>

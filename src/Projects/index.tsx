@@ -6,6 +6,7 @@ import {
   ListItemText,
   ListItemIcon,
   Hidden,
+  LinearProgress,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -65,7 +66,7 @@ const Projects = () => {
 
   const handleCancel = () => {
     setIsEdit(false);
-    setIsAdd(true);
+    setIsAdd(false);
     setProjectToEdit(null);
   };
 
@@ -79,7 +80,7 @@ const Projects = () => {
     <div>
       <h1>Projects</h1>
       {projectsData.isLoading ? (
-        <div>Loading...</div>
+        <LinearProgress />
       ) : (
         <List>
           {projectsData.data?.map((list: ProjectType) => (
