@@ -17,7 +17,13 @@ import {
 import { TransactionCategoryType, TransactionType } from '../../shared/types';
 import { dateToMySQLFormat } from '../../shared/utils/mappers';
 
-const initialValues = { description: '', amount: '', category: 31 };
+const initialValues = {
+  description: '',
+  amount: '',
+  category: 31,
+  currency: '',
+  date: dayjs().format('YYYY-MM-DD'),
+};
 
 const thisMonth = dayjs().format('MMMM');
 const thisYear = dayjs().year();
@@ -54,7 +60,7 @@ const TransactionsCreate = () => {
     const data = {
       ...values,
       amount: +values.amount,
-      date: dateToMySQLFormat(),
+      date: dateToMySQLFormat(values.date),
     };
 
     createMutation.mutate(data);
@@ -81,37 +87,60 @@ const TransactionsCreate = () => {
             </Grid>
           ))}
         </Grid>
-        <Grid item xs={12}>
-          <FormGroup>
-            <Select
-              value={values.category}
-              onChange={handleChange}
-              name="category"
-              variant="standard"
-            >
-              <MenuItem value="">
-                <em>None</em>
+        <Grid item xs={6} alignSelf="flex-end">
+          <Select
+            value={values.category}
+            onChange={handleChange}
+            name="category"
+            variant="standard"
+            label="Category"
+            fullWidth
+          >
+            <MenuItem value="">
+              <em>None</em>
+            </MenuItem>
+            {transCatsData.data?.map((c: TransactionCategoryType) => (
+              <MenuItem key={c.id} value={c.id}>
+                {c.name}
               </MenuItem>
-              {transCatsData.data?.map((c: TransactionCategoryType) => (
-                <MenuItem key={c.id} value={c.id}>
-                  {c.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormGroup>
+            ))}
+          </Select>
         </Grid>
-        <Grid item xs={12}>
-          <FormGroup>
-            <TextField
-              type="number"
-              label="Amount"
-              name="amount"
-              variant="standard"
-              autoComplete="off"
-              value={values.amount}
-              onChange={handleChange}
-            />
-          </FormGroup>
+        <Grid item xs={6}>
+          <TextField
+            type="date"
+            label="Date"
+            name="date"
+            variant="standard"
+            autoComplete="off"
+            value={values.date}
+            onChange={handleChange}
+            InputLabelProps={{ shrink: true }}
+            InputProps={{ sx: { colorScheme: (theme) => theme.palette.mode } }}
+            fullWidth
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <TextField
+            type="number"
+            label="Amount"
+            name="amount"
+            variant="standard"
+            autoComplete="off"
+            value={values.amount}
+            onChange={handleChange}
+            fullWidth
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <TextField
+            label="Currency"
+            name="currency"
+            variant="standard"
+            value={values.currency}
+            onChange={handleChange}
+            fullWidth
+          />
         </Grid>
         <Grid item xs={12}>
           <FormGroup>

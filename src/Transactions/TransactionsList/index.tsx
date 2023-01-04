@@ -127,7 +127,7 @@ const TransactionsList = () => {
     })[] = transactionsData.data.reverse().map((tr: TransactionType) => ({
       ...tr,
       category: transCatsData.data.find(
-        (c: TransactionCategoryType) => c.id === tr.category,
+        (c: TransactionCategoryType) => c.id == tr.category,
       )?.name,
     }));
     const newTotal = newTransactions.reduce(
@@ -231,6 +231,7 @@ const TransactionsList = () => {
           items={trState.transactions}
           columns={[
             { label: 'Amount', name: 'amount', type: 'string' },
+            { label: 'Currency', name: 'currency', type: 'string' },
             {
               label: 'Category',
               name: 'category',
@@ -255,6 +256,7 @@ const TransactionsList = () => {
           invalidateQueries={['transactions', selectedYear, selectedMonth]}
           getNewItemFn={(values) => ({
             amount: Number(values.amount),
+            currency: values.currency,
             category: values.category,
             description: values.description,
             date: dayjs.utc(values.date).format(),
