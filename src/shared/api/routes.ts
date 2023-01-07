@@ -63,6 +63,12 @@ export const getTransactionsCategories = () =>
   apiLocalGetRequest(`transaction-category`).then((resp) => resp.data?.data);
 export const postTransactionsCategories = (data: any) =>
   apiLocalPostRequest(`transaction-category`, data).then((resp) => resp.data);
+export const patchTransactionCategory = (id: number | string, data: any) =>
+  apiLocalPatchRequest(`transaction-category/${id}`, data).then(
+    (resp) => resp.data,
+  );
+export const deleteTransactionCategory = (id: number | string) =>
+  apiLocalDeleteRequest(`transaction-category/${id}`).then((resp) => resp.data);
 export const getTransactionsStatistics = () =>
   apiLocalGetRequest(`transaction?statistics=1`).then((resp) => resp.data);
 

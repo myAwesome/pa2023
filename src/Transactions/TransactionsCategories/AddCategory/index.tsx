@@ -1,60 +1,49 @@
 import React from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import { useCreateMutation } from '../../../shared/hooks/useCreateMutation';
-import { postTransactionsCategories } from '../../../shared/api/routes';
-import { TransactionCategoryType } from '../../../shared/types';
+import { Stack } from '@mui/material';
 
-const TransactionsCategoriesCreate = () => {
-  const [showInput, setShowInput] = React.useState(false);
-  const [value, setValue] = React.useState('');
-  const addMutation = useCreateMutation(
-    () => postTransactionsCategories({ name: value }),
-    ['transactions_categories'],
-    (
-      old: TransactionCategoryType[],
-      val: Omit<TransactionCategoryType, 'id'>,
-    ) => [...old, { id: 'new', ...val }],
-    () => {
-      setValue('');
-      toggleInput();
-    },
-  );
+type Props = {
+  handleSubmit: (val: string) => void;
+  initialValue?: string;
+  handleCancel: () => void;
+};
+
+const TransactionsCategoriesCreate = ({
+  handleSubmit,
+  initialValue,
+  handleCancel,
+}: Props) => {
+  const [value, setValue] = React.useState(initialValue || '');
+
+  React.useEffect(() => {
+    setValue(initialValue || '');
+  }, [initialValue]);
 
   const handleText = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
   };
 
-  const toggleInput = () => {
-    setShowInput(!showInput);
-  };
-
   return (
-    <div>
-      <Button variant="outlined" onClick={toggleInput}>
-        Add +
+    <Stack direction="row" gap={2}>
+      <TextField
+        type="text"
+        variant="standard"
+        value={value}
+        onChange={handleText}
+        fullWidth
+      />
+      <Button
+        type="submit"
+        variant="outlined"
+        onClick={() => handleSubmit(value)}
+      >
+        Save
       </Button>
-      {showInput ? (
-        <span>
-          <TextField
-            type="text"
-            variant="standard"
-            sx={{
-              marginLeft: (theme) => theme.spacing(1),
-              marginRight: (theme) => theme.spacing(1),
-              width: 200,
-            }}
-            value={value}
-            onChange={handleText}
-          />
-          <Button variant="outlined" onClick={addMutation.mutate}>
-            Save
-          </Button>
-        </span>
-      ) : (
-        ''
-      )}
-    </div>
+      <Button onClick={handleCancel} variant="outlined">
+        Cancel
+      </Button>
+    </Stack>
   );
 };
 
