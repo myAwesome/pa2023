@@ -11,7 +11,7 @@ import {
 import dayjs from 'dayjs';
 import AddIcon from '@mui/icons-material/Add';
 import { useQuery } from '@tanstack/react-query';
-import { deleteLT, getLts, postLT, putLT } from '../shared/api/routes';
+import { deleteLT, getLts, postLT, editLT } from '../shared/api/routes';
 import { useUpdateMutation } from '../shared/hooks/useUpdateMutation';
 import { useCreateMutation } from '../shared/hooks/useCreateMutation';
 import { useDeleteMutation } from '../shared/hooks/useDeleteMutation';
@@ -35,10 +35,7 @@ const LastTime = () => {
   const lastTimeData = useQuery(['last_times'], getLts);
   const updateMutation = useUpdateMutation(
     (values: LastTimeItemType) =>
-      putLT((itemToEdit || itemToUpdate)?.id || 0, {
-        ...(itemToEdit || itemToUpdate),
-        ...values,
-      }),
+      editLT((itemToEdit || itemToUpdate)?.id || 0, values),
     ['last_times'],
     (itemToEdit || itemToUpdate)?.id,
     (values: LastTimeItemType) => ({
@@ -82,7 +79,9 @@ const LastTime = () => {
     setItemToUpdate(item);
   };
 
-  const handleSubmit = (values: Omit<LastTimeItemType, 'expired' | 'id'>) => {
+  const handleSubmit = (
+    values: Omit<LastTimeItemType, 'expired' | 'id' | 'date'>,
+  ) => {
     const action = isAdd ? createMutation : updateMutation;
     action.mutate(values);
   };

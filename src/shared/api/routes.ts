@@ -49,9 +49,9 @@ const apiLocalDeleteRequest = (url: string) =>
   apiDeleteRequest(`${LOCAL}/${url}`, authConfig());
 
 export const getTransactionsByMonthAndYear = (year: number, month: number) =>
-  apiLocalGetRequest(`transaction?y=${year}&m=${month + 1}`).then(
-    (resp) => resp.data?.data,
-  );
+  apiLocalGetRequest(
+    `transaction?y=${year}&m=${month + 1}&$sort[date]=-1`,
+  ).then((resp) => resp.data?.data);
 export const postTransaction = (data: any) =>
   apiLocalPostRequest(`transaction`, data).then((resp) => resp.data);
 export const putTransaction = (id: number, data: any) =>
@@ -177,8 +177,8 @@ export const getExpiredLts = () =>
   apiLocalGetRequest(`last-time?expired=1`).then((resp) => resp.data?.data);
 export const postLT = (data: any) =>
   apiLocalPostRequest(`last-time`, data).then((resp) => resp.data);
-export const putLT = (id: number, data: any) =>
-  apiLocalPutRequest(`last-time/${id}`, data).then((resp) => resp.data);
+export const editLT = (id: number, data: any) =>
+  apiLocalPatchRequest(`last-time/${id}`, data).then((resp) => resp.data);
 export const deleteLT = (id: number) =>
   apiLocalDeleteRequest(`last-time/${id}`).then((resp) => resp.data);
 
