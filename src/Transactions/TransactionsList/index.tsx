@@ -124,7 +124,7 @@ const TransactionsList = () => {
     }
     const newTransactions: (Omit<TransactionType, 'category'> & {
       category: string;
-    })[] = transactionsData.data.reverse().map((tr: TransactionType) => ({
+    })[] = transactionsData.data.map((tr: TransactionType) => ({
       ...tr,
       category: transCatsData.data.find(
         (c: TransactionCategoryType) => c.id == tr.category,
