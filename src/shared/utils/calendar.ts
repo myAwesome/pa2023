@@ -6,7 +6,10 @@ const getRange = (len: number) =>
     .map((_, i) => i + 1);
 
 export const getCalendar = (month: string | number, year: number | string) => {
-  const firstWeekDayOfMonth = dayjs(`${year}-${month}-01`).day() - 1;
+  let firstWeekDayOfMonth = dayjs(`${year}-${month}-01`).day() - 1;
+  if (firstWeekDayOfMonth < 0) {
+    firstWeekDayOfMonth = 6;
+  }
   const daysInMonth = dayjs(`${year}-${month}-01`).daysInMonth();
   const days = getRange(daysInMonth);
   const weeks = [];
