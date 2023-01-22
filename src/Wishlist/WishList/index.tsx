@@ -70,11 +70,21 @@ const WishList = () => {
           label="Hide done"
         />
       </FormControl>
-      <Grid container spacing={2}>
+      <Grid container gap={2} justifyContent="space-between">
         {wishesToShow.map((w: WishType) => {
           const isMine = true;
           return (
-            <Grid key={w.id} item sx={{ width: { xs: '100%', sm: 400 } }}>
+            <Grid
+              key={w.id}
+              item
+              sx={{
+                width: {
+                  xs: '100%',
+                  sm: 'calc(50% - 8px)',
+                  lg: 'calc(30% - 8px)',
+                },
+              }}
+            >
               <Card
                 sx={{
                   border: (theme) =>

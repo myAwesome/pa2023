@@ -111,7 +111,7 @@ function WorldMap() {
 
   return (
     <div>
-      <style>{`.visited-country:hover {stroke: #f00;stroke-width: 2;} path {stroke: #999;}`}</style>
+      <style>{`.visited-country:hover {stroke: #f00;stroke-width: 2;} #map path {stroke: #999;}`}</style>
       <svg id="map" version="1.1" viewBox="0 0 1000 500">
         <defs>
           <linearGradient id="ukraine-flag" x1="0%" y1="0%" x2="0%" y2="100%">
