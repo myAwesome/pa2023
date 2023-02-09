@@ -7,7 +7,7 @@ const { authenticate } = authentication.hooks;
 
 const filterArchived = (context: HookContext) => {
   context.params.query = {
-    archived: 0,
+    'tasks.archived': 0,
     ...(context.params.query || {}),
   };
 };
