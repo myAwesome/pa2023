@@ -24,18 +24,10 @@ const PostEdit = ({ body, onCancel, handleSubmit }: Props) => {
         <Grid item xs={12}>
           <TextField
             multiline
-            sx={{
-              width: '100%',
-            }}
+            fullWidth
             value={updatedValue}
             variant="standard"
             onChange={handleText}
-            InputProps={{
-              sx: {
-                fontSize: '0.875rem',
-                lineHeight: '150%',
-              },
-            }}
           />
         </Grid>
         <Grid item>
