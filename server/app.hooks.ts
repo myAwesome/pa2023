@@ -23,7 +23,12 @@ const resetLimit = async (context: HookContext) => {
 };
 
 const isAuthenticateNeed = async (context: HookContext) => {
-  return context.path !== 'authentication';
+  return !!(
+    context.service.options &&
+    context.service.options.userAware &&
+    !context.service.options.publicRead &&
+    context.path !== 'authentication'
+  );
 };
 
 export const removeUserId = (context: HookContext) => {

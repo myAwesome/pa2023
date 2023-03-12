@@ -1,8 +1,8 @@
 // Initializes the `blog-post` service on path `/blog-post`
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
-import { BlogPost } from './blog-post.class';
 import createModel from '../../models/blog-post.model';
+import { BlogPost } from './blog-post.class';
 import hooks from './blog-post.hooks';
 
 // Add this service to the service type index
@@ -17,6 +17,7 @@ export default function (app: Application): void {
     Model: createModel(app),
     paginate: app.get('paginate'),
     userAware: true,
+    publicRead: true,
   };
 
   // Initialize our service with any options it requires
