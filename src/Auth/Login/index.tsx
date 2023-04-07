@@ -97,7 +97,7 @@ const LoginPage = () => {
                   variant="body2"
                   to="/auth/registration"
                 >
-                  Don&apos;t have an account? Sign Up
+                  Don&apos;t have an account? Sign Up &rarr;
                 </MUILink>
               </Grid>
             </Grid>
