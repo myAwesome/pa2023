@@ -1,4 +1,10 @@
-import React, { useContext } from 'react';
+import React, {
+  MutableRefObject,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import {
@@ -8,6 +14,7 @@ import {
   Typography,
   LinearProgress,
   Box,
+  Stack,
 } from '@mui/material';
 import GPhotosContext from '../shared/context/GPhotosContext';
 import { getPhotosOnDate, photosSignIn } from '../shared/utils/photos';
@@ -44,6 +51,49 @@ const getColor = (periods: PeriodType[]) => {
   return '#EBECED';
 };
 
+const initialTransformMatrix = [1, 0, 0, 1, 0, 0];
+const transformMatrix = [1, 0, 0, 1, 0, 0];
+
+function useDrag(
+  { x, y }: { x: number; y: number },
+  ref: MutableRefObject<SVGSVGElement | null>,
+) {
+  const [position, setPosition] = useState({ x, y });
+
+  const startDrag = ({
+    clientX: startX,
+    clientY: startY,
+  }: {
+    clientX: number;
+    clientY: number;
+  }) => {
+    const onMove = ({
+      clientX,
+      clientY,
+    }: {
+      clientX: number;
+      clientY: number;
+    }) => {
+      setPosition({
+        x: (position.x + clientX - startX) / 40,
+        y: (position.y + clientY - startY) / 40,
+      });
+    };
+
+    const onUp = () => {
+      ref.current?.removeEventListener('mousemove', onMove);
+      ref.current?.removeEventListener('mouseup', onUp);
+    };
+    ref.current?.addEventListener('mousemove', onMove);
+    ref.current?.addEventListener('mouseup', onUp);
+  };
+
+  return {
+    position,
+    startDrag,
+  };
+}
+
 function WorldMap() {
   const [showCountry, setShowCountry] = React.useState<PeriodType[] | null>(
     null,
@@ -51,11 +101,14 @@ function WorldMap() {
   const [photos, setPhotos] = React.useState<PhotoType[]>([]);
   const [isFetched, setFetched] = React.useState(false);
   const [showImg, setShowImg] = React.useState('');
+  const [currZoom, setCurrZoom] = React.useState(1);
   const [nextPageToken, setNextPageToken] = React.useState();
   const {
     handleSignIn,
     value: { token: oauthToken },
   } = useContext(GPhotosContext);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const matrixGroupRef = useRef<SVGSVGElement>(null);
 
   const periodsData = useQuery(['periods'], getPeriods, { initialData: [] });
 
@@ -109,66 +162,165 @@ function WorldMap() {
       .catch(console.log);
   };
 
+  const setMatrix = () => {
+    const newMatrix = 'matrix(' + transformMatrix.join(' ') + ')';
+    matrixGroupRef.current?.setAttributeNS(null, 'transform', newMatrix);
+  };
+
+  const pan = (dx: number, dy: number) => {
+    transformMatrix[4] += dx;
+    transformMatrix[5] += dy;
+    setMatrix();
+  };
+
+  const zoom = (scale: number) => {
+    if (!svgRef.current) {
+      return;
+    }
+    setCurrZoom((prev) => prev * scale);
+    const viewbox = svgRef.current.getAttributeNS(null, 'viewBox')!.split(' ');
+    const centerX = parseFloat(viewbox[2]) / 2;
+    const centerY = parseFloat(viewbox[3]) / 2;
+    transformMatrix.forEach((t, i) => {
+      transformMatrix[i] *= scale;
+    });
+
+    transformMatrix[4] += (1 - scale) * centerX;
+    transformMatrix[5] += (1 - scale) * centerY;
+    setMatrix();
+  };
+
+  const reset = () => {
+    transformMatrix.forEach((t, i) => {
+      transformMatrix[i] = initialTransformMatrix[i];
+    });
+    setMatrix();
+  };
+
+  const { position, startDrag } = useDrag({ x: 0, y: 0 }, svgRef);
+
+  useEffect(() => {
+    pan(position.x, position.y);
+  }, [position]);
+
   return (
     <div>
-      <style>{`.visited-country:hover {stroke: #f00;stroke-width: 2;} #map path {stroke: #999;}`}</style>
-      <svg id="map" version="1.1" viewBox="0 0 1000 500">
-        <defs>
-          <linearGradient id="ukraine-flag" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop
-              offset="0%"
-              style={{ stopColor: 'rgb(0, 87, 183)', stopOpacity: 1 }}
-            ></stop>
-            <stop
-              offset="45%"
-              style={{ stopColor: 'rgb(0, 87, 183)', stopOpacity: 1 }}
-            ></stop>
-            <stop
-              offset="45%"
-              style={{ stopColor: 'rgb(255, 215, 0)', stopOpacity: 1 }}
-            ></stop>
-            <stop
-              offset="100%"
-              style={{ stopColor: 'rgb(255, 215, 0)', stopOpacity: 1 }}
-            ></stop>
-          </linearGradient>
-        </defs>
-        <g id="countries">
-          {countriesList.map((c) => {
-            const periods = periodsData.data?.filter((p: PeriodType) =>
-              p.name.toLowerCase().includes(c.country_name.toLowerCase()),
-            );
-            return (
-              <path
-                key={c.index}
-                id={c.index}
-                vectorEffect="non-scaling-stroke"
-                fill={c.fill || getColor(periods)}
-                d={c.d}
-                className={!!periods.length ? 'visited-country' : ''}
-                onClick={() => onCountryClick(periods)}
-              >
-                <title>
-                  {c.country_name} ({getDays(periods)} days)
-                </title>
-              </path>
-            );
-          })}
-        </g>
-        {visitedCities.map((c) => (
-          <circle
-            id={c.id}
-            key={c.id}
-            cx={c.cx}
-            cy={c.cy}
-            r="3"
-            stroke="orange"
-            fill="yellow"
+      <div style={{ position: 'relative' }}>
+        <style>{`.visited-country:hover {stroke: #f00;stroke-width: 2;} #map path {stroke: #999;}`}</style>
+        <svg
+          id="map"
+          version="1.1"
+          viewBox="0 0 1000 500"
+          ref={svgRef}
+          onMouseDown={startDrag}
+        >
+          <defs>
+            <linearGradient id="ukraine-flag" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop
+                offset="0%"
+                style={{ stopColor: 'rgb(0, 87, 183)', stopOpacity: 1 }}
+              ></stop>
+              <stop
+                offset="45%"
+                style={{ stopColor: 'rgb(0, 87, 183)', stopOpacity: 1 }}
+              ></stop>
+              <stop
+                offset="45%"
+                style={{ stopColor: 'rgb(255, 215, 0)', stopOpacity: 1 }}
+              ></stop>
+              <stop
+                offset="100%"
+                style={{ stopColor: 'rgb(255, 215, 0)', stopOpacity: 1 }}
+              ></stop>
+            </linearGradient>
+          </defs>
+          <g
+            id="matrix-group"
+            transform="matrix(1 0 0 1 0 0)"
+            ref={matrixGroupRef}
           >
-            <title>{c.id}</title>
-          </circle>
-        ))}
-      </svg>
+            <g id="countries">
+              {countriesList.map((c) => {
+                const periods = periodsData.data?.filter((p: PeriodType) =>
+                  new RegExp(`(?:^|\\W)${c.country_name}(?:$|\\W)`, 'ig').test(
+                    p.name,
+                  ),
+                );
+                return (
+                  <path
+                    key={c.index}
+                    id={c.index}
+                    vectorEffect="non-scaling-stroke"
+                    fill={c.fill || getColor(periods)}
+                    d={c.d}
+                    className={!!periods.length ? 'visited-country' : ''}
+                    onClick={() => onCountryClick(periods)}
+                  >
+                    <title>
+                      {c.country_name} ({getDays(periods)} days)
+                    </title>
+                  </path>
+                );
+              })}
+            </g>
+            {visitedCities.map((c) => (
+              <circle
+                id={c.id}
+                key={c.id}
+                cx={c.cx}
+                cy={c.cy}
+                r={currZoom > 1.5 ? 1 : 3}
+                stroke="orange"
+                fill="yellow"
+              >
+                <title>{c.id}</title>
+              </circle>
+            ))}
+          </g>
+        </svg>
+        <Stack
+          direction="column"
+          gap={1}
+          style={{ position: 'absolute', bottom: 10, right: 10 }}
+        >
+          <Button
+            variant="contained"
+            onClick={() => zoom(1.25)}
+            sx={{
+              padding: 0.5,
+              minWidth: '32px',
+              fontSize: 21,
+              lineHeight: '21px',
+            }}
+          >
+            +
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => zoom(0.75)}
+            sx={{
+              padding: 0.5,
+              minWidth: '32px',
+              fontSize: 21,
+              lineHeight: '21px',
+            }}
+          >
+            -
+          </Button>
+          <Button
+            variant="contained"
+            onClick={reset}
+            sx={{
+              padding: 0.5,
+              minWidth: '32px',
+              fontSize: 21,
+              lineHeight: '21px',
+            }}
+          >
+            ↺
+          </Button>
+        </Stack>
+      </div>
       <Dialog open={!!showCountry} onClose={() => setShowCountry(null)}>
         <Box
           sx={{
