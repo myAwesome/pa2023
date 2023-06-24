@@ -194,6 +194,7 @@ function WorldMap() {
     transformMatrix.forEach((t, i) => {
       transformMatrix[i] = initialTransformMatrix[i];
     });
+    setCurrZoom(1);
     setMatrix();
   };
 
