@@ -68,7 +68,7 @@ const Watch = () => {
   const updateMutation = useUpdateMutation(
     (values: WatchItemType) =>
       editWatch((itemToEdit || itemToUpdate)?.id || 0, values),
-    ['watch'],
+    ['watch', { filterType, filterSeen, sortBy, sortDir }],
     (itemToEdit || itemToUpdate)?.id,
     (values: WatchItemType) => ({
       ...(itemToEdit || itemToUpdate),
@@ -84,7 +84,7 @@ const Watch = () => {
   );
   const createMutation = useCreateMutation(
     (data: WatchItemType) => postWatch(data),
-    ['watch'],
+    ['watch', { filterType, filterSeen, sortBy, sortDir }],
     (old: WatchItemType[], data: WatchItemType) => [data, ...old],
     () => {
       setIsEdit(false);
@@ -95,7 +95,7 @@ const Watch = () => {
   );
   const deleteMutation = useDeleteMutation(
     () => deleteWatch(itemToEdit?.id || 0),
-    ['watch'],
+    ['watch', { filterType, filterSeen, sortBy, sortDir }],
     itemToEdit?.id,
     () => {},
   );

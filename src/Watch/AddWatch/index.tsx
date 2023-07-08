@@ -53,6 +53,7 @@ const AddWatch = ({
     <form
       onSubmit={(e) => {
         e.preventDefault();
+        e.stopPropagation();
         handleSubmit({
           name: watch.name,
           type: watch.type,
