@@ -45,6 +45,16 @@ export type LastTimeItemType = {
   expired: boolean;
 };
 
+export type WatchItemType = {
+  id: number;
+  name: string;
+  rating: number;
+  type: 'movie' | 'series' | 'mini-series' | 'cartoon';
+  last_seen: string;
+  is_seen: boolean;
+  created_at: string;
+};
+
 export enum TaskStatus {
   INCOMING = 'incoming',
   TODO = 'todo',

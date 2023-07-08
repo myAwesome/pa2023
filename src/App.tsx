@@ -12,6 +12,7 @@ import ErrorSnackbar from './shared/components/ErrorSnackbar';
 import UIContextProvider from './shared/context/UIContextProvider';
 import AuthRoot, { authLoader } from './Auth';
 import GPhotosContextProvider from './shared/context/GPhotosContextProvider';
+import Watch from './Watch';
 const Days = lazy(() => import(/* webpackChunkName: "days" */ './Days'));
 const NewEntry = lazy(
   () => import(/* webpackChunkName: "days" */ './Days/NewEntry'),
@@ -139,6 +140,7 @@ function App() {
                   <Route index element={<Notes />} />
                   <Route path=":id" element={<Note />} />
                 </Route>
+                <Route path="watch" element={<Watch />} />
                 <Route path="projects">
                   <Route index element={<Projects />} />
                   <Route path=":id" element={<Project />} />

@@ -37,8 +37,8 @@ const authConfig = () => ({
   headers: { authorization: getItemFromStorage(TOKEN_KEY) },
 });
 
-const apiLocalGetRequest = (url: string) =>
-  apiGetRequest(`${LOCAL}/${url}`, authConfig());
+const apiLocalGetRequest = (url: string, config?: AxiosRequestConfig) =>
+  apiGetRequest(`${LOCAL}/${url}`, { ...config, ...authConfig() });
 const apiLocalPostRequest = (url: string, data: any) =>
   apiPostRequest(`${LOCAL}/${url}`, data, authConfig());
 const apiLocalPutRequest = (url: string, data: any) =>
@@ -209,3 +209,12 @@ export const deleteCountdown = (id: number) =>
   apiLocalDeleteRequest(`countdown/${id}`).then((resp) => resp.data);
 export const editCountdown = (id: number, data: any) =>
   apiLocalPutRequest(`countdown/${id}`, data).then((resp) => resp.data);
+
+export const getWatch = (params?: Record<string, any>) =>
+  apiLocalGetRequest(`watch`, { params }).then((resp) => resp.data?.data);
+export const postWatch = (data: any) =>
+  apiLocalPostRequest(`watch`, data).then((resp) => resp.data);
+export const editWatch = (id: number, data: any) =>
+  apiLocalPatchRequest(`watch/${id}`, data).then((resp) => resp.data);
+export const deleteWatch = (id: number) =>
+  apiLocalDeleteRequest(`watch/${id}`).then((resp) => resp.data);
