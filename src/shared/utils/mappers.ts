@@ -41,5 +41,5 @@ export const mapPostMonthsByYear = (data: PostMonth[]) => {
 };
 
 export const dateToMySQLFormat = (date?: string) => {
-  return dayjs(date).utc().format('YYYY-MM-DD HH:mm:ss');
+  return dayjs(date).format('YYYY-MM-DD HH:mm:ss');
 };
