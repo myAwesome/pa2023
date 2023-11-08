@@ -146,7 +146,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 variant="standard"
               />
             ) : (
-              dayjs(post.date).format('dddd YYYY-MM-DD')
+              dayjs(post.date.slice(0, 10)).format('dddd YYYY-MM-DD')
             )}
           </Grid>
           <Grid item>
