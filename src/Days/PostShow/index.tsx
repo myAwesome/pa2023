@@ -38,7 +38,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
   const [isCommentOpen, setCommentOpen] = React.useState(false);
   const [isEdit, setIsEdit] = React.useState(false);
   const [updateDate, setUpdateDate] = React.useState(
-    dayjs(post.date).local().format('YYYY-MM-DD'),
+    dayjs(post.date.slice(0, 10)).format('YYYY-MM-DD'),
   );
   const deletePostMutation = useDeleteMutation(
     () => deletePost(post.id),
