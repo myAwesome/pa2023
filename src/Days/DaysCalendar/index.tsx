@@ -119,6 +119,15 @@ const DaysCalendar = () => {
         </Grid>
       </Grid>
       <Stack gap={2} direction="row" flexWrap="wrap">
+        <Chip
+          key="all"
+          label={selectedPeriods.length ? 'X Close all' : 'Enable all'}
+          onClick={() =>
+            setSelectedPeriods((prev) =>
+              prev.length ? [] : relevantPeriods.map((p: PeriodType) => p.id),
+            )
+          }
+        />
         {relevantPeriods.map((p) => (
           <Chip
             key={p.id}

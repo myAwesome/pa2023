@@ -55,7 +55,11 @@ const Month = ({
           {days.map((week, i) => (
             <tr key={i}>
               {week.map((day, j) => {
-                const currentDate = dayjs(`${year}-${monthIndex}-${day.date}`);
+                const currentDate = dayjs(
+                  `${year}-${monthIndex.toString().padStart(2, '0')}-${day.date
+                    ?.toString()
+                    .padStart(2, '0')}T00:00:00.000Z`,
+                );
                 const dayPeriods = periods.filter(
                   (period) =>
                     (currentDate.isSame(period.start, 'day') ||
