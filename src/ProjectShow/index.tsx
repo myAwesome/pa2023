@@ -2,7 +2,13 @@ import React, { ChangeEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
-import { Box, ListItem, Menu, TextField } from '@mui/material';
+import {
+  Box,
+  ListItemButton,
+  ListItemText,
+  Menu,
+  TextField,
+} from '@mui/material';
 import Typography from '@mui/material/Typography';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CheckSharp from '@mui/icons-material/CheckSharp';
@@ -264,43 +270,49 @@ const Project = () => {
         open={Boolean(menuAnchorElement)}
         onClose={handleMenuClose}
       >
-        <ListItem onClick={() => handleOpenTILModal(pressedTask!)}>
-          Today I learned
-        </ListItem>
+        <ListItemButton onClick={() => handleOpenTILModal(pressedTask!)}>
+          <ListItemText primary="Today I learned" />
+        </ListItemButton>
         <Divider />
-        <ListItem onClick={() => handleChangePriority(pressedTask!, 1)}>
-          Up priority
-        </ListItem>
-        <ListItem onClick={() => handleChangePriority(pressedTask!, -1)}>
-          Down priority
-        </ListItem>
+        <ListItemButton onClick={() => handleChangePriority(pressedTask!, 1)}>
+          <ListItemText primary="Up priority" />
+        </ListItemButton>
+        <ListItemButton onClick={() => handleChangePriority(pressedTask!, -1)}>
+          <ListItemText primary="Down priority" />
+        </ListItemButton>
         <Divider />
-        <ListItem
+        <ListItemButton
           onClick={() => handleStatusChange(pressedTask!, TaskStatus.INCOMING)}
         >
-          Incoming
-        </ListItem>
-        <ListItem
+          <ListItemText primary="Incoming" />
+        </ListItemButton>
+        <ListItemButton
           onClick={() => handleStatusChange(pressedTask!, TaskStatus.TODO)}
         >
-          Todo
-        </ListItem>
-        <ListItem
+          <ListItemText primary="Todo" />
+        </ListItemButton>
+        <ListItemButton
           onClick={() =>
             handleStatusChange(pressedTask!, TaskStatus.IN_PROGRESS)
           }
         >
-          InProgress
-        </ListItem>
-        <ListItem
+          <ListItemText primary="InProgress" />
+        </ListItemButton>
+        <ListItemButton
           onClick={() => handleStatusChange(pressedTask!, TaskStatus.DONE)}
         >
-          Done
-        </ListItem>
+          <ListItemText primary="Done" />
+        </ListItemButton>
         <Divider />
-        <ListItem onClick={() => handleEdit(pressedTask!)}>Edit</ListItem>
-        <ListItem onClick={() => handleArchive(pressedTask!)}>Archive</ListItem>
-        <ListItem onClick={() => handleDelete(pressedTask!)}>Delete</ListItem>
+        <ListItemButton onClick={() => handleEdit(pressedTask!)}>
+          <ListItemText primary="Edit" />
+        </ListItemButton>
+        <ListItemButton onClick={() => handleArchive(pressedTask!)}>
+          <ListItemText primary="Archive" />
+        </ListItemButton>
+        <ListItemButton onClick={() => handleDelete(pressedTask!)}>
+          <ListItemText primary="Delete" />
+        </ListItemButton>
       </Menu>
       <AddTIL
         isOpen={Boolean(taskForModal)}
