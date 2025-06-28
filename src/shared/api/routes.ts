@@ -103,7 +103,7 @@ export const deleteWish = (id: number) =>
 
 export const getPosts = () =>
   apiLocalGetRequest(`posts?&$sort[date]=-1&$limit=25`).then(
-    (resp) => resp.data,
+    (resp) => resp.data.data,
   );
 export const getPostsHistory = () =>
   apiLocalGetRequest(`posts-history`).then((resp) => resp.data);
@@ -125,8 +125,28 @@ export const getYearLabels = (year = new Date().getFullYear()) =>
   apiLocalGetRequest(`posts-history?y=${year}&get=labels`).then(
     (resp) => resp.data,
   );
-export const searchPosts = (q: string) =>
-  apiLocalGetRequest(`posts?body[$like]=${encodeURIComponent(`%${q}%`)}`);
+export const searchPosts = ({
+  q = '',
+  startDate,
+  endDate,
+  page = 1,
+  pageSize = 10,
+}: {
+  q?: string;
+  startDate?: string;
+  endDate?: string;
+  page?: number;
+  pageSize?: number;
+}) => {
+  const params = [];
+  if (q) params.push(`body[$like]=${encodeURIComponent(`%${q}%`)}`);
+  if (startDate) params.push(`date[$gte]=${encodeURIComponent(startDate)}`);
+  if (endDate) params.push(`date[$lte]=${encodeURIComponent(endDate)}`);
+  if (pageSize) params.push(`$limit=${pageSize}`);
+  if (page && page > 1) params.push(`$skip=${(page - 1) * pageSize}`);
+  const queryString = params.length ? `?${params.join('&')}` : '';
+  return apiLocalGetRequest(`posts${queryString}`);
+};
 
 export const getLabels = () =>
   apiLocalGetRequest('labels').then((resp) => resp.data?.data);

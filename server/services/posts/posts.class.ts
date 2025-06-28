@@ -42,6 +42,9 @@ export class Posts extends Service {
         return { ...post, comments, labels, periods };
       }),
     );
-    return populated;
+    return {
+      ...posts,
+      data: populated,
+    };
   }
 }
