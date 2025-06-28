@@ -1,16 +1,22 @@
 import React, { FormEvent } from 'react';
 import { Button, Grid, LinearProgress, TextField } from '@mui/material';
 import Typography from '@mui/material/Typography';
-import PostList from '../PostList/Posts';
-import { getLabels, searchPosts } from '../../shared/api/routes';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
+import PostList from '../PostList/Posts';
+import { getLabels, searchPosts } from '../../shared/api/routes';
 
 const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchQuery, setSearchQuery] = React.useState(searchParams.get('q') || '');
-  const [startDate, setStartDate] = React.useState(searchParams.get('startDate') || '');
-  const [endDate, setEndDate] = React.useState(searchParams.get('endDate') || '');
+  const [searchQuery, setSearchQuery] = React.useState(
+    searchParams.get('q') || '',
+  );
+  const [startDate, setStartDate] = React.useState(
+    searchParams.get('startDate') || '',
+  );
+  const [endDate, setEndDate] = React.useState(
+    searchParams.get('endDate') || '',
+  );
   const [isSearchLoading, setSearchLoading] = React.useState(false);
   const [isSearchSubmitted, setSearchSubmitted] = React.useState(false);
   const [posts, setPosts] = React.useState([]);
@@ -20,7 +26,12 @@ const Search = () => {
   const labelsData = useQuery(['labels'], getLabels);
 
   // Update URL params when search state changes
-  const updateSearchParams = (params: {q?: string, startDate?: string, endDate?: string, page?: number}) => {
+  const updateSearchParams = (params: {
+    q?: string;
+    startDate?: string;
+    endDate?: string;
+    page?: number;
+  }) => {
     const newParams: any = {};
     if (params.q) newParams.q = params.q;
     if (params.startDate) newParams.startDate = params.startDate;
@@ -81,12 +92,15 @@ const Search = () => {
           console.log(err);
         });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
   // On mount, if there are search params, trigger search
   React.useEffect(() => {
-    if (searchParams.get('q') || searchParams.get('startDate') || searchParams.get('endDate')) {
+    if (
+      searchParams.get('q') ||
+      searchParams.get('startDate') ||
+      searchParams.get('endDate')
+    ) {
       setSearchLoading(true);
       setSearchSubmitted(true);
       searchPosts({
@@ -108,12 +122,28 @@ const Search = () => {
           console.log(err);
         });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Pagination helpers
   const totalPages = Math.ceil(total / pageSize);
-  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+  // Pagination window logic
+  const getPageNumbers = () => {
+    const windowSize = 2; // how many pages before/after current
+    const pages = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      const start = Math.max(2, page - windowSize);
+      const end = Math.min(totalPages - 1, page + windowSize);
+      if (start > 2) pages.push('start-ellipsis');
+      for (let i = start; i <= end; i++) pages.push(i);
+      if (end < totalPages - 1) pages.push('end-ellipsis');
+      pages.push(totalPages);
+    }
+    return pages;
+  };
+  const pageNumbers = getPageNumbers();
 
   const handlePrevPage = () => {
     if (page > 1) setPage(page - 1);
@@ -173,25 +203,62 @@ const Search = () => {
       </Grid>
       {isSearchSubmitted && totalPages > 1 && (
         <Grid item>
-          <Button onClick={handlePrevPage} disabled={page === 1} style={{ marginRight: 8 }}>
-            Prev
-          </Button>
-          {pageNumbers.map((num) => (
+          <Grid
+            container
+            justifyContent="center"
+            alignItems="center"
+            spacing={1}
+            style={{ marginTop: 16 }}
+          >
             <Button
-              key={num}
-              onClick={() => handlePageClick(num)}
-              variant={num === page ? 'contained' : 'outlined'}
-              style={{ marginRight: 4 }}
+              onClick={handlePrevPage}
+              disabled={page === 1}
+              size="small"
+              style={{ marginRight: 8, minWidth: 32 }}
             >
-              {num}
+              Prev
             </Button>
-          ))}
-          <Button onClick={handleNextPage} disabled={page === totalPages} style={{ marginLeft: 8 }}>
-            Next
-          </Button>
-          <span style={{ marginLeft: 16 }}>
-            Page {page} of {totalPages}
-          </span>
+            {pageNumbers.map((num, idx) => {
+              if (num === 'start-ellipsis' || num === 'end-ellipsis') {
+                return (
+                  <span
+                    key={num + idx}
+                    style={{ margin: '0 4px', fontSize: 18 }}
+                  >
+                    ...
+                  </span>
+                );
+              }
+              return (
+                <Button
+                  key={num}
+                  onClick={() => handlePageClick(Number(num))}
+                  variant={num === page ? 'contained' : 'text'}
+                  size="small"
+                  style={{
+                    margin: '0 2px',
+                    minWidth: 32,
+                    border: 'none',
+                    boxShadow: 'none',
+                    background: num === page ? undefined : 'none',
+                  }}
+                >
+                  {num}
+                </Button>
+              );
+            })}
+            <Button
+              onClick={handleNextPage}
+              disabled={page === totalPages}
+              size="small"
+              style={{ marginLeft: 8, minWidth: 32 }}
+            >
+              Next
+            </Button>
+            <span style={{ marginLeft: 16, fontSize: 14 }}>
+              Page {page} of {totalPages}
+            </span>
+          </Grid>
         </Grid>
       )}
     </Grid>
