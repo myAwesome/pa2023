@@ -6,7 +6,7 @@ export class NoteCategory extends Service {
   constructor(options: Partial<KnexServiceOptions>, app: Application) {
     super({
       ...options,
-      name: 'note_category'
+      name: 'note_category',
     });
   }
 }

@@ -6,7 +6,7 @@ export class Periods extends Service {
   constructor(options: Partial<KnexServiceOptions>, app: Application) {
     super({
       ...options,
-      name: 'periods'
+      name: 'periods',
     });
   }
 }

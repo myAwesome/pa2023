@@ -6,7 +6,7 @@ export class Countdown extends Service {
   constructor(options: Partial<KnexServiceOptions>, app: Application) {
     super({
       ...options,
-      name: 'countdown'
+      name: 'countdown',
     });
   }
 }
