@@ -16,6 +16,12 @@ import IconButton from '@mui/material/IconButton';
 import Divider from '@mui/material/Divider';
 import { useParams } from 'react-router-dom';
 import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from 'react-beautiful-dnd';
+import {
   deleteTask,
   editTask,
   getProject,
@@ -148,6 +154,22 @@ const Project = () => {
     editMutation.mutate({ id: editedTask!.id, body: editedTaskValue });
   };
 
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+
+    const sourceStatus = result.source.droppableId as TaskStatus;
+    const destinationStatus = result.destination.droppableId as TaskStatus;
+
+    if (sourceStatus === destinationStatus) return;
+
+    const taskId = parseInt(result.draggableId);
+    const task = tasksData.data?.[sourceStatus]?.find((t) => t.id === taskId);
+
+    if (task) {
+      editMutation.mutate({ id: task.id, status: destinationStatus });
+    }
+  };
+
   return projectData.isLoading ? (
     <Typography>Loading...</Typography>
   ) : (
@@ -165,36 +187,19 @@ const Project = () => {
       </Box>
       <AddTask />
 
-      <Grid item xs={12} container spacing={1}>
-        {Object.keys(tasksData.data || {}).map((key) => (
-          <Grid
-            item
-            sm={3}
-            xs={12}
-            container
-            direction="column"
-            spacing={1}
-            key={key}
-          >
-            <Grid item>
-              <Paper
-                sx={{
-                  position: 'relative',
-                  padding: (theme) => theme.spacing(2),
-                  textAlign: 'left',
-                  color: (theme) => theme.palette.text.secondary,
-                  wordBreak: 'break-word',
-                  '@media screen and (min-width: 600px) and (max-width: 700px)':
-                    {
-                      padding: (theme) => theme.spacing(1),
-                    },
-                }}
-              >
-                <Typography color="primary"> {key} </Typography>
-              </Paper>
-            </Grid>
-            {tasksData.data?.[key as TaskStatus].map((task) => (
-              <Grid item key={task.id}>
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Grid item xs={12} container spacing={1}>
+          {Object.keys(tasksData.data || {}).map((key) => (
+            <Grid
+              item
+              sm={3}
+              xs={12}
+              container
+              direction="column"
+              spacing={1}
+              key={key}
+            >
+              <Grid item>
                 <Paper
                   sx={{
                     position: 'relative',
@@ -208,63 +213,128 @@ const Project = () => {
                       },
                   }}
                 >
-                  {editedTask?.id === task.id ? (
-                    <>
-                      <IconButton
-                        onClick={handleSubmitTaskEdit}
-                        sx={{
-                          padding: (theme) => theme.spacing(0.5),
-                          position: 'absolute',
-                          bottom: 8,
-                          right: 0,
-                          '@media screen and (min-width: 600px) and (max-width: 700px)':
-                            {
-                              bottom: 2,
-                            },
-                        }}
-                      >
-                        <CheckSharp />
-                      </IconButton>
-                      <TextField
-                        variant="standard"
-                        value={editedTaskValue}
-                        onChange={handleChangeTask}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <Typography
-                        sx={{
-                          marginRight: 2.5,
-                        }}
-                      >
-                        {task.body}
-                      </Typography>
-                      <IconButton
-                        onClick={(event) =>
-                          handleMoreClick(task, event.currentTarget)
-                        }
-                        sx={{
-                          padding: (theme) => theme.spacing(0.5),
-                          position: 'absolute',
-                          bottom: 8,
-                          right: 0,
-                          '@media screen and (min-width: 600px) and (max-width: 700px)':
-                            {
-                              bottom: 2,
-                            },
-                        }}
-                      >
-                        <MoreVertIcon />
-                      </IconButton>
-                    </>
-                  )}
+                  <Typography color="primary"> {key} </Typography>
                 </Paper>
               </Grid>
-            ))}
-          </Grid>
-        ))}
-      </Grid>
+              <Droppable droppableId={key}>
+                {(provided, snapshot) => (
+                  <Box
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    sx={{
+                      minHeight: '100px',
+                      backgroundColor: snapshot.isDraggingOver
+                        ? 'rgba(0, 0, 0, 0.04)'
+                        : 'transparent',
+                      transition: 'background-color 0.2s ease',
+                      borderRadius: 1,
+                      padding: 1,
+                    }}
+                  >
+                    {tasksData.data?.[key as TaskStatus].map((task, index) => (
+                      <Draggable
+                        key={task.id}
+                        draggableId={task.id.toString()}
+                        index={index}
+                      >
+                        {(provided, snapshot) => (
+                          <Grid
+                            item
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            sx={{
+                              marginBottom: 1,
+                              transform: snapshot.isDragging
+                                ? 'rotate(5deg)'
+                                : 'none',
+                              transition: 'transform 0.2s ease',
+                            }}
+                          >
+                            <Paper
+                              sx={{
+                                position: 'relative',
+                                padding: (theme) => theme.spacing(2),
+                                textAlign: 'left',
+                                color: (theme) => theme.palette.text.secondary,
+                                wordBreak: 'break-word',
+                                backgroundColor: snapshot.isDragging
+                                  ? 'rgba(0, 0, 0, 0.08)'
+                                  : 'inherit',
+                                cursor: 'grab',
+                                '&:active': {
+                                  cursor: 'grabbing',
+                                },
+                                '@media screen and (min-width: 600px) and (max-width: 700px)':
+                                  {
+                                    padding: (theme) => theme.spacing(1),
+                                  },
+                              }}
+                            >
+                              {editedTask?.id === task.id ? (
+                                <>
+                                  <IconButton
+                                    onClick={handleSubmitTaskEdit}
+                                    sx={{
+                                      padding: (theme) => theme.spacing(0.5),
+                                      position: 'absolute',
+                                      bottom: 8,
+                                      right: 0,
+                                      '@media screen and (min-width: 600px) and (max-width: 700px)':
+                                        {
+                                          bottom: 2,
+                                        },
+                                    }}
+                                  >
+                                    <CheckSharp />
+                                  </IconButton>
+                                  <TextField
+                                    variant="standard"
+                                    value={editedTaskValue}
+                                    onChange={handleChangeTask}
+                                  />
+                                </>
+                              ) : (
+                                <>
+                                  <Typography
+                                    sx={{
+                                      marginRight: 2.5,
+                                    }}
+                                  >
+                                    {task.body}
+                                  </Typography>
+                                  <IconButton
+                                    onClick={(event) =>
+                                      handleMoreClick(task, event.currentTarget)
+                                    }
+                                    sx={{
+                                      padding: (theme) => theme.spacing(0.5),
+                                      position: 'absolute',
+                                      bottom: 8,
+                                      right: 0,
+                                      '@media screen and (min-width: 600px) and (max-width: 700px)':
+                                        {
+                                          bottom: 2,
+                                        },
+                                    }}
+                                  >
+                                    <MoreVertIcon />
+                                  </IconButton>
+                                </>
+                              )}
+                            </Paper>
+                          </Grid>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </Box>
+                )}
+              </Droppable>
+            </Grid>
+          ))}
+        </Grid>
+      </DragDropContext>
       <Menu
         anchorEl={menuAnchorElement}
         open={Boolean(menuAnchorElement)}
