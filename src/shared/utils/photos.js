@@ -8,14 +8,13 @@ export const getPhotosOnDate = async (
   let error = null;
   try {
     const response = await fetch(
-      `https://photoslibrary.googleapis.com/v1/mediaItems:search?access_token=${encodeURIComponent(
-        authToken,
-      )}`,
+      'https://photoslibrary.googleapis.com/v1/mediaItems:search',
       {
         method: 'POST',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({
           ...(nextPageToken ? { pageToken: nextPageToken } : {}),
