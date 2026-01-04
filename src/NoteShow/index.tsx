@@ -58,7 +58,12 @@ const NoteCategoryShow = () => {
     handleMenuClose,
   );
 
-  const handleSubmit = (values: Omit<NoteType, 'id' | 'note_category'>) => {
+  const handleSubmit = (
+    values: Omit<
+      NoteType,
+      'id' | 'note_category' | 'created_at' | 'updated_at'
+    >,
+  ) => {
     if (isAdd) {
       addMutation.mutate(values);
     } else {

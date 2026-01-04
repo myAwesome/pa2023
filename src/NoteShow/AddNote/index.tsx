@@ -15,7 +15,9 @@ type Props = {
   isOpen: boolean;
   initialValue: string;
   handleCancel: () => void;
-  handleSubmit: (val: Omit<NoteType, 'id' | 'note_category'>) => void;
+  handleSubmit: (
+    val: Omit<NoteType, 'id' | 'note_category' | 'created_at' | 'updated_at'>,
+  ) => void;
 };
 
 const AddNote = ({
