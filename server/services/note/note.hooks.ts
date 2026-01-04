@@ -5,14 +5,22 @@ import { filterByUser } from '../../app.hooks';
 
 const { authenticate } = authentication.hooks;
 
+const updateTimestamp = (context: any) => {
+  context.data = {
+    ...context.data,
+    updated_at: new Date().toISOString(),
+  };
+  return context;
+};
+
 export default {
   before: {
     all: [authenticate('jwt')],
     find: [filterByUser],
     get: [],
     create: [],
-    update: [],
-    patch: [],
+    update: [updateTimestamp],
+    patch: [updateTimestamp],
     remove: [],
   },
 
