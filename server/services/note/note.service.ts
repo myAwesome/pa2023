@@ -1,14 +1,14 @@
 // Initializes the `note` service on path `/note`
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
-import { Note } from './note.class';
 import createModel from '../../models/note.model';
+import { Note } from './note.class';
 import hooks from './note.hooks';
 
 // Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
-    'note': Note & ServiceAddons<any>;
+    note: Note & ServiceAddons<any>;
   }
 }
 

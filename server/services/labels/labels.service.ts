@@ -1,14 +1,14 @@
 // Initializes the `labels` service on path `/labels`
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
-import { Labels } from './labels.class';
 import createModel from '../../models/labels.model';
+import { Labels } from './labels.class';
 import hooks from './labels.hooks';
 
 // Add this service to the service type index
 declare module '../../declarations' {
   interface ServiceTypes {
-    'labels': Labels & ServiceAddons<any>;
+    labels: Labels & ServiceAddons<any>;
   }
 }
 

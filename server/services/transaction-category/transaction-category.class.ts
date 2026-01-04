@@ -6,7 +6,7 @@ export class TransactionCategory extends Service {
   constructor(options: Partial<KnexServiceOptions>, app: Application) {
     super({
       ...options,
-      name: 'transaction_category'
+      name: 'transaction_category',
     });
   }
 }

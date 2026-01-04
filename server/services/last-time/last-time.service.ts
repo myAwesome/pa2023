@@ -1,8 +1,8 @@
 // Initializes the `lastTime` service on path `/last-time`
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
-import { LastTime } from './last-time.class';
 import createModel from '../../models/last-time.model';
+import { LastTime } from './last-time.class';
 import hooks from './last-time.hooks';
 
 // Add this service to the service type index

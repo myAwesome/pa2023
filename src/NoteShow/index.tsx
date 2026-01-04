@@ -11,6 +11,15 @@ import { deleteNote, getNotes, postNote, editNote } from '../shared/api/routes';
 import { NoteType } from '../shared/types';
 import AddNote from './AddNote';
 
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+};
+
 const NoteCategoryShow = () => {
   const params = useParams();
   const [menuAnchorElement, setMenuAnchorElement] =
@@ -49,7 +58,12 @@ const NoteCategoryShow = () => {
     handleMenuClose,
   );
 
-  const handleSubmit = (values: Omit<NoteType, 'id' | 'note_category'>) => {
+  const handleSubmit = (
+    values: Omit<
+      NoteType,
+      'id' | 'note_category' | 'created_at' | 'updated_at'
+    >,
+  ) => {
     if (isAdd) {
       addMutation.mutate(values);
     } else {
@@ -90,6 +104,7 @@ const NoteCategoryShow = () => {
               color: (theme) => theme.palette.text.secondary,
               wordBreak: 'break-word',
               marginBottom: (theme) => theme.spacing(2),
+              paddingBottom: (theme) => theme.spacing(5),
             }}
           >
             <Typography
@@ -104,6 +119,19 @@ const NoteCategoryShow = () => {
                   <br />
                 </Fragment>
               ))}
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                position: 'absolute',
+                bottom: (theme) => theme.spacing(1),
+                left: (theme) => theme.spacing(2),
+                color: (theme) => theme.palette.text.disabled,
+                fontSize: '0.75rem',
+              }}
+            >
+              Created: {formatDate(note.created_at)} | Updated:{' '}
+              {formatDate(note.updated_at)}
             </Typography>
             <IconButton
               onClick={(event) => handleMoreClick(note, event.currentTarget)}

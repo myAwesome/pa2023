@@ -37,6 +37,10 @@ const Project = () => {
     null,
   );
   const [taskForModal, setTaskForModal] = React.useState<TaskType | null>(null);
+  const [draggedTask, setDraggedTask] = React.useState<TaskType | null>(null);
+  const [dragOverColumn, setDragOverColumn] = React.useState<TaskStatus | null>(
+    null,
+  );
   const projectData = useQuery(['project', params.id], () =>
     getProject(params.id!),
   );
@@ -148,6 +152,38 @@ const Project = () => {
     editMutation.mutate({ id: editedTask!.id, body: editedTaskValue });
   };
 
+  const handleDragStart = (e: React.DragEvent, task: TaskType) => {
+    setDraggedTask(task);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', task.id.toString());
+  };
+
+  const handleDragOver = (e: React.DragEvent, status: TaskStatus) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverColumn(status);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverColumn(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, status: TaskStatus) => {
+    e.preventDefault();
+    setDragOverColumn(null);
+
+    if (draggedTask && draggedTask.status !== status) {
+      editMutation.mutate({ id: draggedTask.id, status });
+    }
+
+    setDraggedTask(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedTask(null);
+    setDragOverColumn(null);
+  };
+
   return projectData.isLoading ? (
     <Typography>Loading...</Typography>
   ) : (
@@ -175,6 +211,16 @@ const Project = () => {
             direction="column"
             spacing={1}
             key={key}
+            onDragOver={(e) => handleDragOver(e, key as TaskStatus)}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, key as TaskStatus)}
+            sx={{
+              minHeight: '200px',
+              backgroundColor:
+                dragOverColumn === key ? 'rgba(0, 0, 0, 0.04)' : 'inherit',
+              borderRadius: 1,
+              transition: 'background-color 0.2s ease',
+            }}
           >
             <Grid item>
               <Paper
@@ -196,12 +242,20 @@ const Project = () => {
             {tasksData.data?.[key as TaskStatus].map((task) => (
               <Grid item key={task.id}>
                 <Paper
+                  draggable={editedTask?.id !== task.id}
+                  onDragStart={(e) => handleDragStart(e, task)}
+                  onDragEnd={handleDragEnd}
                   sx={{
                     position: 'relative',
                     padding: (theme) => theme.spacing(2),
                     textAlign: 'left',
                     color: (theme) => theme.palette.text.secondary,
                     wordBreak: 'break-word',
+                    cursor: editedTask?.id === task.id ? 'default' : 'grab',
+                    opacity: draggedTask?.id === task.id ? 0.5 : 1,
+                    '&:active': {
+                      cursor: 'grabbing',
+                    },
                     '@media screen and (min-width: 600px) and (max-width: 700px)':
                       {
                         padding: (theme) => theme.spacing(1),

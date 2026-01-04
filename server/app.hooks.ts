@@ -1,7 +1,22 @@
 import { HookContext } from '@feathersjs/feathers';
 import * as authentication from '@feathersjs/authentication';
 const { authenticate } = authentication.hooks;
-import { iffElse } from 'feathers-hooks-common';
+
+// Simple iffElse implementation to avoid feathers-hooks-common dependency
+const iffElse = (
+  predicate: (context: HookContext) => Promise<boolean> | boolean,
+  trueHooks: any[],
+  falseHooks: any[],
+) => {
+  return async (context: HookContext) => {
+    const result = await predicate(context);
+    const hooks = result ? trueHooks : falseHooks;
+    for (const hook of hooks) {
+      await hook(context);
+    }
+    return context;
+  };
+};
 
 const userHook = async (context: HookContext) => {
   if (context.service.options && context.service.options.userAware) {

@@ -6,7 +6,7 @@ export class BlogPost extends Service {
   constructor(options: Partial<KnexServiceOptions>, app: Application) {
     super({
       ...options,
-      name: 'blog_post'
+      name: 'blog_post',
     });
   }
 }

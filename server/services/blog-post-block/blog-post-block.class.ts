@@ -6,7 +6,7 @@ export class BlogPostBlock extends Service {
   constructor(options: Partial<KnexServiceOptions>, app: Application) {
     super({
       ...options,
-      name: 'blog_post_block'
+      name: 'blog_post_block',
     });
   }
 }

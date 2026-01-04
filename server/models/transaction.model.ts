@@ -22,7 +22,5 @@ export default function (app: Application): Knex {
     }
   });
 
-
-
   return db;
 }
