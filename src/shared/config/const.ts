@@ -1,1 +1,1 @@
-export const LOCAL = 'http://localhost:3033';
+export const LOCAL = process.env.REACT_APP_API_URL || '/api';
