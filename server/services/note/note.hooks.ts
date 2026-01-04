@@ -6,9 +6,16 @@ import { filterByUser } from '../../app.hooks';
 const { authenticate } = authentication.hooks;
 
 const updateTimestamp = (context: any) => {
+  // Format date for MySQL: YYYY-MM-DD HH:MM:SS
+  const now = new Date();
+  const mysqlDateTime = now
+    .toISOString()
+    .slice(0, 19)
+    .replace('T', ' ');
+
   context.data = {
     ...context.data,
-    updated_at: new Date().toISOString(),
+    updated_at: mysqlDateTime,
   };
   return context;
 };
