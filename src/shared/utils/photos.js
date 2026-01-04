@@ -23,11 +23,13 @@ export const getPhotosOnDate = async (
           filters: {
             dateFilter: date
               ? {
-                  dates: {
-                    year: new Date(date).getFullYear(),
-                    month: new Date(date).getMonth() + 1,
-                    day: new Date(date).getDate(),
-                  },
+                  dates: [
+                    {
+                      year: new Date(date).getFullYear(),
+                      month: new Date(date).getMonth() + 1,
+                      day: new Date(date).getDate(),
+                    },
+                  ],
                 }
               : {
                   ranges: ranges.map((r) => ({
