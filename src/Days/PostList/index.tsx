@@ -20,11 +20,10 @@ const PostList = ({ tab }: Props) => {
   );
   const md = dayjs(selectedDate).format('MM-DD');
 
+  const queryKey = tab === 'history' ? ['history_posts', md] : ['recent_posts'];
+
   const { data, isLoading } = useQuery(
-    [
-      tab === 'history' ? 'history_posts' : 'recent_posts',
-      tab === 'history' ? md : undefined,
-    ],
+    queryKey,
     tab === 'history' ? () => getPostsHistoryByDate(md) : getPosts,
   );
   const labelsData = useQuery(['labels'], getLabels);
@@ -40,10 +39,7 @@ const PostList = ({ tab }: Props) => {
         <Posts
           posts={data}
           labels={labelsData.data || []}
-          invalidateQueries={[
-            tab === 'history' ? 'history_posts' : 'recent_posts',
-            tab === 'history' ? md : undefined,
-          ]}
+          invalidateQueries={queryKey}
         />
       )}
     </>
