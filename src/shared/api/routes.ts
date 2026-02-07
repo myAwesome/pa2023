@@ -107,6 +107,8 @@ export const getPosts = () =>
   );
 export const getPostsHistory = () =>
   apiLocalGetRequest(`posts-history`).then((resp) => resp.data);
+export const getPostsHistoryByDate = (md: string) =>
+  apiLocalGetRequest(`posts-history?md=${md}`).then((resp) => resp.data);
 export const deletePost = (id: number) =>
   apiLocalDeleteRequest(`posts/${id}`).then((resp) => resp.data);
 export const editPost = (id: number, data: any) =>

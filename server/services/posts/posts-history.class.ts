@@ -50,7 +50,9 @@ export class PostsHistory extends Service {
     }
     let ym = new Date().toISOString().slice(5, 10);
     let dateFormat = '%m-%d';
-    if (params.query?.ym) {
+    if (params.query?.md) {
+      ym = params.query.md;
+    } else if (params.query?.ym) {
       dateFormat = '%y-%m';
       ym = params.query?.ym;
     }
