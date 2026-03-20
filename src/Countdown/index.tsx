@@ -131,7 +131,7 @@ const Countdown = () => {
               </Typography>
               <Typography>days</Typography>
               <Typography sx={{ mt: 3 }} variant="h6">
-                to {c.name}
+                {dayjs(c.date).diff(dayjs(), 'day') < 0 ? 'as' : 'to'} {c.name}
               </Typography>
             </Box>
           </Box>
