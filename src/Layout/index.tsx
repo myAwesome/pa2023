@@ -118,7 +118,7 @@ const Layout = ({ children }: PropsWithChildren) => {
     });
   });
 
-  const enabledApps: AppKey[] = parseUserApps(userData?.apps);
+  const enabledApps: AppKey[] = userData ? parseUserApps(userData.apps) : [];
 
   const handleLogout = () => {
     handleUserLoggedOut();
