@@ -20,6 +20,7 @@ import { getUser } from '../shared/api/routes';
 import GPhotosContext from '../shared/context/GPhotosContext';
 import UIContext from '../shared/context/UIContext';
 import { parseUserApps, AppKey } from '../shared/hooks/useUserApps';
+import { getItemFromStorage, setItemToStorage } from '../shared/utils/storage';
 import LayoutToolbar from './LayoutToolbar';
 import TasksInProgress from './TasksInProgress';
 import Reminder from './Reminder';
@@ -111,14 +112,19 @@ const Layout = ({ children }: PropsWithChildren) => {
   const { handleUserThemeChanged } = useContext(UIContext);
   const { handleUserLoggedOut } = useContext(GPhotosContext);
 
+  const APPS_STORAGE_KEY = 'user_apps';
+
   const { data: userData } = useQuery(['user'], () => {
     return getUser().then((data) => {
       handleUserThemeChanged(data.theme);
+      setItemToStorage(APPS_STORAGE_KEY, data.apps ?? '');
       return data;
     });
   });
 
-  const enabledApps: AppKey[] = parseUserApps(userData?.apps);
+  const enabledApps: AppKey[] = userData
+    ? parseUserApps(userData.apps)
+    : parseUserApps(getItemFromStorage(APPS_STORAGE_KEY));
 
   const handleLogout = () => {
     handleUserLoggedOut();
