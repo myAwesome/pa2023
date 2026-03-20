@@ -4,6 +4,7 @@ import LabelsSettings from './LabelsSettings';
 import PeriodSettings from './PeriodSettings';
 import PhotosSettings from './PhotosSettings';
 import ThemeSettings from './ThemeSettings';
+import AppsSettings from './AppsSettings';
 
 const DaysSettings = () => {
   return (
@@ -12,6 +13,7 @@ const DaysSettings = () => {
       <LabelsSettings />
       <PeriodSettings />
       <ThemeSettings />
+      <AppsSettings />
     </Stack>
   );
 };

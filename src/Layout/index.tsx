@@ -22,6 +22,7 @@ import UIContext from '../shared/context/UIContext';
 import LayoutToolbar from './LayoutToolbar';
 import TasksInProgress from './TasksInProgress';
 import Reminder from './Reminder';
+import { parseUserApps, AppKey } from '../shared/hooks/useUserApps';
 
 const drawerWidth = 183;
 
@@ -110,12 +111,14 @@ const Layout = ({ children }: PropsWithChildren) => {
   const { handleUserThemeChanged } = useContext(UIContext);
   const { handleUserLoggedOut } = useContext(GPhotosContext);
 
-  useQuery(['user'], () => {
+  const { data: userData } = useQuery(['user'], () => {
     return getUser().then((data) => {
       handleUserThemeChanged(data.theme);
       return data;
     });
   });
+
+  const enabledApps: AppKey[] = parseUserApps(userData?.apps);
 
   const handleLogout = () => {
     handleUserLoggedOut();
@@ -147,7 +150,7 @@ const Layout = ({ children }: PropsWithChildren) => {
             <ChevronLeft />
           </IconButton>
         </DrawerHeader>
-        <LayoutToolbar open={open} />
+        <LayoutToolbar open={open} enabledApps={enabledApps} />
         <Box
           sx={{
             position: 'absolute',

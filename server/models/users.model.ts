@@ -22,9 +22,20 @@ export default function (app: Application): Knex {
           table.integer('transaction_group_id');
           table.integer('project_group_id');
           table.string('theme');
+          table.text('apps');
         })
         .then(() => console.log(`Created ${tableName} table`))
         .catch((e) => console.error(`Error creating ${tableName} table`, e));
+    } else {
+      db.schema.hasColumn(tableName, 'apps').then((exists) => {
+        if (!exists) {
+          db.schema
+            .table(tableName, (table) => {
+              table.text('apps');
+            })
+            .catch((e) => console.error(`Error adding apps column to ${tableName}`, e));
+        }
+      });
     }
   });
 
