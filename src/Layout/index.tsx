@@ -19,10 +19,10 @@ import { useQuery } from '@tanstack/react-query';
 import { getUser } from '../shared/api/routes';
 import GPhotosContext from '../shared/context/GPhotosContext';
 import UIContext from '../shared/context/UIContext';
+import { parseUserApps, AppKey } from '../shared/hooks/useUserApps';
 import LayoutToolbar from './LayoutToolbar';
 import TasksInProgress from './TasksInProgress';
 import Reminder from './Reminder';
-import { parseUserApps, AppKey } from '../shared/hooks/useUserApps';
 
 const drawerWidth = 183;
 
