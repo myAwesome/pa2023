@@ -35,6 +35,7 @@ const LabelsSettings = () => {
   >([]);
   const [isNewLabelActive, setIsNewLabelActive] = React.useState(false);
   const [labelToEdit, setLabelToEdit] = React.useState<number | null>(null);
+  const [newLabelEmoji, setNewLabelEmoji] = React.useState('');
   const [isEdit, setIsEdit] = React.useState(false);
   const labelsData = useQuery(['labels'], getLabels);
 
@@ -44,6 +45,7 @@ const LabelsSettings = () => {
         name: newLabelName,
         color: newLabelColor[0],
         color_active: newLabelColor[1],
+        emoji: newLabelEmoji || null,
       }),
     ['labels'],
     labelToEdit,
@@ -51,11 +53,13 @@ const LabelsSettings = () => {
       name: newLabelName,
       color: newLabelColor[0],
       color_active: newLabelColor[1],
+      emoji: newLabelEmoji || null,
     }),
     () => {
       setIsEdit(false);
       setNewLabelName('');
       setNewLabelColor([]);
+      setNewLabelEmoji('');
       setIsNewLabelActive(false);
     },
   );
@@ -65,6 +69,7 @@ const LabelsSettings = () => {
         name: newLabelName,
         color: newLabelColor[0],
         color_active: newLabelColor[1],
+        emoji: newLabelEmoji || null,
       }),
     ['labels'],
     (old: LabelType[]) => [
@@ -74,6 +79,7 @@ const LabelsSettings = () => {
         name: newLabelName,
         color: newLabelColor[0],
         color_active: newLabelColor[1],
+        emoji: newLabelEmoji || null,
       },
     ],
   );
@@ -120,6 +126,7 @@ const LabelsSettings = () => {
     setIsEdit(false);
     setNewLabelName('');
     setNewLabelColor([]);
+    setNewLabelEmoji('');
     setIsNewLabelActive(false);
   };
 
@@ -131,6 +138,7 @@ const LabelsSettings = () => {
     setIsAdd(false);
     setNewLabelName(editLabel.name);
     setNewLabelColor([editLabel.color, editLabel.color_active]);
+    setNewLabelEmoji(editLabel.emoji || '');
   };
 
   const handleAddClicked = () => {
@@ -139,6 +147,7 @@ const LabelsSettings = () => {
     setLabelToEdit(null);
     setNewLabelName('');
     setNewLabelColor([]);
+    setNewLabelEmoji('');
     setIsNewLabelActive(false);
   };
 
@@ -193,6 +202,16 @@ const LabelsSettings = () => {
                   value={newLabelName}
                   onChange={(e) => setNewLabelName(e.target.value)}
                   label="Name"
+                />
+              </Grid>
+              <Grid item>
+                <TextField
+                  name="labelEmoji"
+                  variant="standard"
+                  value={newLabelEmoji}
+                  onChange={(e) => setNewLabelEmoji(e.target.value)}
+                  label="Emoji"
+                  inputProps={{ maxLength: 2 }}
                 />
               </Grid>
               <Grid item>

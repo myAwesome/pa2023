@@ -13,9 +13,20 @@ export default function (app: Application): Knex {
           table.string('color');
           table.string('color_active');
           table.integer('user_id');
+          table.string('emoji').nullable();
         })
         .then(() => console.log(`Created ${tableName} table`))
         .catch((e) => console.error(`Error creating ${tableName} table`, e));
+    } else {
+      db.schema.hasColumn(tableName, 'emoji').then((hasEmoji) => {
+        if (!hasEmoji) {
+          db.schema
+            .table(tableName, (table) => {
+              table.string('emoji').nullable();
+            })
+            .catch((e) => console.error(`Error adding emoji column to ${tableName} table`, e));
+        }
+      });
     }
   });
   return db;
