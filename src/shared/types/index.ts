@@ -28,6 +28,7 @@ export type LabelType = {
   name?: string;
   color?: string;
   color_active?: string;
+  emoji?: string | null;
 };
 
 export type CommentType = {
