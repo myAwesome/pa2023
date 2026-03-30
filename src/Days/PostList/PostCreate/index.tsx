@@ -3,6 +3,9 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import { postPost } from '../../../shared/api/routes';
 import { useCreateMutation } from '../../../shared/hooks/useCreateMutation';
 import { dateToMySQLFormat } from '../../../shared/utils/mappers';
@@ -20,6 +23,7 @@ const createPost = (body: string, date: string) => ({
 const PostCreate = () => {
   const [value, setValue] = React.useState('');
   const [date, setDate] = React.useState(today);
+  const [isContextOpen, setContextOpen] = React.useState(false);
   const createPostMutation = useCreateMutation(
     () => postPost(createPost(value, date)),
     ['recent_posts'],
@@ -65,6 +69,7 @@ const PostCreate = () => {
       />
       <Button
         style={{ marginRight: 15 }}
+        type="button"
         onClick={() =>
           handleDate({
             target: { value: yesterday },
@@ -82,6 +87,7 @@ const PostCreate = () => {
         variant="standard"
       />
       <Button
+        type="button"
         onClick={() =>
           handleDate({
             target: { value: today },
@@ -91,9 +97,27 @@ const PostCreate = () => {
       >
         Today
       </Button>
-      <ContextSegmentsPanel date={date} />
+      <Button
+        type="button"
+        color="inherit"
+        onClick={() => setContextOpen(true)}
+      >
+        Add context
+      </Button>
+      <Dialog
+        open={isContextOpen}
+        onClose={() => setContextOpen(false)}
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogTitle>Context</DialogTitle>
+        <DialogContent>
+          <ContextSegmentsPanel date={date} />
+        </DialogContent>
+      </Dialog>
       <Button
         fullWidth
+        type="button"
         variant="contained"
         color="primary"
         onClick={handleSubmit}
