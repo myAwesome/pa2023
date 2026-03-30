@@ -23,6 +23,16 @@ type Props = {
   date: string;
 };
 
+const normalizeSegments = (val: any): ContextSegmentType[] => {
+  if (Array.isArray(val)) {
+    return val;
+  }
+  if (Array.isArray(val?.data)) {
+    return val.data;
+  }
+  return [];
+};
+
 const ContextSegmentsPanel = ({ date }: Props) => {
   const queryClient = useQueryClient();
   const queryKey = ['context_segments', date];
@@ -98,7 +108,7 @@ const ContextSegmentsPanel = ({ date }: Props) => {
     splitMutation.isLoading ||
     deleteMutation.isLoading;
 
-  const segments = (data || []) as ContextSegmentType[];
+  const segments = normalizeSegments(data);
 
   const handleCreate = () => {
     if (!title.trim() || !isValidDateRange) {

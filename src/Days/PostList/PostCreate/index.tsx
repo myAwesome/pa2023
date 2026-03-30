@@ -25,6 +25,16 @@ const createPost = (body: string, date: string) => ({
   date: dateToMySQLFormat(date),
 });
 
+const normalizeSegments = (val: any): ContextSegmentType[] => {
+  if (Array.isArray(val)) {
+    return val;
+  }
+  if (Array.isArray(val?.data)) {
+    return val.data;
+  }
+  return [];
+};
+
 const PostCreate = () => {
   const [value, setValue] = React.useState('');
   const [date, setDate] = React.useState(today);
@@ -64,7 +74,7 @@ const PostCreate = () => {
       createPostMutation.mutate(value);
     }
   };
-  const appliedContext = (contextQuery.data || []) as ContextSegmentType[];
+  const appliedContext = normalizeSegments(contextQuery.data);
 
   return (
     <form style={{ marginBottom: '30px', textAlign: 'center' }}>
