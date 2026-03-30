@@ -249,7 +249,7 @@ export const deleteLT = (id: number) =>
 export const sendLogin = (data: any) =>
   apiPostRequest(`${LOCAL}/authentication`, { ...data, strategy: 'local' });
 export const sendRegistration = (data: any) =>
-  apiPostRequest(`${LOCAL}/register`, data);
+  apiPostRequest(`${LOCAL}/users`, data);
 
 export const getPeriods = () =>
   apiLocalGetRequest(`periods?$limit=200`).then((resp) => resp.data?.data);
