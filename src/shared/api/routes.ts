@@ -116,6 +116,47 @@ export const editPost = (id: number, data: any) =>
 export const postComment = (data: any) => apiLocalPostRequest(`comments`, data);
 export const postPost = (data: any) =>
   apiLocalPostRequest(`posts`, data).then((resp) => resp.data);
+export const getContextSegments = ({
+  date,
+}: {
+  date?: string;
+} = {}) => {
+  const query = date ? `?active=1&date=${encodeURIComponent(date)}` : '';
+  return apiLocalGetRequest(`context-segments${query}`).then(
+    (resp) => resp.data?.data || resp.data,
+  );
+};
+export const postContextSegment = (data: {
+  title: string;
+  details: string;
+  start_date: string;
+  end_date: string | null;
+}) =>
+  apiLocalPostRequest('context-segments', data).then((resp) => resp.data);
+export const patchContextSegment = (
+  id: number,
+  data: {
+    title?: string;
+    details?: string;
+    start_date?: string;
+    end_date?: string | null;
+  },
+) =>
+  apiLocalPatchRequest(`context-segments/${id}`, data).then((resp) => resp.data);
+export const splitContextSegment = (
+  id: number,
+  data: {
+    splitDate: string;
+    newTitle?: string;
+    newDetails?: string;
+  },
+) =>
+  apiLocalPatchRequest(`context-segments/${id}`, {
+    mode: 'split',
+    ...data,
+  }).then((resp) => resp.data);
+export const deleteContextSegment = (id: number) =>
+  apiLocalDeleteRequest(`context-segments/${id}`).then((resp) => resp.data);
 
 export const getYears = () =>
   apiLocalGetRequest(`posts-history?get=months`).then((resp) =>

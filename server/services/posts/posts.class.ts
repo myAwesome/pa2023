@@ -17,7 +17,7 @@ export class Posts extends Service {
     const posts = (await super.find(params)) as Paginated<any>;
     const populated = await Promise.all(
       posts.data.map(async (post) => {
-        const [comments, labels, periods] = await Promise.all([
+        const [comments, labels, periods, contextSegments] = await Promise.all([
           this.app
             .get('knexClient')('comments')
             .where({ post_id: post.id })
@@ -38,8 +38,28 @@ export class Posts extends Service {
                   [post.id, params.query?.user_id],
                 ),
             ),
+          this.app
+            .get('knexClient')('context_segments')
+            .where({
+              user_id: params.query?.user_id,
+            })
+            .where('start_date', '<=', post.date.slice(0, 10))
+            .where((qb) => {
+              qb.whereNull('end_date').orWhere(
+                'end_date',
+                '>=',
+                post.date.slice(0, 10),
+              );
+            })
+            .orderBy('start_date', 'desc'),
         ]);
-        return { ...post, comments, labels, periods };
+        return {
+          ...post,
+          comments,
+          labels,
+          periods,
+          context_segments: contextSegments,
+        };
       }),
     );
     return {

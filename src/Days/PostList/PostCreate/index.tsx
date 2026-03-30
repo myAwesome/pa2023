@@ -6,6 +6,7 @@ import Button from '@mui/material/Button';
 import { postPost } from '../../../shared/api/routes';
 import { useCreateMutation } from '../../../shared/hooks/useCreateMutation';
 import { dateToMySQLFormat } from '../../../shared/utils/mappers';
+import ContextSegmentsPanel from './ContextSegmentsPanel';
 
 dayjs.extend(utc);
 
@@ -23,7 +24,14 @@ const PostCreate = () => {
     () => postPost(createPost(value, date)),
     ['recent_posts'],
     (old: any[]) => [
-      { ...createPost(value, date), id: 0, labels: [], comments: [] },
+      {
+        ...createPost(value, date),
+        id: 0,
+        labels: [],
+        comments: [],
+        periods: [],
+        context_segments: [],
+      },
       ...old,
     ],
     () => {
@@ -83,6 +91,7 @@ const PostCreate = () => {
       >
         Today
       </Button>
+      <ContextSegmentsPanel date={date} />
       <Button
         fullWidth
         variant="contained"

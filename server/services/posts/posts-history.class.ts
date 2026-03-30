@@ -64,7 +64,7 @@ export class PostsHistory extends Service {
       .orderBy('date', 'desc');
     const populated = await Promise.all(
       posts.map(async (post: any) => {
-        const [comments, labels, periods] = await Promise.all([
+        const [comments, labels, periods, contextSegments] = await Promise.all([
           knex('comments').where({ post_id: post.id }).orderBy('date'),
           knex('labels')
             .pluck('labels.id')
@@ -76,8 +76,25 @@ export class PostsHistory extends Service {
               [post.id, params.user?.id],
             ),
           ),
+          knex('context_segments')
+            .where({ user_id: params.user?.id })
+            .where('start_date', '<=', post.date.slice(0, 10))
+            .where((qb) => {
+              qb.whereNull('end_date').orWhere(
+                'end_date',
+                '>=',
+                post.date.slice(0, 10),
+              );
+            })
+            .orderBy('start_date', 'desc'),
         ]);
-        return { ...post, comments, labels, periods };
+        return {
+          ...post,
+          comments,
+          labels,
+          periods,
+          context_segments: contextSegments,
+        };
       }),
     );
     return populated;

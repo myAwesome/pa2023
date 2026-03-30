@@ -291,6 +291,22 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 ))}
               </Grid>
             ) : null}
+            {post.context_segments && post.context_segments.length > 0 ? (
+              <Grid container flexWrap="wrap" gap={1} sx={{ marginTop: 1 }}>
+                {post.context_segments.map((segment) => (
+                  <Grid item key={segment.id}>
+                    <Chip
+                      label={segment.title}
+                      title={segment.details}
+                      sx={{
+                        color: (theme) => theme.palette.secondary.main,
+                      }}
+                      variant="outlined"
+                    />
+                  </Grid>
+                ))}
+              </Grid>
+            ) : null}
             <PostPhotos date={post.date} />
             {post.comments.map((comment) => (
               <PostComment key={comment.id} comment={comment} />
