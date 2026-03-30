@@ -1,4 +1,3 @@
-import { HooksObject } from '@feathersjs/feathers';
 import * as authentication from '@feathersjs/authentication';
 import { filterByUser } from '../../app.hooks';
 // Don't remove this comment. It's needed to format import lines nicely.
@@ -8,10 +7,7 @@ const { authenticate } = authentication.hooks;
 const updateTimestamp = (context: any) => {
   // Format date for MySQL: YYYY-MM-DD HH:MM:SS
   const now = new Date();
-  const mysqlDateTime = now
-    .toISOString()
-    .slice(0, 19)
-    .replace('T', ' ');
+  const mysqlDateTime = now.toISOString().slice(0, 19).replace('T', ' ');
 
   context.data = {
     ...context.data,

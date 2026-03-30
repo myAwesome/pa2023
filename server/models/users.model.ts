@@ -33,7 +33,9 @@ export default function (app: Application): Knex {
             .table(tableName, (table) => {
               table.text('apps');
             })
-            .catch((e) => console.error(`Error adding apps column to ${tableName}`, e));
+            .catch((e) =>
+              console.error(`Error adding apps column to ${tableName}`, e),
+            );
         }
       });
     }

@@ -5,10 +5,7 @@ import { filterByUser } from '../../app.hooks';
 const { authenticate } = authentication.hooks;
 
 const withTimestamp = (context: any) => {
-  const now = new Date()
-    .toISOString()
-    .slice(0, 19)
-    .replace('T', ' ');
+  const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
   context.data = {
     ...context.data,
     updated_at: now,

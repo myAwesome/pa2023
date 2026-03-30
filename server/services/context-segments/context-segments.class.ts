@@ -2,6 +2,7 @@ import { BadRequest, NotFound } from '@feathersjs/errors';
 import { Params } from '@feathersjs/feathers';
 import dayjs from 'dayjs';
 import { KnexServiceOptions, Service } from 'feathers-knex';
+import { Knex } from 'knex';
 import { Application } from '../../declarations';
 
 type ContextSegmentData = {
@@ -35,7 +36,7 @@ export class ContextSegments extends Service {
       return knex('context_segments')
         .where({ user_id: params.user?.id })
         .where('start_date', '<=', date)
-        .where((qb) => {
+        .where((qb: Knex.QueryBuilder) => {
           qb.whereNull('end_date').orWhere('end_date', '>=', date);
         })
         .orderBy('start_date', 'desc');

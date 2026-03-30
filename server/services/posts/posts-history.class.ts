@@ -1,5 +1,6 @@
 import { Service, KnexServiceOptions } from 'feathers-knex';
 import { Params } from '@feathersjs/feathers';
+import { Knex } from 'knex';
 import { Application } from '../../declarations';
 
 export class PostsHistory extends Service {
@@ -79,7 +80,7 @@ export class PostsHistory extends Service {
           knex('context_segments')
             .where({ user_id: params.user?.id })
             .where('start_date', '<=', post.date.slice(0, 10))
-            .where((qb) => {
+            .where((qb: Knex.QueryBuilder) => {
               qb.whereNull('end_date').orWhere(
                 'end_date',
                 '>=',

@@ -1,5 +1,6 @@
 import { Service, KnexServiceOptions } from 'feathers-knex';
 import { Paginated, Params } from '@feathersjs/feathers';
+import { Knex } from 'knex';
 import { Application } from '../../declarations';
 
 export class Posts extends Service {
@@ -44,7 +45,7 @@ export class Posts extends Service {
               user_id: params.query?.user_id,
             })
             .where('start_date', '<=', post.date.slice(0, 10))
-            .where((qb) => {
+            .where((qb: Knex.QueryBuilder) => {
               qb.whereNull('end_date').orWhere(
                 'end_date',
                 '>=',

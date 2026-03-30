@@ -16,8 +16,8 @@ import {
   patchContextSegment,
   postContextSegment,
   splitContextSegment,
-} from '../../../../shared/api/routes';
-import { ContextSegmentType } from '../../../../shared/types';
+} from '../../../shared/api/routes';
+import { ContextSegmentType } from '../../../shared/types';
 
 type Props = {
   date: string;
@@ -308,7 +308,9 @@ const ContextSegmentsPanel = ({ date }: Props) => {
           />
         </Stack>
         {!isValidDateRange ? (
-          <Alert severity="warning">End date cannot be before start date.</Alert>
+          <Alert severity="warning">
+            End date cannot be before start date.
+          </Alert>
         ) : null}
         <Button
           variant="outlined"

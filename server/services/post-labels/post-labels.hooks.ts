@@ -1,4 +1,3 @@
-import { HookContext, HooksObject } from '@feathersjs/feathers';
 import * as authentication from '@feathersjs/authentication';
 import { removeUserId } from '../../app.hooks';
 // Don't remove this comment. It's needed to format import lines nicely.

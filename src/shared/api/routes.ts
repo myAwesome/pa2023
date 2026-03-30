@@ -131,8 +131,7 @@ export const postContextSegment = (data: {
   details: string;
   start_date: string;
   end_date: string | null;
-}) =>
-  apiLocalPostRequest('context-segments', data).then((resp) => resp.data);
+}) => apiLocalPostRequest('context-segments', data).then((resp) => resp.data);
 export const patchContextSegment = (
   id: number,
   data: {
@@ -142,7 +141,9 @@ export const patchContextSegment = (
     end_date?: string | null;
   },
 ) =>
-  apiLocalPatchRequest(`context-segments/${id}`, data).then((resp) => resp.data);
+  apiLocalPatchRequest(`context-segments/${id}`, data).then(
+    (resp) => resp.data,
+  );
 export const splitContextSegment = (
   id: number,
   data: {
