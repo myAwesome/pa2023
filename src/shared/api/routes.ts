@@ -260,6 +260,16 @@ export const deletePeriod = (id: number) =>
 export const putPeriod = (id: number, data: any) =>
   apiLocalPutRequest(`periods/${id}`, data).then((resp) => resp.data);
 
+export const geocodeLocation = (name: string) =>
+  apiGetRequest(`https://geocoding-api.open-meteo.com/v1/search`, {
+    params: {
+      name,
+      count: 1,
+      language: 'en',
+      format: 'json',
+    },
+  }).then((resp) => resp.data?.results?.[0] || null);
+
 export const getUser = () =>
   apiLocalGetRequest(`users/me`).then((resp) => resp.data);
 export const editUser = (data: any) =>

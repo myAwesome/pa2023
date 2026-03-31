@@ -3,10 +3,12 @@ import { Button, Collapse, Grid, IconButton, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
+import SyncIcon from '@mui/icons-material/Sync';
 import { useQuery } from '@tanstack/react-query';
 import EditableTable from '../../../shared/components/EditableTable';
 import {
   deletePeriod,
+  geocodeLocation,
   getPeriods,
   postPeriod,
   putPeriod,
@@ -18,6 +20,7 @@ import { dateToMySQLFormat } from '../../../shared/utils/mappers';
 const PeriodSettings = () => {
   const [isAdd, setIsAdd] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
+  const [isPopulating, setIsPopulating] = React.useState(false);
   const periodsData = useQuery(['periods'], getPeriods, { initialData: [] });
   const createMutation = useCreateMutation(
     (vals: PeriodType) => postPeriod(vals),
@@ -32,8 +35,40 @@ const PeriodSettings = () => {
       start: dateToMySQLFormat(values.start),
       name: values.name,
       is_location: !!values.is_location,
+      location_details: values.location_details || null,
     };
     createMutation.mutate(data);
+  };
+
+  const handlePopulateLocationDetails = async () => {
+    const periods = (periodsData.data || []) as PeriodType[];
+    const targets = periods.filter(
+      (period) => period.is_location && !period.location_details,
+    );
+    if (!targets.length) {
+      return;
+    }
+    setIsPopulating(true);
+    try {
+      for (const period of targets) {
+        const geocode = await geocodeLocation(period.name);
+        if (!geocode?.latitude || !geocode?.longitude) {
+          continue;
+        }
+        await putPeriod(period.id, {
+          name: period.name,
+          start: dateToMySQLFormat(period.start),
+          end: period.end ? dateToMySQLFormat(period.end) : null,
+          is_location: !!period.is_location,
+          location_details: `${Number(geocode.latitude).toFixed(5)},${Number(
+            geocode.longitude,
+          ).toFixed(5)}`,
+        });
+      }
+    } finally {
+      setIsPopulating(false);
+      periodsData.refetch();
+    }
   };
 
   return (
@@ -69,6 +104,12 @@ const PeriodSettings = () => {
                 type: 'boolean',
                 render: (row) => (row.is_location ? 'Yes' : 'No'),
               },
+              {
+                name: 'location_details',
+                label: 'Lat,Lon',
+                type: 'string',
+                render: (row) => row.location_details || '',
+              },
             ]}
             isAdd={isAdd}
             cancelAdd={() => setIsAdd(false)}
@@ -79,6 +120,7 @@ const PeriodSettings = () => {
                 start: dateToMySQLFormat(data.start),
                 name: data.name,
                 is_location: !!data.is_location,
+                location_details: data.location_details || null,
               };
               return putPeriod(id, values);
             }}
@@ -88,6 +130,13 @@ const PeriodSettings = () => {
           />
           <IconButton onClick={() => setIsAdd(true)}>
             <AddIcon />
+          </IconButton>
+          <IconButton
+            onClick={handlePopulateLocationDetails}
+            disabled={isPopulating}
+            title="Populate lat/lon for location periods"
+          >
+            <SyncIcon />
           </IconButton>
         </Collapse>
       </Grid>

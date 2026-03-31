@@ -4,6 +4,7 @@ export type PeriodType = {
   start: string;
   end: string;
   is_location?: boolean;
+  location_details?: string | null;
   isendInProgress: boolean;
 };
 

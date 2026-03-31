@@ -13,6 +13,7 @@ export default function (app: Application): Knex {
           table.date('start');
           table.date('end');
           table.boolean('is_location').defaultTo(false);
+          table.string('location_details').nullable();
           table.integer('user_id');
         })
         .then(() => console.log(`Created ${tableName} table`))
@@ -32,6 +33,22 @@ export default function (app: Application): Knex {
             );
         }
       });
+      db.schema
+        .hasColumn(tableName, 'location_details')
+        .then((hasLocationDetails) => {
+          if (!hasLocationDetails) {
+            db.schema
+              .table(tableName, (table) => {
+                table.string('location_details').nullable();
+              })
+              .catch((e) =>
+                console.error(
+                  `Error adding location_details column to ${tableName} table`,
+                  e,
+                ),
+              );
+          }
+        });
     }
   });
   return db;
