@@ -27,6 +27,7 @@ import { dateToMySQLFormat } from '../../../shared/utils/mappers';
 dayjs.extend(utc);
 
 const today = dayjs().format('YYYY-MM-DD');
+const yesterday = dayjs().subtract(1, 'day').format('YYYY-MM-DD');
 const createPost = (body: string, date: string) => ({
   body,
   date: dateToMySQLFormat(date),
@@ -282,6 +283,31 @@ const PostCreate = () => {
         onChange={handleDate}
         variant="standard"
       />
+      <Box
+        sx={{
+          display: 'flex',
+          gap: 1,
+          marginBottom: 1.5,
+          justifyContent: 'center',
+        }}
+      >
+        <Button
+          size="small"
+          color="inherit"
+          onClick={() => setDate(yesterday)}
+          disabled={date === yesterday}
+        >
+          Yesterday
+        </Button>
+        <Button
+          size="small"
+          color="inherit"
+          onClick={() => setDate(today)}
+          disabled={date === today}
+        >
+          Today
+        </Button>
+      </Box>
       <Dialog
         open={isAddContextOpen}
         onClose={() => setAddContextOpen(false)}
