@@ -31,6 +31,7 @@ const PeriodSettings = () => {
       end: values.isendInProgress ? null : dateToMySQLFormat(values.end),
       start: dateToMySQLFormat(values.start),
       name: values.name,
+      is_location: !!values.is_location,
     };
     createMutation.mutate(data);
   };
@@ -62,6 +63,12 @@ const PeriodSettings = () => {
                 type: 'nullable-date',
                 render: (row) => (row.end ? row.end.slice(0, 10) : ''),
               },
+              {
+                name: 'is_location',
+                label: 'Location period',
+                type: 'boolean',
+                render: (row) => (row.is_location ? 'Yes' : 'No'),
+              },
             ]}
             isAdd={isAdd}
             cancelAdd={() => setIsAdd(false)}
@@ -71,6 +78,7 @@ const PeriodSettings = () => {
                 end: data.isendInProgress ? null : dateToMySQLFormat(data.end),
                 start: dateToMySQLFormat(data.start),
                 name: data.name,
+                is_location: !!data.is_location,
               };
               return putPeriod(id, values);
             }}

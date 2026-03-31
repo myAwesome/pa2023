@@ -36,6 +36,8 @@ const getInitialValues = (columns: ColumnType[], item: TableItemType) => {
       initialValues[col.name] =
         (col as SelectColumnType).options.find((o) => o.name === item[col.name])
           ?.id || item[col.name];
+    } else if (col.type === 'boolean') {
+      initialValues[col.name] = !!item[col.name];
     } else {
       initialValues[col.name] = item[col.name] || '';
     }
@@ -126,6 +128,25 @@ const PeriodEditRow = ({ item, onSubmit, onCancel, columns }: Props) => {
                     ))}
                   </Select>
                 </FormControl>
+              </TableCell>
+            );
+          case 'boolean':
+            return (
+              <TableCell key={`edit-${col.name}`}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={!!values[col.name]}
+                      onChange={() =>
+                        setValues({
+                          ...values,
+                          [col.name]: !values[col.name],
+                        })
+                      }
+                    />
+                  }
+                  label={col.label}
+                />
               </TableCell>
             );
           default:

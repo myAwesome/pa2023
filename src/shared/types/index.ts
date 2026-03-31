@@ -3,6 +3,7 @@ export type PeriodType = {
   name: string;
   start: string;
   end: string;
+  is_location?: boolean;
   isendInProgress: boolean;
 };
 

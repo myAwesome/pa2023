@@ -13,7 +13,13 @@ export type ColumnType =
   | {
       name: string;
       label: string;
-      type: 'date' | 'nullable-date' | 'select' | 'string' | 'number';
+      type:
+        | 'date'
+        | 'nullable-date'
+        | 'select'
+        | 'string'
+        | 'number'
+        | 'boolean';
       render?: (item: TableItemType, col: ColumnType) => ReactElement | string;
     };
 
