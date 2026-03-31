@@ -5,18 +5,35 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import Chip from '@mui/material/Chip';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
-import { Box, Paper, TextField } from '@mui/material';
-import { QueryKey } from '@tanstack/react-query';
+import {
+  Box,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Paper,
+  TextField,
+} from '@mui/material';
+import {
+  QueryKey,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import PostLabel from '../PostLabel';
 import {
   addLabelToPost,
+  deleteContextSegment,
+  getContextSegments,
+  patchContextSegment,
   deleteLabelFromPost,
   deletePost,
   editPost,
+  splitContextSegment,
 } from '../../shared/api/routes';
 import { useUpdateMutation } from '../../shared/hooks/useUpdateMutation';
 import { useDeleteMutation } from '../../shared/hooks/useDeleteMutation';
-import { LabelType, PostType } from '../../shared/types';
+import { ContextSegmentType, LabelType, PostType } from '../../shared/types';
 import { dateToMySQLFormat } from '../../shared/utils/mappers';
 import PostEdit from './PostEdit';
 import PostComment from './PostComment';
@@ -33,12 +50,28 @@ type Props = {
   invalidateQueries: QueryKey;
 };
 
+const toDateOnly = (value: string | Date) => dayjs(value).format('YYYY-MM-DD');
+
 const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
+  const queryClient = useQueryClient();
   const [deleteMode, setDeletedMode] = React.useState(false);
   const [isCommentOpen, setCommentOpen] = React.useState(false);
   const [isEdit, setIsEdit] = React.useState(false);
-  const [updateDate, setUpdateDate] = React.useState(
-    dayjs(post.date.slice(0, 10)).format('YYYY-MM-DD'),
+  const [selectedContext, setSelectedContext] =
+    React.useState<ContextSegmentType | null>(null);
+  const [title, setTitle] = React.useState('');
+  const [details, setDetails] = React.useState('');
+  const [startDate, setStartDate] = React.useState('');
+  const [endDate, setEndDate] = React.useState('');
+  const [splitDate, setSplitDate] = React.useState('');
+  const postDate = toDateOnly(post.date);
+  const [updateDate, setUpdateDate] = React.useState(postDate);
+  const contextByDate = useQuery(
+    ['context_segments', post.id, postDate],
+    () => getContextSegments({ date: postDate }),
+    {
+      enabled: !post.context_segments?.length && !!post.date,
+    },
   );
   const deletePostMutation = useDeleteMutation(
     () => deletePost(post.id),
@@ -72,6 +105,58 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
     }),
     () => setIsEdit(false),
   );
+  const refreshContextData = () => {
+    queryClient.invalidateQueries(invalidateQueries);
+    queryClient.invalidateQueries(['context_segments', post.id, postDate]);
+  };
+  const editContextMutation = useMutation(
+    ({
+      id,
+      data,
+    }: {
+      id: number;
+      data: {
+        title?: string;
+        details?: string;
+        start_date?: string;
+        end_date?: string | null;
+      };
+    }) => patchContextSegment(id, data),
+    {
+      onSuccess: () => {
+        setSelectedContext(null);
+        refreshContextData();
+      },
+    },
+  );
+  const splitContextMutation = useMutation(
+    ({
+      id,
+      data,
+    }: {
+      id: number;
+      data: {
+        splitDate: string;
+        newTitle?: string;
+        newDetails?: string;
+      };
+    }) => splitContextSegment(id, data),
+    {
+      onSuccess: () => {
+        setSelectedContext(null);
+        refreshContextData();
+      },
+    },
+  );
+  const deleteContextMutation = useMutation(
+    (id: number) => deleteContextSegment(id),
+    {
+      onSuccess: () => {
+        setSelectedContext(null);
+        refreshContextData();
+      },
+    },
+  );
 
   const toggleDeleteMode = () => {
     setDeletedMode(!deleteMode);
@@ -80,6 +165,55 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
   const handleSubmit = (e: FormEvent, updateText: string) => {
     e.preventDefault();
     editPostMutation.mutate(updateText);
+  };
+  const toInputDate = (value?: string | null) =>
+    value ? toDateOnly(value) : '';
+  const openContextDialog = (segment: ContextSegmentType) => {
+    setSelectedContext(segment);
+    setTitle(segment.title || '');
+    setDetails(segment.details || '');
+    setStartDate(toInputDate(segment.start_date));
+    setEndDate(toInputDate(segment.end_date));
+    setSplitDate(postDate);
+  };
+  const handleEditContext = () => {
+    if (!selectedContext || !title.trim()) {
+      return;
+    }
+    if (endDate && endDate < startDate) {
+      return;
+    }
+    editContextMutation.mutate({
+      id: selectedContext.id,
+      data: {
+        title: title.trim(),
+        details,
+        start_date: startDate,
+        end_date: endDate || null,
+      },
+    });
+  };
+  const handleSplitContext = () => {
+    if (!selectedContext || !splitDate) {
+      return;
+    }
+    splitContextMutation.mutate({
+      id: selectedContext.id,
+      data: {
+        splitDate,
+        newTitle: title.trim() || selectedContext.title,
+        newDetails: details,
+      },
+    });
+  };
+  const handleDeleteContext = () => {
+    if (!selectedContext) {
+      return;
+    }
+    if (!window.confirm('Delete this context segment?')) {
+      return;
+    }
+    deleteContextMutation.mutate(selectedContext.id);
   };
 
   const getHighlightedText = (text: string, highlight: string) => {
@@ -108,6 +242,13 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
       </span>
     );
   };
+  const contextSegments: ContextSegmentType[] = post.context_segments?.length
+    ? post.context_segments
+    : Array.isArray(contextByDate.data)
+    ? (contextByDate.data as ContextSegmentType[])
+    : Array.isArray((contextByDate.data as any)?.data)
+    ? ((contextByDate.data as any).data as ContextSegmentType[])
+    : [];
 
   return (
     <Box
@@ -146,7 +287,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 variant="standard"
               />
             ) : (
-              dayjs(post.date.slice(0, 10)).format('dddd YYYY-MM-DD')
+              dayjs(postDate).format('dddd YYYY-MM-DD')
             )}
           </Grid>
           <Grid item>
@@ -291,6 +432,28 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 ))}
               </Grid>
             ) : null}
+            {contextSegments.length > 0 ? (
+              <Grid container flexWrap="wrap" gap={1} sx={{ marginTop: 1 }}>
+                {contextSegments.map((segment) => (
+                  <Grid item key={segment.id}>
+                    <Chip
+                      label={segment.title}
+                      title={segment.details}
+                      clickable
+                      onClick={() => openContextDialog(segment)}
+                      sx={{
+                        borderColor: (theme) => theme.palette.primary.main,
+                        color: (theme) => theme.palette.text.primary,
+                        '&:hover': {
+                          borderColor: (theme) => theme.palette.primary.main,
+                        },
+                      }}
+                      variant="outlined"
+                    />
+                  </Grid>
+                ))}
+              </Grid>
+            ) : null}
             <PostPhotos date={post.date} />
             {post.comments.map((comment) => (
               <PostComment key={comment.id} comment={comment} />
@@ -306,6 +469,74 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
             ) : (
               ''
             )}
+            <Dialog
+              open={!!selectedContext}
+              onClose={() => setSelectedContext(null)}
+              fullWidth
+              maxWidth="sm"
+            >
+              <DialogTitle>Context details</DialogTitle>
+              <DialogContent>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 1.5,
+                    marginTop: 1,
+                  }}
+                >
+                  <TextField
+                    label="Title"
+                    size="small"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                  />
+                  <TextField
+                    label="Details"
+                    size="small"
+                    multiline
+                    minRows={2}
+                    value={details}
+                    onChange={(e) => setDetails(e.target.value)}
+                  />
+                  <TextField
+                    label="Start date"
+                    type="date"
+                    size="small"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                  />
+                  <TextField
+                    label="End date"
+                    type="date"
+                    size="small"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                  />
+                  <TextField
+                    label="Split from date"
+                    type="date"
+                    size="small"
+                    value={splitDate}
+                    onChange={(e) => setSplitDate(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                  />
+                </Box>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleDeleteContext} color="inherit">
+                  Delete
+                </Button>
+                <Button onClick={handleSplitContext} color="inherit">
+                  Split
+                </Button>
+                <Button onClick={handleEditContext} variant="contained">
+                  Save
+                </Button>
+              </DialogActions>
+            </Dialog>
           </Box>
         )}
       </Paper>

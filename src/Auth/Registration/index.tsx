@@ -15,7 +15,7 @@ import VisibleIcon from '@mui/icons-material/VisibilityOutlined';
 import NotVisibleIcon from '@mui/icons-material/VisibilityOffOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useNavigate } from 'react-router';
-import { sendRegistration } from '../../shared/api/routes';
+import { sendLogin, sendRegistration } from '../../shared/api/routes';
 import { setItemToStorage, TOKEN_KEY } from '../../shared/utils/storage';
 import UIContext from '../../shared/context/UIContext';
 
@@ -40,8 +40,14 @@ const RegistrationPage = () => {
         password: form.password,
         theme: '{mode:"dark"}',
       })
+        .then(() => {
+          return sendLogin({
+            email: form.email,
+            password: form.password,
+          });
+        })
         .then((resp) => {
-          setItemToStorage(TOKEN_KEY, resp.data.Token);
+          setItemToStorage(TOKEN_KEY, resp.data.accessToken);
           navigate('/days');
         })
         .catch((err) => {

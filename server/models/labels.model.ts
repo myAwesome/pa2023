@@ -24,7 +24,12 @@ export default function (app: Application): Knex {
             .table(tableName, (table) => {
               table.string('emoji').nullable();
             })
-            .catch((e) => console.error(`Error adding emoji column to ${tableName} table`, e));
+            .catch((e) =>
+              console.error(
+                `Error adding emoji column to ${tableName} table`,
+                e,
+              ),
+            );
         }
       });
     }
