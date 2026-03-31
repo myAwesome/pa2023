@@ -6,10 +6,11 @@ import Chip from '@mui/material/Chip';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import { Box, Paper, TextField } from '@mui/material';
-import { QueryKey } from '@tanstack/react-query';
+import { QueryKey, useQuery } from '@tanstack/react-query';
 import PostLabel from '../PostLabel';
 import {
   addLabelToPost,
+  getContextSegments,
   deleteLabelFromPost,
   deletePost,
   editPost,
@@ -39,6 +40,13 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
   const [isEdit, setIsEdit] = React.useState(false);
   const [updateDate, setUpdateDate] = React.useState(
     dayjs(post.date.slice(0, 10)).format('YYYY-MM-DD'),
+  );
+  const contextByDate = useQuery(
+    ['context_segments', post.id, post.date?.slice(0, 10)],
+    () => getContextSegments({ date: post.date?.slice(0, 10) }),
+    {
+      enabled: !post.context_segments?.length && !!post.date,
+    },
   );
   const deletePostMutation = useDeleteMutation(
     () => deletePost(post.id),
@@ -108,6 +116,13 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
       </span>
     );
   };
+  const contextSegments = post.context_segments?.length
+    ? post.context_segments
+    : Array.isArray(contextByDate.data)
+    ? contextByDate.data
+    : Array.isArray((contextByDate.data as any)?.data)
+    ? (contextByDate.data as any).data
+    : [];
 
   return (
     <Box
@@ -291,9 +306,9 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 ))}
               </Grid>
             ) : null}
-            {post.context_segments && post.context_segments.length > 0 ? (
+            {contextSegments.length > 0 ? (
               <Grid container flexWrap="wrap" gap={1} sx={{ marginTop: 1 }}>
-                {post.context_segments.map((segment) => (
+                {contextSegments.map((segment) => (
                   <Grid item key={segment.id}>
                     <Chip
                       label={segment.title}
