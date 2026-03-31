@@ -17,6 +17,7 @@ export type PhotoType = {
 export type PostType = {
   id: number;
   date: string;
+  weather?: string | null;
   labels: number[];
   comments: CommentType[];
   body: string;
