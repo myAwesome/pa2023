@@ -70,7 +70,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
     ['context_segments', post.id, postDate],
     () => getContextSegments({ date: postDate }),
     {
-      enabled: !post.context_segments?.length && !!post.date,
+      enabled: !Array.isArray(post.context_segments) && !!post.date,
     },
   );
   const deletePostMutation = useDeleteMutation(
@@ -242,7 +242,9 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
       </span>
     );
   };
-  const contextSegments: ContextSegmentType[] = post.context_segments?.length
+  const contextSegments: ContextSegmentType[] = Array.isArray(
+    post.context_segments,
+  )
     ? post.context_segments
     : Array.isArray(contextByDate.data)
     ? (contextByDate.data as ContextSegmentType[])
