@@ -17,7 +17,7 @@ import {
 } from '../../shared/api/routes';
 import { useUpdateMutation } from '../../shared/hooks/useUpdateMutation';
 import { useDeleteMutation } from '../../shared/hooks/useDeleteMutation';
-import { LabelType, PostType } from '../../shared/types';
+import { ContextSegmentType, LabelType, PostType } from '../../shared/types';
 import { dateToMySQLFormat } from '../../shared/utils/mappers';
 import PostEdit from './PostEdit';
 import PostComment from './PostComment';
@@ -116,12 +116,12 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
       </span>
     );
   };
-  const contextSegments = post.context_segments?.length
+  const contextSegments: ContextSegmentType[] = post.context_segments?.length
     ? post.context_segments
     : Array.isArray(contextByDate.data)
-    ? contextByDate.data
+    ? (contextByDate.data as ContextSegmentType[])
     : Array.isArray((contextByDate.data as any)?.data)
-    ? (contextByDate.data as any).data
+    ? ((contextByDate.data as any).data as ContextSegmentType[])
     : [];
 
   return (
