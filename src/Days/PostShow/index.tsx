@@ -34,16 +34,17 @@ type Props = {
   invalidateQueries: QueryKey;
 };
 
+const toDateOnly = (value: string | Date) => dayjs(value).format('YYYY-MM-DD');
+
 const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
   const [deleteMode, setDeletedMode] = React.useState(false);
   const [isCommentOpen, setCommentOpen] = React.useState(false);
   const [isEdit, setIsEdit] = React.useState(false);
-  const [updateDate, setUpdateDate] = React.useState(
-    dayjs(post.date.slice(0, 10)).format('YYYY-MM-DD'),
-  );
+  const postDate = toDateOnly(post.date);
+  const [updateDate, setUpdateDate] = React.useState(postDate);
   const contextByDate = useQuery(
-    ['context_segments', post.id, post.date?.slice(0, 10)],
-    () => getContextSegments({ date: post.date?.slice(0, 10) }),
+    ['context_segments', post.id, postDate],
+    () => getContextSegments({ date: postDate }),
     {
       enabled: !post.context_segments?.length && !!post.date,
     },
@@ -161,7 +162,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 variant="standard"
               />
             ) : (
-              dayjs(post.date.slice(0, 10)).format('dddd YYYY-MM-DD')
+              dayjs(postDate).format('dddd YYYY-MM-DD')
             )}
           </Grid>
           <Grid item>

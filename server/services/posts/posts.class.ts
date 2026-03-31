@@ -1,9 +1,14 @@
 import { Service, KnexServiceOptions } from 'feathers-knex';
 import { Paginated, Params } from '@feathersjs/feathers';
+import dayjs from 'dayjs';
 import { Knex } from 'knex';
 import { Application } from '../../declarations';
 
 const toDateOnly = (date: unknown): string => {
+  const normalized = dayjs(date as any);
+  if (normalized.isValid()) {
+    return normalized.format('YYYY-MM-DD');
+  }
   if (typeof date === 'string') {
     return date.slice(0, 10);
   }
