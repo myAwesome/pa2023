@@ -17,62 +17,6 @@ import { useCreateMutation } from '../../../shared/hooks/useCreateMutation';
 import { PeriodType } from '../../../shared/types';
 import { dateToMySQLFormat } from '../../../shared/utils/mappers';
 
-const geoAliases: Record<string, string> = {
-  варшава: 'warsaw',
-  польша: 'poland',
-  польща: 'poland',
-  киев: 'kyiv',
-  київ: 'kyiv',
-  афины: 'athens',
-  афіни: 'athens',
-};
-
-const normalizeGeoText = (value: string) =>
-  value
-    .trim()
-    .replace(/[,_-]+/g, ' ')
-    .replace(/\s+/g, ' ');
-
-const applyAliases = (value: string) =>
-  value
-    .split(' ')
-    .map((w) => geoAliases[w.toLowerCase()] || w)
-    .join(' ');
-
-const buildGeocodeQueries = (rawName: string): string[] => {
-  const base = normalizeGeoText(rawName);
-  const queries = new Set<string>([base]);
-  const bracketMatch = base.match(/^(.+?)\s*\(([^)]+)\)\s*$/);
-
-  if (bracketMatch) {
-    const city = normalizeGeoText(bracketMatch[1]);
-    const country = normalizeGeoText(bracketMatch[2]);
-    queries.add(city);
-    queries.add(country ? `${city}, ${country}` : city);
-    queries.add(country ? `${city} ${country}` : city);
-  } else {
-    const noBrackets = normalizeGeoText(base.replace(/[()]/g, ' '));
-    queries.add(noBrackets);
-  }
-
-  for (const query of [...queries]) {
-    queries.add(applyAliases(query));
-  }
-
-  return [...queries].filter(Boolean);
-};
-
-const resolveLocation = async (name: string) => {
-  const queries = buildGeocodeQueries(name);
-  for (const query of queries) {
-    const result = await geocodeLocation(query);
-    if (result?.latitude != null && result?.longitude != null) {
-      return result;
-    }
-  }
-  return null;
-};
-
 const PeriodSettings = () => {
   const [isAdd, setIsAdd] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
@@ -107,8 +51,8 @@ const PeriodSettings = () => {
     setIsPopulating(true);
     try {
       for (const period of targets) {
-        const geocode = await resolveLocation(period.name);
-        if (geocode?.latitude == null || geocode?.longitude == null) {
+        const geocode = await geocodeLocation(period.name);
+        if (!geocode?.latitude || !geocode?.longitude) {
           continue;
         }
         await putPeriod(period.id, {
