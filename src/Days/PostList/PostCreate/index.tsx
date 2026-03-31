@@ -32,6 +32,17 @@ const createPost = (body: string, date: string) => ({
   date: dateToMySQLFormat(date),
 });
 
+const toInputDate = (value?: string | null): string => {
+  if (!value) {
+    return '';
+  }
+  const normalized = dayjs(value);
+  if (normalized.isValid()) {
+    return normalized.format('YYYY-MM-DD');
+  }
+  return value.slice(0, 10);
+};
+
 const normalizeSegments = (val: any): ContextSegmentType[] => {
   if (Array.isArray(val)) {
     return val;
@@ -168,9 +179,9 @@ const PostCreate = () => {
     setSelectedContext(segment);
     setTitle(segment.title || '');
     setDetails(segment.details || '');
-    setStartDate(segment.start_date || date);
-    setEndDate(segment.end_date || '');
-    setSplitDate(date);
+    setStartDate(toInputDate(segment.start_date) || toInputDate(date));
+    setEndDate(toInputDate(segment.end_date));
+    setSplitDate(toInputDate(date));
   };
   const handleEditContext = () => {
     if (!selectedContext || !title.trim()) {
