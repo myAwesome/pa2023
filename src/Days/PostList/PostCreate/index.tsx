@@ -253,6 +253,13 @@ const PostCreate = () => {
             size="small"
             clickable
             onClick={() => openContextDialog(segment)}
+            sx={{
+              borderColor: (theme) => theme.palette.primary.main,
+              color: (theme) => theme.palette.text.primary,
+              '&:hover': {
+                borderColor: (theme) => theme.palette.primary.main,
+              },
+            }}
           />
         ))}
         <IconButton

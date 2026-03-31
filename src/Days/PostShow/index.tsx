@@ -442,7 +442,11 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                       clickable
                       onClick={() => openContextDialog(segment)}
                       sx={{
-                        color: (theme) => theme.palette.secondary.main,
+                        borderColor: (theme) => theme.palette.primary.main,
+                        color: (theme) => theme.palette.text.primary,
+                        '&:hover': {
+                          borderColor: (theme) => theme.palette.primary.main,
+                        },
                       }}
                       variant="outlined"
                     />
