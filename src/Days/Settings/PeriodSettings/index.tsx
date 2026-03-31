@@ -17,6 +17,11 @@ import { useCreateMutation } from '../../../shared/hooks/useCreateMutation';
 import { PeriodType } from '../../../shared/types';
 import { dateToMySQLFormat } from '../../../shared/utils/mappers';
 
+const getFirstWord = (value: string) => {
+  const [firstWord] = value.trim().split(/\s+/);
+  return firstWord || value.trim();
+};
+
 const PeriodSettings = () => {
   const [isAdd, setIsAdd] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
@@ -51,8 +56,9 @@ const PeriodSettings = () => {
     setIsPopulating(true);
     try {
       for (const period of targets) {
-        const geocode = await geocodeLocation(period.name);
-        if (!geocode?.latitude || !geocode?.longitude) {
+        const geocodeQuery = getFirstWord(period.name);
+        const geocode = await geocodeLocation(geocodeQuery);
+        if (geocode?.latitude == null || geocode?.longitude == null) {
           continue;
         }
         await putPeriod(period.id, {
