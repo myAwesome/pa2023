@@ -27,6 +27,11 @@ const PostList = ({ tab }: Props) => {
     tab === 'history' ? () => getPostsHistoryByDate(md) : getPosts,
   );
   const labelsData = useQuery(['labels'], getLabels);
+  const posts = Array.isArray(data)
+    ? data
+    : Array.isArray((data as any)?.data)
+    ? (data as any).data
+    : [];
 
   return (
     <>
@@ -37,7 +42,7 @@ const PostList = ({ tab }: Props) => {
         <Typography>Loading...</Typography>
       ) : (
         <Posts
-          posts={data}
+          posts={posts}
           labels={labelsData.data || []}
           invalidateQueries={queryKey}
         />

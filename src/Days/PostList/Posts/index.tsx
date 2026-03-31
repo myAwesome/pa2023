@@ -12,9 +12,10 @@ type Props = {
 };
 
 const Posts = ({ labels, posts, searchTerm, invalidateQueries }: Props) => {
+  const safePosts = Array.isArray(posts) ? posts : [];
   return (
     <Grid container direction="column" spacing={4}>
-      {posts.map((p) => (
+      {safePosts.map((p) => (
         <Grid item key={p.id}>
           <PostShow
             post={{ ...p, labels: p.labels || [] }}
