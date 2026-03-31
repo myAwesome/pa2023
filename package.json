@@ -20,16 +20,17 @@
     "config": "config/"
   },
   "engines": {
-    "node": ">= 16.0.0",
-    "npm": ">= 8.0.0"
+    "node": ">= 20.0.0",
+    "pnpm": ">= 10.0.0"
   },
+  "packageManager": "pnpm@10.12.4",
   "scripts": {
-    "test-server": "npm run lint && npm run compile && npm run jest",
+    "test-server": "pnpm run lint && pnpm run compile && pnpm run jest",
     "lint": "eslint server/. test/. src/.",
-    "compile": "npm run build-server",
-    "dev": "concurrently \"npm run dev-server\" \"npm run dev-client\"",
+    "compile": "pnpm run build-server",
+    "dev": "concurrently \"pnpm run dev-server\" \"pnpm run dev-client\"",
     "dev-server": "ts-node-dev --no-notify -P server/tsconfig.json server/",
-    "start-server": "npm run compile && node lib/",
+    "start-server": "pnpm run compile && node lib/",
     "jest": "jest --forceExit",
     "build-server": "shx rm -rf lib/ && tsc -p server/tsconfig.json",
     "dev-client": "react-scripts start",
@@ -106,6 +107,7 @@
   "devDependencies": {
     "@types/compression": "^1.7.2",
     "@types/cors": "^2.8.13",
+    "@types/express": "^4.17.21",
     "@types/jest": "^29.2.4",
     "@types/jsonwebtoken": "^8.5.9",
     "@types/react-color": "^3.0.6",
