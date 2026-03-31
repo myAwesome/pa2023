@@ -3,6 +3,16 @@ import { Params } from '@feathersjs/feathers';
 import { Knex } from 'knex';
 import { Application } from '../../declarations';
 
+const toDateOnly = (date: unknown): string => {
+  if (typeof date === 'string') {
+    return date.slice(0, 10);
+  }
+  if (date instanceof Date) {
+    return date.toISOString().slice(0, 10);
+  }
+  return String(date).slice(0, 10);
+};
+
 export class PostsHistory extends Service {
   app: Application;
   //eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -65,6 +75,7 @@ export class PostsHistory extends Service {
       .orderBy('date', 'desc');
     const populated = await Promise.all(
       posts.map(async (post: any) => {
+        const postDate = toDateOnly(post.date);
         const [comments, labels, periods, contextSegments] = await Promise.all([
           knex('comments').where({ post_id: post.id }).orderBy('date'),
           knex('labels')
@@ -79,13 +90,9 @@ export class PostsHistory extends Service {
           ),
           knex('context_segments')
             .where({ user_id: params.user?.id })
-            .where('start_date', '<=', post.date.slice(0, 10))
+            .where('start_date', '<=', postDate)
             .where((qb: Knex.QueryBuilder) => {
-              qb.whereNull('end_date').orWhere(
-                'end_date',
-                '>=',
-                post.date.slice(0, 10),
-              );
+              qb.whereNull('end_date').orWhere('end_date', '>=', postDate);
             })
             .orderBy('start_date', 'desc'),
         ]);

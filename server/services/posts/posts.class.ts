@@ -3,6 +3,16 @@ import { Paginated, Params } from '@feathersjs/feathers';
 import { Knex } from 'knex';
 import { Application } from '../../declarations';
 
+const toDateOnly = (date: unknown): string => {
+  if (typeof date === 'string') {
+    return date.slice(0, 10);
+  }
+  if (date instanceof Date) {
+    return date.toISOString().slice(0, 10);
+  }
+  return String(date).slice(0, 10);
+};
+
 export class Posts extends Service {
   app: Application;
   //eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -18,6 +28,7 @@ export class Posts extends Service {
     const posts = (await super.find(params)) as Paginated<any>;
     const populated = await Promise.all(
       posts.data.map(async (post) => {
+        const postDate = toDateOnly(post.date);
         const [comments, labels, periods, contextSegments] = await Promise.all([
           this.app
             .get('knexClient')('comments')
@@ -44,13 +55,9 @@ export class Posts extends Service {
             .where({
               user_id: params.query?.user_id,
             })
-            .where('start_date', '<=', post.date.slice(0, 10))
+            .where('start_date', '<=', postDate)
             .where((qb: Knex.QueryBuilder) => {
-              qb.whereNull('end_date').orWhere(
-                'end_date',
-                '>=',
-                post.date.slice(0, 10),
-              );
+              qb.whereNull('end_date').orWhere('end_date', '>=', postDate);
             })
             .orderBy('start_date', 'desc'),
         ]);
