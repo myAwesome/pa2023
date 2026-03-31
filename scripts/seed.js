@@ -2,8 +2,8 @@ const config = require('config');
 const knex = require('knex');
 const bcrypt = require('bcryptjs');
 
-const SEED_USER_EMAIL = 'seed.user@pa2023.local';
-const SEED_USER_PASSWORD = 'seed-password';
+const SEED_USER_EMAIL = 'demo@gmail.com';
+const SEED_USER_PASSWORD = '1111';
 
 async function ensureUsersTable(db) {
   const exists = await db.schema.hasTable('users');
