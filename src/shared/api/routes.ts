@@ -270,6 +270,27 @@ export const geocodeLocation = (name: string) =>
     },
   }).then((resp) => resp.data?.results?.[0] || null);
 
+export const getHistoricalWeather = ({
+  latitude,
+  longitude,
+  date,
+}: {
+  latitude: number;
+  longitude: number;
+  date: string;
+}) =>
+  apiGetRequest(`https://archive-api.open-meteo.com/v1/archive`, {
+    params: {
+      latitude,
+      longitude,
+      start_date: date,
+      end_date: date,
+      daily:
+        'weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum',
+      timezone: 'auto',
+    },
+  }).then((resp) => resp.data);
+
 export const getUser = () =>
   apiLocalGetRequest(`users/me`).then((resp) => resp.data);
 export const editUser = (data: any) =>
