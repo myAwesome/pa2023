@@ -1,6 +1,7 @@
 import React from 'react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import AddIcon from '@mui/icons-material/Add';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import TextField from '@mui/material/TextField';
@@ -8,7 +9,7 @@ import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
 import { useQuery } from '@tanstack/react-query';
 import { getContextSegments, postPost } from '../../../shared/api/routes';
 import { useCreateMutation } from '../../../shared/hooks/useCreateMutation';
@@ -19,7 +20,6 @@ import ContextSegmentsPanel from './ContextSegmentsPanel';
 dayjs.extend(utc);
 
 const today = dayjs().format('YYYY-MM-DD');
-const yesterday = dayjs().subtract(1, 'days').format('YYYY-MM-DD');
 const createPost = (body: string, date: string) => ({
   body,
   date: dateToMySQLFormat(date),
@@ -86,74 +86,36 @@ const PostCreate = () => {
         value={value}
         onChange={handleText}
       />
-      <Button
-        style={{ marginRight: 15 }}
-        type="button"
-        onClick={() =>
-          handleDate({
-            target: { value: yesterday },
-          } as React.ChangeEvent<HTMLInputElement>)
-        }
-        color="inherit"
-      >
-        Yesterday
-      </Button>
-      <TextField
-        style={{ marginRight: 15 }}
-        type="date"
-        value={date}
-        onChange={handleDate}
-        variant="standard"
-      />
-      <Button
-        type="button"
-        onClick={() =>
-          handleDate({
-            target: { value: today },
-          } as React.ChangeEvent<HTMLInputElement>)
-        }
-        color="inherit"
-      >
-        Today
-      </Button>
       <Box
         sx={{
           marginTop: 1.5,
           marginBottom: 1,
           textAlign: 'left',
+          display: 'flex',
+          gap: 1,
+          flexWrap: 'wrap',
+          alignItems: 'center',
         }}
       >
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{ marginBottom: 1 }}
-        >
-          Applied context
-        </Typography>
-        {appliedContext.length ? (
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-            {appliedContext.map((segment) => (
-              <Chip
-                key={segment.id}
-                label={segment.title}
-                variant="outlined"
-                size="small"
-              />
-            ))}
-          </Box>
-        ) : (
-          <Typography variant="body2" color="text.secondary">
-            No context on this date.
-          </Typography>
-        )}
+        {appliedContext.map((segment) => (
+          <Chip
+            key={segment.id}
+            label={segment.title}
+            variant="outlined"
+            size="small"
+          />
+        ))}
+        <IconButton size="small" onClick={() => setContextOpen(true)}>
+          <AddIcon fontSize="small" />
+        </IconButton>
       </Box>
-      <Button
-        type="button"
-        color="inherit"
-        onClick={() => setContextOpen(true)}
-      >
-        Add context
-      </Button>
+      <TextField
+        style={{ marginBottom: 10 }}
+        type="date"
+        value={date}
+        onChange={handleDate}
+        variant="standard"
+      />
       <Dialog
         open={isContextOpen}
         onClose={() => setContextOpen(false)}
