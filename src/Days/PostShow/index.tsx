@@ -67,10 +67,10 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
   const postDate = toDateOnly(post.date);
   const [updateDate, setUpdateDate] = React.useState(postDate);
   const contextByDate = useQuery(
-    ['context_segments', post.id, postDate],
+    ['context_segments', postDate],
     () => getContextSegments({ date: postDate }),
     {
-      enabled: !post.context_segments?.length && !!post.date,
+      enabled: !Array.isArray(post.context_segments) && !!post.date,
     },
   );
   const deletePostMutation = useDeleteMutation(
@@ -107,7 +107,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
   );
   const refreshContextData = () => {
     queryClient.invalidateQueries(invalidateQueries);
-    queryClient.invalidateQueries(['context_segments', post.id, postDate]);
+    queryClient.invalidateQueries(['context_segments', postDate]);
   };
   const editContextMutation = useMutation(
     ({
@@ -242,7 +242,9 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
       </span>
     );
   };
-  const contextSegments: ContextSegmentType[] = post.context_segments?.length
+  const contextSegments: ContextSegmentType[] = Array.isArray(
+    post.context_segments,
+  )
     ? post.context_segments
     : Array.isArray(contextByDate.data)
     ? (contextByDate.data as ContextSegmentType[])
