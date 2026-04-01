@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { Grid, Hidden, Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { getInProgress } from '../../shared/api/routes';

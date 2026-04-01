@@ -15,7 +15,7 @@ import {
   SelectChangeEvent,
 } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import Table from '../../shared/components/Table';
 import EditableTable from '../../shared/components/EditableTable';
 import {

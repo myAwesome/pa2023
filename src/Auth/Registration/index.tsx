@@ -1,5 +1,5 @@
 import React, { FormEvent, useCallback, useContext, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Button,
   Grid,
@@ -14,7 +14,6 @@ import InputAdornment from '@mui/material/InputAdornment';
 import VisibleIcon from '@mui/icons-material/VisibilityOutlined';
 import NotVisibleIcon from '@mui/icons-material/VisibilityOffOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { useNavigate } from 'react-router';
 import { sendLogin, sendRegistration } from '../../shared/api/routes';
 import { setItemToStorage, TOKEN_KEY } from '../../shared/utils/storage';
 import UIContext from '../../shared/context/UIContext';

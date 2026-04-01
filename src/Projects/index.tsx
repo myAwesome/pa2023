@@ -11,7 +11,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { getProjects, postProject, putProject } from '../shared/api/routes';
 import { useCreateMutation } from '../shared/hooks/useCreateMutation';
 import { useUpdateMutation } from '../shared/hooks/useUpdateMutation';

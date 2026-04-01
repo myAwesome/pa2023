@@ -8,7 +8,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormGroup from '@mui/material/FormGroup';
 import Grid from '@mui/material/Grid';
 import { useMediaQuery, useTheme } from '@mui/material';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { useCreateMutation } from '../../shared/hooks/useCreateMutation';
 import {
   getTransactionsCategories,

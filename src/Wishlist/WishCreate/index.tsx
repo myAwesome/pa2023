@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import WishForm from '../WishForm';
 import { postWish } from '../../shared/api/routes';
 import { useCreateMutation } from '../../shared/hooks/useCreateMutation';

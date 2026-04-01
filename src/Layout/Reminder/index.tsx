@@ -2,7 +2,7 @@ import React from 'react';
 import { Badge, Grid, Hidden } from '@mui/material';
 import { Notifications } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { getExpiredLts } from '../../shared/api/routes';
 import { LastTimeItemType } from '../../shared/types';
 
