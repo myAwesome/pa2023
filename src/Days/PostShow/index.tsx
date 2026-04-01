@@ -25,6 +25,7 @@ import {
   addLabelToPost,
   deleteContextSegment,
   getContextSegments,
+  getHistoricalWeather,
   patchContextSegment,
   deleteLabelFromPost,
   deletePost,
@@ -33,7 +34,12 @@ import {
 } from '../../shared/api/routes';
 import { useUpdateMutation } from '../../shared/hooks/useUpdateMutation';
 import { useDeleteMutation } from '../../shared/hooks/useDeleteMutation';
-import { ContextSegmentType, LabelType, PostType } from '../../shared/types';
+import {
+  ContextSegmentType,
+  LabelType,
+  PeriodType,
+  PostType,
+} from '../../shared/types';
 import { dateToMySQLFormat } from '../../shared/utils/mappers';
 import PostEdit from './PostEdit';
 import PostComment from './PostComment';
@@ -51,6 +57,52 @@ type Props = {
 };
 
 const toDateOnly = (value: string | Date) => dayjs(value).format('YYYY-MM-DD');
+
+const weatherCodeToLabel = (code?: number) => {
+  if (code == null) return 'Unknown';
+  if (code === 0) return 'Clear';
+  if ([1, 2].includes(code)) return 'Partly cloudy';
+  if (code === 3) return 'Overcast';
+  if ([45, 48].includes(code)) return 'Fog';
+  if ([51, 53, 55, 56, 57].includes(code)) return 'Drizzle';
+  if ([61, 63, 65, 66, 67].includes(code)) return 'Rain';
+  if ([71, 73, 75, 77].includes(code)) return 'Snow';
+  if ([80, 81, 82].includes(code)) return 'Rain showers';
+  if ([85, 86].includes(code)) return 'Snow showers';
+  if (code === 95) return 'Thunderstorm';
+  if ([96, 99].includes(code)) return 'Thunderstorm + hail';
+  return `WMO ${code}`;
+};
+
+const parseLocationDetails = (details?: string | null) => {
+  if (!details) {
+    return null;
+  }
+  const [latRaw, lonRaw] = details.split(',').map((val) => val.trim());
+  const latitude = Number(latRaw);
+  const longitude = Number(lonRaw);
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+    return null;
+  }
+  return { latitude, longitude };
+};
+
+const getPeriodDurationDays = (period: PeriodType) => {
+  if (!period.start || !period.end) {
+    return Number.POSITIVE_INFINITY;
+  }
+  const start = dayjs(period.start);
+  const end = dayjs(period.end);
+  if (!start.isValid() || !end.isValid()) {
+    return Number.POSITIVE_INFINITY;
+  }
+  return Math.max(end.diff(start, 'day'), 0);
+};
+
+const toOneDecimal = (value: unknown) => {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric.toFixed(1) : '?';
+};
 
 const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
   const queryClient = useQueryClient();
@@ -104,6 +156,17 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
       date: dateToMySQLFormat(updateDate),
     }),
     () => setIsEdit(false),
+  );
+  const weatherMutation = useUpdateMutation(
+    (weather: string) =>
+      editPost(post.id, {
+        body: post.body,
+        date: dateToMySQLFormat(postDate),
+        weather,
+      }),
+    invalidateQueries,
+    post.id,
+    (weather: string) => ({ weather }),
   );
   const refreshContextData = () => {
     queryClient.invalidateQueries(invalidateQueries);
@@ -214,6 +277,36 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
       return;
     }
     deleteContextMutation.mutate(selectedContext.id);
+  };
+  const handleFetchWeather = async () => {
+    const locationPeriods = (post.periods || [])
+      .filter((period) => period.is_location)
+      .filter((period) => parseLocationDetails(period.location_details));
+    if (!locationPeriods.length) {
+      return;
+    }
+    const shortestLocation = locationPeriods.reduce((shortest, current) => {
+      return getPeriodDurationDays(current) < getPeriodDurationDays(shortest)
+        ? current
+        : shortest;
+    });
+    const location = parseLocationDetails(shortestLocation.location_details);
+    if (!location) {
+      return;
+    }
+    const weatherData = await getHistoricalWeather({
+      latitude: location.latitude,
+      longitude: location.longitude,
+      date: postDate,
+    });
+    const code = weatherData?.daily?.weather_code?.[0];
+    const tMax = weatherData?.daily?.temperature_2m_max?.[0];
+    const tMin = weatherData?.daily?.temperature_2m_min?.[0];
+    const precipitation = weatherData?.daily?.precipitation_sum?.[0];
+    const summary = `${weatherCodeToLabel(code)} ${toOneDecimal(
+      tMax,
+    )}/${toOneDecimal(tMin)}C, rain ${toOneDecimal(precipitation)}mm`;
+    weatherMutation.mutate(summary);
   };
 
   const getHighlightedText = (text: string, highlight: string) => {
@@ -434,6 +527,17 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 ))}
               </Grid>
             ) : null}
+            {post.weather ? (
+              <Grid container sx={{ marginTop: 1 }}>
+                <Chip
+                  label={post.weather}
+                  variant="outlined"
+                  sx={{
+                    color: (theme) => theme.palette.secondary.main,
+                  }}
+                />
+              </Grid>
+            ) : null}
             {contextSegments.length > 0 ? (
               <Grid container flexWrap="wrap" gap={1} sx={{ marginTop: 1 }}>
                 {contextSegments.map((segment) => (
@@ -456,7 +560,28 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 ))}
               </Grid>
             ) : null}
-            <PostPhotos date={post.date} />
+            <PostPhotos
+              date={post.date}
+              hideGetPhotosButton
+              extraAction={
+                <Button
+                  onClick={handleFetchWeather}
+                  color="inherit"
+                  sx={{
+                    textTransform: 'lowercase',
+                    padding: (theme) => theme.spacing(0, 1),
+                    minWidth: 40,
+                  }}
+                  disabled={
+                    post.id === 0 ||
+                    editPostMutation.isLoading ||
+                    weatherMutation.isLoading
+                  }
+                >
+                  wthr
+                </Button>
+              }
+            />
             {post.comments.map((comment) => (
               <PostComment key={comment.id} comment={comment} />
             ))}

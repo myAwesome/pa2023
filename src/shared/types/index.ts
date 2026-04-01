@@ -3,6 +3,8 @@ export type PeriodType = {
   name: string;
   start: string;
   end: string;
+  is_location?: boolean;
+  location_details?: string | null;
   isendInProgress: boolean;
 };
 
@@ -17,6 +19,7 @@ export type PhotoType = {
 export type PostType = {
   id: number;
   date: string;
+  weather?: string | null;
   labels: number[];
   comments: CommentType[];
   body: string;

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { ReactNode, useContext } from 'react';
 import Button from '@mui/material/Button';
 import { Dialog, Grid, Typography, Box } from '@mui/material';
 import GPhotosContext from '../../../shared/context/GPhotosContext';
@@ -7,9 +7,15 @@ import { PhotoType } from '../../../shared/types';
 
 type Props = {
   date: number | string;
+  hideGetPhotosButton?: boolean;
+  extraAction?: ReactNode;
 };
 
-const PostPhotos = ({ date }: Props) => {
+const PostPhotos = ({
+  date,
+  hideGetPhotosButton = false,
+  extraAction,
+}: Props) => {
   const [photos, setPhotos] = React.useState<PhotoType[]>([]);
   const [isFetched, setFetched] = React.useState(false);
   const [showImg, setShowImg] = React.useState('');
@@ -48,7 +54,10 @@ const PostPhotos = ({ date }: Props) => {
         margin: (theme) => theme.spacing(1),
       }}
     >
-      {isFetched ? null : <Button onClick={getPhotos}>GET PHOTOS</Button>}
+      {!isFetched && !hideGetPhotosButton ? (
+        <Button onClick={getPhotos}>GET PHOTOS</Button>
+      ) : null}
+      {extraAction ? <Box>{extraAction}</Box> : null}
       {isFetched && !photos.length ? (
         <Typography>No photos found...</Typography>
       ) : null}
