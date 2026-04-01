@@ -432,22 +432,6 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
             >
               x
             </Button>
-            <Button
-              onClick={handleFetchWeather}
-              color="inherit"
-              sx={{
-                textTransform: 'lowercase',
-                padding: (theme) => theme.spacing(0, 1),
-                minWidth: 40,
-              }}
-              disabled={
-                post.id === 0 ||
-                editPostMutation.isLoading ||
-                weatherMutation.isLoading
-              }
-            >
-              wthr
-            </Button>
           </Grid>
         </Grid>
 
@@ -574,7 +558,28 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 ))}
               </Grid>
             ) : null}
-            <PostPhotos date={post.date} />
+            <PostPhotos
+              date={post.date}
+              hideGetPhotosButton
+              extraAction={
+                <Button
+                  onClick={handleFetchWeather}
+                  color="inherit"
+                  sx={{
+                    textTransform: 'lowercase',
+                    padding: (theme) => theme.spacing(0, 1),
+                    minWidth: 40,
+                  }}
+                  disabled={
+                    post.id === 0 ||
+                    editPostMutation.isLoading ||
+                    weatherMutation.isLoading
+                  }
+                >
+                  wthr
+                </Button>
+              }
+            />
             {post.comments.map((comment) => (
               <PostComment key={comment.id} comment={comment} />
             ))}
