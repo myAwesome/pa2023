@@ -35,7 +35,8 @@
     "dev-client": "react-scripts start",
     "build-client": "react-scripts build",
     "test-client": "react-scripts test",
-    "eject-client": "react-scripts eject"
+    "eject-client": "react-scripts eject",
+    "seed": "node scripts/seed.js"
   },
   "standard": {
     "env": [
