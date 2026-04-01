@@ -30,8 +30,8 @@ const PostList = ({ tab }: Props) => {
   const posts = Array.isArray(data)
     ? data
     : Array.isArray((data as any)?.data)
-    ? (data as any).data
-    : [];
+      ? (data as any).data
+      : [];
 
   return (
     <>

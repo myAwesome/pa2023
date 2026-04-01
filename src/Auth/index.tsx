@@ -8,7 +8,7 @@ export async function authLoader() {
       return redirect('/');
     }
     return true;
-  } catch (err) {
+  } catch {
     return true;
   }
 }

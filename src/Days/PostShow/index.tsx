@@ -340,10 +340,10 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
   )
     ? post.context_segments
     : Array.isArray(contextByDate.data)
-    ? (contextByDate.data as ContextSegmentType[])
-    : Array.isArray((contextByDate.data as any)?.data)
-    ? ((contextByDate.data as any).data as ContextSegmentType[])
-    : [];
+      ? (contextByDate.data as ContextSegmentType[])
+      : Array.isArray((contextByDate.data as any)?.data)
+        ? ((contextByDate.data as any).data as ContextSegmentType[])
+        : [];
 
   return (
     <Box

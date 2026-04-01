@@ -33,8 +33,8 @@ const UIContextProvider = ({ children }: PropsWithChildren) => {
       themeName === Theme.SYSTEM
         ? resolvedSystemTheme
         : themeName === Theme.DARK
-        ? Theme.DARK
-        : Theme.LIGHT,
+          ? Theme.DARK
+          : Theme.LIGHT,
     [themeName, resolvedSystemTheme],
   );
   const userTheme = useMemo(
