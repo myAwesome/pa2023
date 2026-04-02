@@ -13,7 +13,7 @@ import feathersExpress, {
   json,
   urlencoded,
   rest,
-  serveStatic,
+  static as serveStatic,
   notFound,
   errorHandler,
 } from '@feathersjs/express';
