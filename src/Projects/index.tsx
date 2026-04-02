@@ -1,11 +1,11 @@
 import React from 'react';
 import {
+  Box,
   IconButton,
   List,
   ListItemButton,
   ListItemText,
   ListItemIcon,
-  Hidden,
   LinearProgress,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -92,9 +92,9 @@ const Projects = () => {
               onClick={() => navigate(`/projects/${list.id}`)}
             >
               <ListItemText primary={list.title} />
-              <Hidden smDown>
+              <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
                 <ListItemText secondary={list.description} />
-              </Hidden>
+              </Box>
               <ListItemIcon>
                 <IconButton onClick={(e) => handleEditClick(e, list)}>
                   <EditIcon />

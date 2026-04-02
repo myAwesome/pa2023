@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Grid, Hidden, Typography } from '@mui/material';
+import { Box, Grid, Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { getInProgress } from '../../shared/api/routes';
 import { TaskType } from '../../shared/types';
@@ -13,7 +13,7 @@ const TasksInProgress = () => {
   const navigate = useNavigate();
 
   return inProgressData.data?.length > 0 ? (
-    <Hidden smDown>
+    <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
       <Grid container>
         {inProgressData.data.map((task: TaskType) => (
           <Grid item key={task.id}>
@@ -28,7 +28,7 @@ const TasksInProgress = () => {
           </Grid>
         ))}
       </Grid>
-    </Hidden>
+    </Box>
   ) : null;
 };
 

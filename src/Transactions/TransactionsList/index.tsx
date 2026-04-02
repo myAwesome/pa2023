@@ -3,12 +3,12 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import localeData from 'dayjs/plugin/localeData';
 import {
+  Box,
   Grid,
   MenuItem,
   Select,
   Checkbox,
   FormControlLabel,
-  Hidden,
   Button,
   useMediaQuery,
   useTheme,
@@ -171,7 +171,7 @@ const TransactionsList = () => {
 
   return (
     <div>
-      <Hidden smUp>
+      <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
         <Button
           fullWidth
           variant="contained"
@@ -180,7 +180,7 @@ const TransactionsList = () => {
         >
           Add
         </Button>
-      </Hidden>
+      </Box>
       <Grid container justifyContent="space-around">
         <Grid item>
           <Select

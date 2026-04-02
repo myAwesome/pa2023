@@ -1,5 +1,5 @@
 import React from 'react';
-import { Badge, Grid, Hidden } from '@mui/material';
+import { Badge, Box, Grid } from '@mui/material';
 import { Notifications } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -15,7 +15,7 @@ const Reminder = () => {
 
   return reminderData.data?.length > 0 ? (
     <>
-      <Hidden smUp>
+      <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
         <Badge
           color="error"
           badgeContent={reminderData.data.length}
@@ -23,8 +23,8 @@ const Reminder = () => {
         >
           <Notifications />
         </Badge>
-      </Hidden>
-      <Hidden smDown>
+      </Box>
+      <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
         <Grid container>
           {reminderData.data.map((lt: LastTimeItemType) => (
             <Grid item key={lt.id}>
@@ -32,7 +32,7 @@ const Reminder = () => {
             </Grid>
           ))}
         </Grid>
-      </Hidden>
+      </Box>
     </>
   ) : null;
 };
