@@ -40,9 +40,10 @@ const DaysApp = () => {
 
   return (
     <Grid container spacing={3}>
-      <Grid container xs={12} md={5} direction="column">
+      <Grid item container xs={12} md={5} direction="column">
         <Grid container>
           <Grid
+            item
             xs={4}
             sm={4}
             sx={{
@@ -65,7 +66,7 @@ const DaysApp = () => {
               </Select>
             </FormControl>
           </Grid>
-          <Grid xs={7} sm={6}>
+          <Grid item xs={7} sm={6}>
             <FormControl disabled={!selectedYear} fullWidth>
               <InputLabel id="month-label">Month</InputLabel>
               <Select
@@ -89,6 +90,7 @@ const DaysApp = () => {
         <Grid container direction="column">
           {(monthData.data || []).map((p: PostType) => (
             <Grid
+              item
               key={p.id}
               sx={{
                 marginTop: (theme) => theme.spacing(3),
@@ -108,7 +110,7 @@ const DaysApp = () => {
           ))}
         </Grid>
       </Grid>
-      <Grid xs={12} md={7}>
+      <Grid item xs={12} md={7}>
         <Calendar
           year={selectedYear}
           month={selectedMonth?.slice(3)}

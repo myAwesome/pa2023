@@ -355,6 +355,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
           }}
         >
           <Grid
+            item
             sx={{
               padding: (theme) => theme.spacing(0, 1),
             }}
@@ -376,7 +377,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
               dayjs(postDate).format('dddd YYYY-MM-DD')
             )}
           </Grid>
-          <Grid>
+          <Grid item>
             {labels.map((l) => (
               <PostLabel
                 key={l.id}
@@ -388,7 +389,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
               />
             ))}
           </Grid>
-          <Grid gap={2}>
+          <Grid item gap={2}>
             <Button
               onClick={() => setIsEdit(true)}
               color="inherit"
@@ -506,7 +507,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
             {post.periods && post.periods.length > 0 ? (
               <Grid container flexWrap="wrap" gap={1}>
                 {post.periods.map((period) => (
-                  <Grid key={period.id}>
+                  <Grid item key={period.id}>
                     <Chip
                       label={period.name}
                       sx={{
@@ -532,7 +533,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
             {contextSegments.length > 0 ? (
               <Grid container flexWrap="wrap" gap={1} sx={{ marginTop: 1 }}>
                 {contextSegments.map((segment) => (
-                  <Grid key={segment.id}>
+                  <Grid item key={segment.id}>
                     <Chip
                       label={segment.title}
                       title={segment.details}

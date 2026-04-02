@@ -22,7 +22,7 @@ const PostEdit = ({ body, onCancel, handleSubmit }: Props) => {
   return (
     <form style={{ marginTop: 10 }}>
       <Grid container justifyContent="center">
-        <Grid xs={12}>
+        <Grid item xs={12}>
           <TextField
             multiline
             fullWidth
@@ -31,7 +31,7 @@ const PostEdit = ({ body, onCancel, handleSubmit }: Props) => {
             onChange={handleText}
           />
         </Grid>
-        <Grid>
+        <Grid item>
           <Button onClick={onCancel}>Cancel</Button>
           <Button type="submit" onClick={(e) => handleSubmit(e, updatedValue)}>
             Submit
