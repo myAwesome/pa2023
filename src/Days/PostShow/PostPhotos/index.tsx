@@ -52,7 +52,7 @@ const PostPhotos = ({
     <Grid
       container
       sx={{
-        margin: (theme) => theme.spacing(1),
+        marginTop: (theme) => theme.spacing(1),
       }}
     >
       {!isFetched && !hideGetPhotosButton ? (
