@@ -31,6 +31,7 @@ jobs:
     - run: pnpm run build-server
     - run: pnpm run build-client
       env:
+        VITE_OAUTH_ID: ${{ secrets.REACT_APP_OAUTH_ID }}
         REACT_APP_OAUTH_ID: ${{ secrets.REACT_APP_OAUTH_ID }}
     - name: Setup SSH key
       run: echo "${{ secrets.PEM_KEY }}" >> ./key.pem
@@ -41,7 +42,7 @@ jobs:
     - name: Set known hosts mod
       run: chmod 600 ./known_hosts
     - name: Deploy Frontend
-      run: scp -r -i ./key.pem -o UserKnownHostsFile=./known_hosts build/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDRESS }}:pa2020/frontend
+      run: scp -r -i ./key.pem -o UserKnownHostsFile=./known_hosts dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDRESS }}:pa2020/frontend
     - name: Deploy Backend
       run: scp -r -i ./key.pem -o UserKnownHostsFile=./known_hosts lib/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDRESS }}:pa2020/backend
     - name: Restart pm2

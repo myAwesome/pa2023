@@ -24,6 +24,18 @@ Getting up and running is as easy as 1, 2, 3.
     pnpm run dev
     ```
 
+## Client Commands
+
+- `pnpm run dev-client` starts Vite dev server.
+- `pnpm run build-client` creates the production client in `dist/`.
+- `pnpm run preview-client` serves the built client locally.
+
+## Environment Variables
+
+- `VITE_API_URL` overrides API base URL (default `/api`).
+- `VITE_OAUTH_ID` sets Google OAuth client ID.
+- `REACT_APP_API_URL` and `REACT_APP_OAUTH_ID` are still supported as fallback during migration.
+
 ## Testing
 
 Simply run `pnpm run jest` and all your tests in the `test/` directory will be run.

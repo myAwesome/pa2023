@@ -20,7 +20,7 @@ const toDateOnly = (date: unknown): string => {
 
 export class Posts extends Service {
   app: Application;
-  //eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   constructor(options: Partial<KnexServiceOptions>, app: Application) {
     super({
       ...options,
