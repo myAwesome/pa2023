@@ -159,22 +159,20 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
     }),
     () => setIsEdit(false),
   );
-  const weatherMutation = useMutation(
-    (weatherLabel: string) =>
+  const weatherMutation = useMutation({
+    mutationFn: (weatherLabel: string) =>
       editPost(post.id, {
         body: post.body,
         date: dateToMySQLFormat(postDate),
         weather: weatherLabel,
       }),
-    {
-      onSuccess: (_, weatherLabel) => {
-        setWeather(weatherLabel);
-        if (invalidateQueries.length > 0) {
-          queryClient.invalidateQueries({ queryKey: invalidateQueries });
-        }
-      },
+    onSuccess: (_, weatherLabel) => {
+      setWeather(weatherLabel);
+      if (invalidateQueries.length > 0) {
+        queryClient.invalidateQueries({ queryKey: invalidateQueries });
+      }
     },
-  );
+  });
   const refreshContextData = () => {
     queryClient.invalidateQueries({ queryKey: invalidateQueries });
     queryClient.invalidateQueries({ queryKey: ['context_segments', postDate] });
