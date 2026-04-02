@@ -35,9 +35,9 @@ import AddWatch from './AddWatch';
 const Watch = () => {
   const [isAdd, setIsAdd] = React.useState(false);
   const [isEdit, setIsEdit] = React.useState(false);
-  const [filterType, setFilterType] = React.useState<string | null>(null);
-  const [filterSeen, setFilterSeen] = React.useState<string | null>(null);
-  const [sortBy, setSortBy] = React.useState<string | null>(null);
+  const [filterType, setFilterType] = React.useState('all');
+  const [filterSeen, setFilterSeen] = React.useState('all');
+  const [sortBy, setSortBy] = React.useState('none');
   const [sortDir, setSortDir] = React.useState<'asc' | 'desc'>('asc');
   const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
   const [itemToUpdate, setItemToUpdate] = React.useState<WatchItemType | null>(
@@ -53,13 +53,13 @@ const Watch = () => {
     queryKey: ['watch', { filterType, filterSeen, sortBy, sortDir }],
     queryFn: () => {
       const params: Record<string, any> = { $limit: 5000 };
-      if (filterType) {
+      if (filterType !== 'all') {
         params.type = filterType;
       }
-      if (filterSeen) {
+      if (filterSeen !== 'all') {
         params.is_seen = filterSeen === 'seen' ? 1 : 0;
       }
-      if (sortBy) {
+      if (sortBy !== 'none') {
         params['$sort'] = { [sortBy]: sortDir === 'asc' ? '1' : '-1' };
       }
       return getWatch(params);
@@ -163,9 +163,7 @@ const Watch = () => {
             labelId="type-label"
             value={filterType}
             margin="none"
-            onChange={(e) =>
-              setFilterType(e.target.value === 'all' ? null : e.target.value)
-            }
+            onChange={(e) => setFilterType(e.target.value)}
             variant="standard"
           >
             <MenuItem value="all">All</MenuItem>
@@ -181,9 +179,7 @@ const Watch = () => {
             labelId="seen-label"
             value={filterSeen}
             margin="none"
-            onChange={(e) =>
-              setFilterSeen(e.target.value === 'all' ? null : e.target.value)
-            }
+            onChange={(e) => setFilterSeen(e.target.value)}
             variant="standard"
           >
             <MenuItem value="all">All</MenuItem>
@@ -197,9 +193,7 @@ const Watch = () => {
             labelId="sort-label"
             value={sortBy}
             margin="none"
-            onChange={(e) =>
-              setSortBy(e.target.value === 'none' ? null : e.target.value)
-            }
+            onChange={(e) => setSortBy(e.target.value)}
             variant="standard"
           >
             <MenuItem value="none">None</MenuItem>
