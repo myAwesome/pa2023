@@ -205,9 +205,10 @@ const Project = () => {
       </Box>
       <AddTask />
 
-      <Grid xs={12} container spacing={1}>
+      <Grid item xs={12} container spacing={1}>
         {Object.keys(tasksData.data || {}).map((key) => (
           <Grid
+            item
             sm={3}
             xs={12}
             container
@@ -225,7 +226,7 @@ const Project = () => {
               transition: 'background-color 0.2s ease',
             }}
           >
-            <Grid>
+            <Grid item>
               <Paper
                 sx={{
                   position: 'relative',
@@ -243,7 +244,7 @@ const Project = () => {
               </Paper>
             </Grid>
             {tasksData.data?.[key as TaskStatus].map((task) => (
-              <Grid key={task.id}>
+              <Grid item key={task.id}>
                 <Paper
                   draggable={editedTask?.id !== task.id}
                   onDragStart={(e) => handleDragStart(e, task)}

@@ -33,7 +33,7 @@ const AddNoteCategory = ({
       }}
     >
       <Grid container spacing={2} alignItems="flex-end">
-        <Grid md={9} xs={12}>
+        <Grid item md={9} xs={12}>
           <TextField
             name="name"
             fullWidth
@@ -43,7 +43,7 @@ const AddNoteCategory = ({
             onChange={(e) => setValues({ ...values, name: e.target.value })}
           />
         </Grid>
-        <Grid md={3} xs={12}>
+        <Grid item md={3} xs={12}>
           <Button type="submit">Submit</Button>
           <Button
             onClick={() => {

@@ -127,13 +127,13 @@ const LastTime = () => {
     <div>
       <h1>LastTime</h1>
       <Grid container>
-        <Grid xs={12} sm={1}>
+        <Grid item xs={12} sm={1}>
           <IconButton onClick={handleAdd}>
             <AddIcon />
           </IconButton>
         </Grid>
         {isAdd || (isEdit && itemToEdit) ? (
-          <Grid xs={12} sm={11}>
+          <Grid item xs={12} sm={11}>
             <AddLastTime
               handleSubmit={handleSubmit}
               initialValues={itemToEdit}
@@ -174,7 +174,7 @@ const LastTime = () => {
         }}
       >
         <Grid container spacing={1}>
-          <Grid>
+          <Grid item>
             <TextField
               fullWidth
               name="update Date"
@@ -187,7 +187,7 @@ const LastTime = () => {
               }}
             />
           </Grid>
-          <Grid>
+          <Grid item>
             <Button
               onClick={() => {
                 updateMutation.mutate({ date: dateToMySQLFormat(updateDate) });

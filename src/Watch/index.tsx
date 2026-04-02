@@ -255,7 +255,7 @@ const Watch = () => {
         }}
       >
         <Grid container spacing={1}>
-          <Grid>
+          <Grid item>
             <TextField
               fullWidth
               name="update Date"
@@ -268,7 +268,7 @@ const Watch = () => {
               }}
             />
           </Grid>
-          <Grid>
+          <Grid item>
             <Button
               onClick={() => {
                 updateMutation.mutate({

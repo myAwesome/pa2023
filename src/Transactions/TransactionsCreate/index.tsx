@@ -69,9 +69,9 @@ const TransactionsCreate = () => {
   return (
     <form onSubmit={(e) => e.preventDefault()}>
       <Grid container spacing={3}>
-        <Grid xs={12} container justifyContent="space-between">
+        <Grid item xs={12} container justifyContent="space-between">
           {[31, 52, 12, 63, 64, 60, 58].map((id) => (
-            <Grid key={id}>
+            <Grid item key={id}>
               <Button
                 variant="outlined"
                 onClick={() =>
@@ -87,7 +87,7 @@ const TransactionsCreate = () => {
             </Grid>
           ))}
         </Grid>
-        <Grid xs={6} alignSelf="flex-end">
+        <Grid item xs={6} alignSelf="flex-end">
           <Select
             value={values.category}
             onChange={handleChange}
@@ -106,7 +106,7 @@ const TransactionsCreate = () => {
             ))}
           </Select>
         </Grid>
-        <Grid xs={6}>
+        <Grid item xs={6}>
           <TextField
             type="date"
             label="Date"
@@ -120,7 +120,7 @@ const TransactionsCreate = () => {
             fullWidth
           />
         </Grid>
-        <Grid xs={6}>
+        <Grid item xs={6}>
           <TextField
             type="number"
             label="Amount"
@@ -132,7 +132,7 @@ const TransactionsCreate = () => {
             fullWidth
           />
         </Grid>
-        <Grid xs={6}>
+        <Grid item xs={6}>
           <TextField
             label="Currency"
             name="currency"
@@ -142,7 +142,7 @@ const TransactionsCreate = () => {
             fullWidth
           />
         </Grid>
-        <Grid xs={12}>
+        <Grid item xs={12}>
           <FormGroup>
             <TextField
               type="text"
@@ -154,7 +154,7 @@ const TransactionsCreate = () => {
             />
           </FormGroup>
         </Grid>
-        <Grid xs={12}>
+        <Grid item xs={12}>
           <FormGroup>
             <Button
               type="submit"

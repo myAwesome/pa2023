@@ -39,7 +39,7 @@ const AddProject = ({ handleSubmit, initialValues, handleCancel }: Props) => {
       }}
     >
       <Grid container spacing={2} alignItems="flex-end">
-        <Grid md={3} xs={12}>
+        <Grid item md={3} xs={12}>
           <TextField
             name="title"
             fullWidth
@@ -49,7 +49,7 @@ const AddProject = ({ handleSubmit, initialValues, handleCancel }: Props) => {
             onChange={(e) => setValues({ ...values, title: e.target.value })}
           />
         </Grid>
-        <Grid md={4} xs={12}>
+        <Grid item md={4} xs={12}>
           <TextField
             name="description"
             fullWidth
@@ -61,7 +61,7 @@ const AddProject = ({ handleSubmit, initialValues, handleCancel }: Props) => {
             }
           />
         </Grid>
-        <Grid md={2} xs={12}>
+        <Grid item md={2} xs={12}>
           <FormControlLabel
             control={
               <Checkbox
@@ -74,7 +74,7 @@ const AddProject = ({ handleSubmit, initialValues, handleCancel }: Props) => {
             label="Archived"
           />
         </Grid>
-        <Grid md={3} xs={12}>
+        <Grid item md={3} xs={12}>
           <Button type="submit">Submit</Button>
           <Button onClick={handleCancel}>Cancel</Button>
         </Grid>

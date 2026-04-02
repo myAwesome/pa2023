@@ -50,7 +50,7 @@ const AddLastTime = ({
       }}
     >
       <Grid container spacing={2} alignItems="flex-end">
-        <Grid md={4} xs={12}>
+        <Grid item md={4} xs={12}>
           <TextField
             name="title"
             fullWidth
@@ -60,7 +60,7 @@ const AddLastTime = ({
             onChange={(e) => setLt({ ...lt, body: e.target.value })}
           />
         </Grid>
-        <Grid md={3} xs={12}>
+        <Grid item md={3} xs={12}>
           <TextField
             name="reminder"
             fullWidth
@@ -73,7 +73,7 @@ const AddLastTime = ({
             }
           />
         </Grid>
-        <Grid md={5} xs={12}>
+        <Grid item md={5} xs={12}>
           <Button onClick={handleRemove}>Remove</Button>
           <Button type="submit">Submit</Button>
           <Button onClick={handleCancel}>Cancel</Button>
