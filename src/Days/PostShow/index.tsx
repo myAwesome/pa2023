@@ -13,6 +13,7 @@ import {
   DialogTitle,
   Paper,
   TextField,
+  Typography,
 } from '@mui/material';
 import {
   QueryKey,
@@ -525,17 +526,6 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 ))}
               </Grid>
             ) : null}
-            {weather ? (
-              <Grid container sx={{ marginTop: 1 }}>
-                <Chip
-                  label={weather}
-                  variant="outlined"
-                  sx={{
-                    color: (theme) => theme.palette.secondary.main,
-                  }}
-                />
-              </Grid>
-            ) : null}
             {contextSegments.length > 0 ? (
               <Grid container flexWrap="wrap" gap={1} sx={{ marginTop: 1 }}>
                 {contextSegments.map((segment) => (
@@ -562,35 +552,45 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
               date={post.date}
               hideGetPhotosButton
               extraAction={
-                <Button
-                  type="button"
-                  onClick={handleFetchWeather}
-                  variant="outlined"
-                  size="small"
-                  sx={{
-                    textTransform: 'none',
-                    borderRadius: 999,
-                    fontSize: 12,
-                    fontWeight: 600,
-                    lineHeight: 1.2,
-                    padding: (theme) => theme.spacing(0.5, 1.25),
-                    minWidth: 96,
-                    borderColor: (theme) => theme.palette.secondary.main,
-                    color: (theme) => theme.palette.secondary.main,
-                    '&:hover': {
-                      borderColor: (theme) => theme.palette.secondary.dark,
-                      backgroundColor: (theme) =>
-                        theme.palette.secondary.light + '22',
-                    },
-                  }}
-                  disabled={
-                    post.id === 0 ||
-                    editPostMutation.isPending ||
-                    weatherMutation.isPending
-                  }
-                >
-                  {weatherMutation.isPending ? 'Loading...' : 'Get weather'}
-                </Button>
+                weather ? (
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      display: 'inline-block',
+                      fontWeight: 600,
+                      letterSpacing: 0.3,
+                      textTransform: 'uppercase',
+                      color: (theme) => theme.palette.text.secondary,
+                      marginTop: 0.5,
+                    }}
+                  >
+                    {weather}
+                  </Typography>
+                ) : (
+                  <Button
+                    type="button"
+                    onClick={handleFetchWeather}
+                    variant="text"
+                    color="primary"
+                    size="small"
+                    sx={{
+                      textTransform: 'uppercase',
+                      fontSize: 12,
+                      fontWeight: 600,
+                      letterSpacing: 0.3,
+                      minWidth: 0,
+                      padding: 0,
+                      lineHeight: 1.25,
+                    }}
+                    disabled={
+                      post.id === 0 ||
+                      editPostMutation.isPending ||
+                      weatherMutation.isPending
+                    }
+                  >
+                    {weatherMutation.isPending ? 'LOADING...' : 'GET WEATHER'}
+                  </Button>
+                )
               }
             />
             {post.comments.map((comment) => (
