@@ -103,6 +103,8 @@
     "workbox-streams": "^7.4.0"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
+    "@eslint/js": "^10.0.1",
     "@types/compression": "^1.8.1",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
@@ -118,7 +120,7 @@
     "axios": "^1.14.0",
     "bcryptjs": "^3.0.3",
     "concurrently": "^9.2.1",
-    "eslint": "8.57.1",
+    "eslint": "10.1.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
