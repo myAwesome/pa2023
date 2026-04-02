@@ -45,9 +45,5 @@ jobs:
       run: scp -r -i ./key.pem -o UserKnownHostsFile=./known_hosts lib/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDRESS }}:pa2020/backend
     - name: Deploy dependency manifests
       run: scp -i ./key.pem -o UserKnownHostsFile=./known_hosts package.json pnpm-lock.yaml ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDRESS }}:pa2020/
-    - name: Ensure pnpm on server
-      run: ssh -i ./key.pem -o UserKnownHostsFile=./known_hosts ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDRESS }} "corepack enable && corepack prepare pnpm@10.12.4 --activate && pnpm --version"
-    - name: Install backend dependencies
-      run: ssh -i ./key.pem -o UserKnownHostsFile=./known_hosts ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDRESS }} "cd pa2020 && pnpm install --frozen-lockfile --prod"
     - name: Restart pm2
       run: ssh -i ./key.pem -o UserKnownHostsFile=./known_hosts ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDRESS }} "pm2 restart all"
