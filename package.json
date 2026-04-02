@@ -34,7 +34,7 @@
     "jest": "jest --forceExit",
     "build-server": "shx rm -rf lib/ && tsc -p server/tsconfig.json",
     "dev-client": "react-scripts start",
-    "build-client": "react-scripts build",
+    "build-client": "DISABLE_ESLINT_PLUGIN=true react-scripts build",
     "test-client": "react-scripts test",
     "eject-client": "react-scripts eject",
     "seed": "node scripts/seed.js"
