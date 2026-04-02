@@ -18,7 +18,7 @@ export default function (app: Application): void {
     userAware: true,
   };
 
-  app.use('/context-segments', new ContextSegments(options, app));
+  (app as any).use('context-segments', new ContextSegments(options, app));
 
   const service = app.service('context-segments');
   service.hooks(hooks);

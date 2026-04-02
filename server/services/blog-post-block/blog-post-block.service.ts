@@ -19,7 +19,7 @@ export default function (app: Application): void {
   };
 
   // Initialize our service with any options it requires
-  app.use('/blog-post-block', new BlogPostBlock(options, app));
+  (app as any).use('blog-post-block', new BlogPostBlock(options, app));
 
   // Get our initialized service so that we can register hooks
   const service = app.service('blog-post-block');

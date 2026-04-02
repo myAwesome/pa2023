@@ -19,7 +19,7 @@ export default function (app: Application): void {
   };
 
   // Initialize our service with any options it requires
-  app.use('/countdown', new Countdown(options, app));
+  (app as any).use('countdown', new Countdown(options, app));
 
   // Get our initialized service so that we can register hooks
   const service = app.service('countdown');

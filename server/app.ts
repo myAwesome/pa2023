@@ -1,14 +1,23 @@
+import fs from 'fs';
 import path from 'path';
 import favicon from 'serve-favicon';
 import compress from 'compression';
 import helmet from 'helmet';
 import cors from 'cors';
 
-import feathers, {
+import {
+  feathers,
   HookContext as FeathersHookContext,
 } from '@feathersjs/feathers';
 import configuration from '@feathersjs/configuration';
-import express from '@feathersjs/express';
+import feathersExpress, {
+  json,
+  urlencoded,
+  rest,
+  serveStatic,
+  notFound,
+  errorHandler,
+} from '@feathersjs/express';
 
 import { Application } from './declarations';
 import logger from './logger';
@@ -20,7 +29,7 @@ import authentication from './authentication';
 import knex from './knex';
 // Don't remove this comment. It's needed to format import lines nicely.
 
-const app: Application = express(feathers());
+const app: Application = feathersExpress(feathers());
 export type HookContext<T = any> = {
   app: Application;
 } & FeathersHookContext<T>;
@@ -35,14 +44,17 @@ app.use(
 );
 app.use(cors());
 app.use(compress() as any);
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(favicon(path.join(app.get('public'), 'favicon.ico')) as any);
+app.use(json());
+app.use(urlencoded({ extended: true }));
+const faviconPath = path.join(app.get('public'), 'favicon.ico');
+if (fs.existsSync(faviconPath)) {
+  app.use(favicon(faviconPath) as any);
+}
 // Host the public folder
-app.use('/', express.static(app.get('public')));
+app.use('/', serveStatic(app.get('public')));
 
 // Set up Plugins and providers
-app.configure(express.rest());
+app.configure(rest());
 
 app.configure(knex);
 
@@ -55,7 +67,7 @@ app.configure(services);
 app.configure(channels);
 
 // Configure a middleware for 404s and the error handler
-app.use(express.notFound());
+app.use(notFound());
 app.use((error: any, req: any, _res: any, next: any) => {
   logger.error('Request failed: %s %s', req.method, req.originalUrl);
   logger.error(
@@ -80,7 +92,7 @@ app.use((error: any, req: any, _res: any, next: any) => {
 
   next(error);
 });
-app.use(express.errorHandler({ logger } as any));
+app.use(errorHandler({ logger } as any));
 
 app.hooks(appHooks);
 

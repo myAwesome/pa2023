@@ -21,8 +21,8 @@ export default function (app: Application): void {
   };
 
   // Initialize our service with any options it requires
-  app.use('/posts', new Posts(options, app));
-  app.use('/posts-history', new PostsHistory(options, app));
+  (app as any).use('posts', new Posts(options, app));
+  (app as any).use('posts-history', new PostsHistory(options, app));
 
   // Get our initialized service so that we can register hooks
   const service = app.service('posts');
