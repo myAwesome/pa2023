@@ -71,7 +71,7 @@
     "config": "^4.4.1",
     "cors": "^2.8.6",
     "dayjs": "^1.11.20",
-    "express": "^5.2.1",
+    "express": "^4.22.1",
     "feathers-hooks-common": "^8.2.1",
     "feathers-knex": "^8.0.1",
     "greenlock-express": "^4.0.3",
