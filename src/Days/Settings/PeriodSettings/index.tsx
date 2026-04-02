@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button, Collapse, Grid, IconButton, Typography } from '@mui/material';
+import { Button, Collapse, IconButton, Typography } from '@mui/material';
+import Grid from '@mui/material/GridLegacy';
 import AddIcon from '@mui/icons-material/Add';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
@@ -83,7 +84,7 @@ const PeriodSettings = () => {
 
   return (
     <Grid container spacing={2}>
-      <Grid item xs={12}>
+      <Grid xs={12}>
         <Button
           sx={{ textTransform: 'initial', padding: 0, color: 'inherit' }}
           endIcon={isOpen ? <ExpandLess /> : <ExpandMore />}

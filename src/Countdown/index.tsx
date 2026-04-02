@@ -1,11 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import {
-  Box,
-  Grid,
-  IconButton,
-  LinearProgress,
-  Typography,
-} from '@mui/material';
+import { Box, IconButton, LinearProgress, Typography } from '@mui/material';
+import Grid from '@mui/material/GridLegacy';
 import AddIcon from '@mui/icons-material/Add';
 import React from 'react';
 import dayjs from 'dayjs';

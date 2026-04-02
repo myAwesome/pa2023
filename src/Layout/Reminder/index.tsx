@@ -1,5 +1,6 @@
 import React from 'react';
-import { Badge, Box, Grid } from '@mui/material';
+import { Badge, Box } from '@mui/material';
+import Grid from '@mui/material/GridLegacy';
 import { Notifications } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -27,7 +28,7 @@ const Reminder = () => {
       <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
         <Grid container>
           {reminderData.data.map((lt: LastTimeItemType) => (
-            <Grid item key={lt.id}>
+            <Grid key={lt.id}>
               <b> !!! {lt.body} !!! </b>
             </Grid>
           ))}

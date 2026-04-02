@@ -1,5 +1,6 @@
 import React from 'react';
-import { TextField, Button, Grid } from '@mui/material';
+import { TextField, Button } from '@mui/material';
+import Grid from '@mui/material/GridLegacy';
 import { NoteCategoryType } from '../../shared/types';
 
 const initialState = { name: '', id: 0 };
@@ -32,7 +33,7 @@ const AddNoteCategory = ({
       }}
     >
       <Grid container spacing={2} alignItems="flex-end">
-        <Grid item md={9} xs={12}>
+        <Grid md={9} xs={12}>
           <TextField
             name="name"
             fullWidth
@@ -42,7 +43,7 @@ const AddNoteCategory = ({
             onChange={(e) => setValues({ ...values, name: e.target.value })}
           />
         </Grid>
-        <Grid item md={3} xs={12}>
+        <Grid md={3} xs={12}>
           <Button type="submit">Submit</Button>
           <Button
             onClick={() => {

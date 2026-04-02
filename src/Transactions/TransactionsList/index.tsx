@@ -4,7 +4,6 @@ import utc from 'dayjs/plugin/utc';
 import localeData from 'dayjs/plugin/localeData';
 import {
   Box,
-  Grid,
   MenuItem,
   Select,
   Checkbox,
@@ -14,6 +13,7 @@ import {
   useTheme,
   SelectChangeEvent,
 } from '@mui/material';
+import Grid from '@mui/material/GridLegacy';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import Table from '../../shared/components/Table';
@@ -182,7 +182,7 @@ const TransactionsList = () => {
         </Button>
       </Box>
       <Grid container justifyContent="space-around">
-        <Grid item>
+        <Grid>
           <Select
             value={selectedMonth}
             onChange={onMonthChange}
@@ -195,7 +195,7 @@ const TransactionsList = () => {
             ))}
           </Select>
         </Grid>
-        <Grid item>
+        <Grid>
           <Select
             value={selectedYear}
             onChange={onYearChange}
@@ -204,7 +204,7 @@ const TransactionsList = () => {
             {getYears()}
           </Select>
         </Grid>
-        <Grid item>
+        <Grid>
           <FormControlLabel
             control={
               <Checkbox value={groupByCategory} onChange={onGroupByChange} />

@@ -1,7 +1,7 @@
 import React, { ChangeEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Paper from '@mui/material/Paper';
-import Grid from '@mui/material/Grid';
+import Grid from '@mui/material/GridLegacy';
 import {
   Box,
   ListItemButton,
@@ -205,10 +205,9 @@ const Project = () => {
       </Box>
       <AddTask />
 
-      <Grid item xs={12} container spacing={1}>
+      <Grid xs={12} container spacing={1}>
         {Object.keys(tasksData.data || {}).map((key) => (
           <Grid
-            item
             sm={3}
             xs={12}
             container
@@ -226,7 +225,7 @@ const Project = () => {
               transition: 'background-color 0.2s ease',
             }}
           >
-            <Grid item>
+            <Grid>
               <Paper
                 sx={{
                   position: 'relative',
@@ -244,7 +243,7 @@ const Project = () => {
               </Paper>
             </Grid>
             {tasksData.data?.[key as TaskStatus].map((task) => (
-              <Grid item key={task.id}>
+              <Grid key={task.id}>
                 <Paper
                   draggable={editedTask?.id !== task.id}
                   onDragStart={(e) => handleDragStart(e, task)}

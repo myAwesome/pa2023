@@ -6,12 +6,12 @@ import {
   CardActions,
   CardContent,
   CardMedia,
-  Grid,
   Dialog,
   Checkbox,
   FormControl,
   FormControlLabel,
 } from '@mui/material';
+import Grid from '@mui/material/GridLegacy';
 import dayjs from 'dayjs';
 import { useQuery } from '@tanstack/react-query';
 import { deleteWish, getWishes, putWish } from '../../shared/api/routes';
@@ -79,7 +79,6 @@ const WishList = () => {
           return (
             <Grid
               key={w.id}
-              item
               sx={{
                 width: {
                   xs: '100%',

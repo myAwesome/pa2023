@@ -2,7 +2,6 @@ import React, { FormEvent, useCallback, useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Button,
-  Grid,
   TextField,
   Link as MUILink,
   Container,
@@ -10,6 +9,7 @@ import {
   Avatar,
   Typography,
 } from '@mui/material';
+import Grid from '@mui/material/GridLegacy';
 import InputAdornment from '@mui/material/InputAdornment';
 import VisibleIcon from '@mui/icons-material/VisibilityOutlined';
 import NotVisibleIcon from '@mui/icons-material/VisibilityOffOutlined';
@@ -158,7 +158,7 @@ const RegistrationPage = () => {
               Sign Up
             </Button>
             <Grid container>
-              <Grid item>
+              <Grid>
                 <MUILink variant="body2" component={Link} to="/auth/login">
                   Already have an account? Sign in
                 </MUILink>

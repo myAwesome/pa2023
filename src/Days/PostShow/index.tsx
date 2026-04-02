@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import Chip from '@mui/material/Chip';
-import Grid from '@mui/material/Grid';
+import Grid from '@mui/material/GridLegacy';
 import Button from '@mui/material/Button';
 import {
   Box,
@@ -355,7 +355,6 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
           }}
         >
           <Grid
-            item
             sx={{
               padding: (theme) => theme.spacing(0, 1),
             }}
@@ -377,7 +376,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
               dayjs(postDate).format('dddd YYYY-MM-DD')
             )}
           </Grid>
-          <Grid item>
+          <Grid>
             {labels.map((l) => (
               <PostLabel
                 key={l.id}
@@ -389,7 +388,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
               />
             ))}
           </Grid>
-          <Grid item gap={2}>
+          <Grid gap={2}>
             <Button
               onClick={() => setIsEdit(true)}
               color="inherit"
@@ -507,7 +506,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
             {post.periods && post.periods.length > 0 ? (
               <Grid container flexWrap="wrap" gap={1}>
                 {post.periods.map((period) => (
-                  <Grid item key={period.id}>
+                  <Grid key={period.id}>
                     <Chip
                       label={period.name}
                       sx={{
@@ -533,7 +532,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
             {contextSegments.length > 0 ? (
               <Grid container flexWrap="wrap" gap={1} sx={{ marginTop: 1 }}>
                 {contextSegments.map((segment) => (
-                  <Grid item key={segment.id}>
+                  <Grid key={segment.id}>
                     <Chip
                       label={segment.title}
                       title={segment.details}

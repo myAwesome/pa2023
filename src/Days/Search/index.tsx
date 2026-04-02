@@ -1,5 +1,6 @@
 import React, { FormEvent } from 'react';
-import { Button, Grid, LinearProgress, TextField } from '@mui/material';
+import { Button, LinearProgress, TextField } from '@mui/material';
+import Grid from '@mui/material/GridLegacy';
 import Typography from '@mui/material/Typography';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
@@ -160,7 +161,7 @@ const Search = () => {
 
   return (
     <Grid container direction="column" spacing={3}>
-      <Grid item>
+      <Grid>
         <form onSubmit={handleSearch}>
           <TextField
             value={searchQuery}
@@ -188,15 +189,15 @@ const Search = () => {
         </form>
       </Grid>
       {isSearchSubmitted ? (
-        <Grid item>
+        <Grid>
           <Typography>Found {total} posts</Typography>
         </Grid>
       ) : isSearchLoading ? (
-        <Grid item>
+        <Grid>
           <LinearProgress />
         </Grid>
       ) : null}
-      <Grid item>
+      <Grid>
         <PostList
           labels={labelsData.data || []}
           posts={posts}
@@ -205,7 +206,7 @@ const Search = () => {
         />
       </Grid>
       {isSearchSubmitted && totalPages > 1 && (
-        <Grid item>
+        <Grid>
           <Grid
             container
             justifyContent="center"

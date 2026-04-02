@@ -91,7 +91,7 @@ const LoginPage = () => {
               Sign In
             </Button>
             <Grid container>
-              <Grid item>
+              <Grid>
                 <MUILink
                   component={Link}
                   variant="body2"

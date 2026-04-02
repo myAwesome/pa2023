@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Grid, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
+import Grid from '@mui/material/GridLegacy';
 import { useQuery } from '@tanstack/react-query';
 import { getInProgress } from '../../shared/api/routes';
 import { TaskType } from '../../shared/types';
@@ -16,7 +17,7 @@ const TasksInProgress = () => {
     <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
       <Grid container>
         {inProgressData.data.map((task: TaskType) => (
-          <Grid item key={task.id}>
+          <Grid key={task.id}>
             <Typography
               sx={{
                 cursor: 'pointer',

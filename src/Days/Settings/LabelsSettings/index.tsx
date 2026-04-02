@@ -2,11 +2,11 @@ import React, { FormEvent } from 'react';
 import {
   TextField,
   Button,
-  Grid,
   Typography,
   IconButton,
   Popover,
 } from '@mui/material';
+import Grid from '@mui/material/GridLegacy';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
@@ -159,7 +159,7 @@ const LabelsSettings = () => {
 
   return (
     <Grid container spacing={2}>
-      <Grid item xs={12}>
+      <Grid xs={12}>
         <Typography variant="h6">My labels: </Typography>
         {(labelsData.data || []).map((l: LabelType) => (
           <PostLabel
@@ -195,10 +195,10 @@ const LabelsSettings = () => {
         </IconButton>
       </Popover>
       {(isAdd || isEdit) && (
-        <Grid item xs={12}>
+        <Grid xs={12}>
           <form onSubmit={isAdd ? handleLabelAdd : handleLabelEdit}>
             <Grid container spacing={3} justifyContent="space-between">
-              <Grid item>
+              <Grid>
                 <TextField
                   name="labelName"
                   variant="standard"
@@ -207,7 +207,7 @@ const LabelsSettings = () => {
                   label="Name"
                 />
               </Grid>
-              <Grid item>
+              <Grid>
                 <TextField
                   name="labelEmoji"
                   variant="standard"
@@ -217,14 +217,14 @@ const LabelsSettings = () => {
                   inputProps={{ maxLength: 2 }}
                 />
               </Grid>
-              <Grid item>
+              <Grid>
                 <Typography>Color</Typography>
                 <ColorPicker
                   value={newLabelColor}
                   onChange={(val) => setNewLabelColor(val)}
                 />
               </Grid>
-              <Grid item>
+              <Grid>
                 <Typography>Preview</Typography>
                 <PostLabel
                   key="new-label"
@@ -240,7 +240,7 @@ const LabelsSettings = () => {
                   onClick={() => setIsNewLabelActive(!isNewLabelActive)}
                 />
               </Grid>
-              <Grid item>
+              <Grid>
                 <Button type="submit" variant="outlined">
                   Submit
                 </Button>
