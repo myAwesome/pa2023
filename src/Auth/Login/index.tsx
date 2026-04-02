@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { sendLogin } from '../../shared/api/routes';
+import { getApiErrorMessage } from '../../shared/api/error';
 import { setItemToStorage, TOKEN_KEY } from '../../shared/utils/storage';
 import UIContext from '../../shared/context/UIContext';
 
@@ -31,7 +32,7 @@ const LoginPage = () => {
         navigate('/days');
       })
       .catch((err) => {
-        setError(err.message);
+        setError(getApiErrorMessage(err));
       });
   };
 

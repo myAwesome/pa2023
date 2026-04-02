@@ -6,6 +6,7 @@ import {
 } from '@tanstack/react-query';
 import { useContext } from 'react';
 import UIContext from '../context/UIContext';
+import { getApiErrorMessage } from '../api/error';
 
 export const useCreateMutation = (
   mutationFn: MutationFunction<any, any>,
@@ -32,7 +33,7 @@ export const useCreateMutation = (
     onError: (err: Error, variables, previousValue) => {
       queryClient.setQueryData(invalidateQueries, previousValue);
       console.error(err);
-      setError(err.message);
+      setError(getApiErrorMessage(err));
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: invalidateQueries });

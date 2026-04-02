@@ -15,6 +15,7 @@ import VisibleIcon from '@mui/icons-material/VisibilityOutlined';
 import NotVisibleIcon from '@mui/icons-material/VisibilityOffOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { sendLogin, sendRegistration } from '../../shared/api/routes';
+import { getApiErrorMessage } from '../../shared/api/error';
 import { setItemToStorage, TOKEN_KEY } from '../../shared/utils/storage';
 import UIContext from '../../shared/context/UIContext';
 
@@ -50,7 +51,7 @@ const RegistrationPage = () => {
           navigate('/days');
         })
         .catch((err) => {
-          setError(err.message);
+          setError(getApiErrorMessage(err));
         });
     } else {
       setError("Passwords don't match!");

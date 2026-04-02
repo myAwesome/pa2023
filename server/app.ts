@@ -56,6 +56,30 @@ app.configure(channels);
 
 // Configure a middleware for 404s and the error handler
 app.use(express.notFound());
+app.use((error: any, req: any, _res: any, next: any) => {
+  logger.error('Request failed: %s %s', req.method, req.originalUrl);
+  logger.error(
+    'Error summary: name=%s code=%s message=%s',
+    error?.name,
+    error?.code,
+    error?.message,
+  );
+
+  if (error?.data) {
+    logger.error('Error data: %o', error.data);
+  }
+  if (error?.errors) {
+    logger.error('Error details: %o', error.errors);
+  }
+  if (error?.original) {
+    logger.error('Original error: %o', error.original);
+  }
+  if (error?.stack) {
+    logger.error('Stack: %s', error.stack);
+  }
+
+  next(error);
+});
 app.use(express.errorHandler({ logger } as any));
 
 app.hooks(appHooks);

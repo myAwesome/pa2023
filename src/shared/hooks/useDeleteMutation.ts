@@ -6,6 +6,7 @@ import {
 } from '@tanstack/react-query';
 import { useContext } from 'react';
 import UIContext from '../context/UIContext';
+import { getApiErrorMessage } from '../api/error';
 
 export const useDeleteMutation = (
   mutationFn: MutationFunction<any, any | undefined>,
@@ -37,7 +38,7 @@ export const useDeleteMutation = (
     },
     onError: (err: Error, variables, previousValue) => {
       queryClient.setQueryData(invalidateQueries, previousValue);
-      setError(err.message);
+      setError(getApiErrorMessage(err));
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: invalidateQueries });
