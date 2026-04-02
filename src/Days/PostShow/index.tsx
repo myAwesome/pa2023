@@ -118,13 +118,11 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
   const [splitDate, setSplitDate] = React.useState('');
   const postDate = toDateOnly(post.date);
   const [updateDate, setUpdateDate] = React.useState(postDate);
-  const contextByDate = useQuery(
-    ['context_segments', postDate],
-    () => getContextSegments({ date: postDate }),
-    {
-      enabled: !Array.isArray(post.context_segments) && !!post.date,
-    },
-  );
+  const contextByDate = useQuery({
+    queryKey: ['context_segments', postDate],
+    queryFn: () => getContextSegments({ date: postDate }),
+    enabled: !Array.isArray(post.context_segments) && !!post.date,
+  });
   const deletePostMutation = useDeleteMutation(
     () => deletePost(post.id),
     invalidateQueries,
@@ -169,11 +167,11 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
     (weather: string) => ({ weather }),
   );
   const refreshContextData = () => {
-    queryClient.invalidateQueries(invalidateQueries);
-    queryClient.invalidateQueries(['context_segments', postDate]);
+    queryClient.invalidateQueries({ queryKey: invalidateQueries });
+    queryClient.invalidateQueries({ queryKey: ['context_segments', postDate] });
   };
-  const editContextMutation = useMutation(
-    ({
+  const editContextMutation = useMutation({
+    mutationFn: ({
       id,
       data,
     }: {
@@ -185,15 +183,13 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
         end_date?: string | null;
       };
     }) => patchContextSegment(id, data),
-    {
-      onSuccess: () => {
-        setSelectedContext(null);
-        refreshContextData();
-      },
+    onSuccess: () => {
+      setSelectedContext(null);
+      refreshContextData();
     },
-  );
-  const splitContextMutation = useMutation(
-    ({
+  });
+  const splitContextMutation = useMutation({
+    mutationFn: ({
       id,
       data,
     }: {
@@ -204,22 +200,18 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
         newDetails?: string;
       };
     }) => splitContextSegment(id, data),
-    {
-      onSuccess: () => {
-        setSelectedContext(null);
-        refreshContextData();
-      },
+    onSuccess: () => {
+      setSelectedContext(null);
+      refreshContextData();
     },
-  );
-  const deleteContextMutation = useMutation(
-    (id: number) => deleteContextSegment(id),
-    {
-      onSuccess: () => {
-        setSelectedContext(null);
-        refreshContextData();
-      },
+  });
+  const deleteContextMutation = useMutation({
+    mutationFn: (id: number) => deleteContextSegment(id),
+    onSuccess: () => {
+      setSelectedContext(null);
+      refreshContextData();
     },
-  );
+  });
 
   const toggleDeleteMode = () => {
     setDeletedMode(!deleteMode);
@@ -340,10 +332,10 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
   )
     ? post.context_segments
     : Array.isArray(contextByDate.data)
-    ? (contextByDate.data as ContextSegmentType[])
-    : Array.isArray((contextByDate.data as any)?.data)
-    ? ((contextByDate.data as any).data as ContextSegmentType[])
-    : [];
+      ? (contextByDate.data as ContextSegmentType[])
+      : Array.isArray((contextByDate.data as any)?.data)
+        ? ((contextByDate.data as any).data as ContextSegmentType[])
+        : [];
 
   return (
     <Box
@@ -363,7 +355,6 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
           }}
         >
           <Grid
-            item
             sx={{
               padding: (theme) => theme.spacing(0, 1),
             }}
@@ -385,7 +376,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
               dayjs(postDate).format('dddd YYYY-MM-DD')
             )}
           </Grid>
-          <Grid item>
+          <Grid>
             {labels.map((l) => (
               <PostLabel
                 key={l.id}
@@ -397,7 +388,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
               />
             ))}
           </Grid>
-          <Grid item gap={2}>
+          <Grid gap={2}>
             <Button
               onClick={() => setIsEdit(true)}
               color="inherit"
@@ -406,7 +397,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 padding: (theme) => theme.spacing(0, 1),
                 minWidth: 32,
               }}
-              disabled={post.id === 0 || editPostMutation.isLoading}
+              disabled={post.id === 0 || editPostMutation.isPending}
             >
               edit
             </Button>
@@ -418,7 +409,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 padding: (theme) => theme.spacing(0, 1),
                 minWidth: 32,
               }}
-              disabled={post.id === 0 || editPostMutation.isLoading}
+              disabled={post.id === 0 || editPostMutation.isPending}
             >
               cmnt
             </Button>
@@ -430,7 +421,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 padding: (theme) => theme.spacing(0, 1),
                 minWidth: 32,
               }}
-              disabled={post.id === 0 || editPostMutation.isLoading}
+              disabled={post.id === 0 || editPostMutation.isPending}
             >
               x
             </Button>
@@ -515,7 +506,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
             {post.periods && post.periods.length > 0 ? (
               <Grid container flexWrap="wrap" gap={1}>
                 {post.periods.map((period) => (
-                  <Grid item key={period.id}>
+                  <Grid key={period.id}>
                     <Chip
                       label={period.name}
                       sx={{
@@ -541,7 +532,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
             {contextSegments.length > 0 ? (
               <Grid container flexWrap="wrap" gap={1} sx={{ marginTop: 1 }}>
                 {contextSegments.map((segment) => (
-                  <Grid item key={segment.id}>
+                  <Grid key={segment.id}>
                     <Chip
                       label={segment.title}
                       title={segment.details}
@@ -574,8 +565,8 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                   }}
                   disabled={
                     post.id === 0 ||
-                    editPostMutation.isLoading ||
-                    weatherMutation.isLoading
+                    editPostMutation.isPending ||
+                    weatherMutation.isPending
                   }
                 >
                   wthr

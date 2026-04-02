@@ -4,6 +4,7 @@ import utc from 'dayjs/plugin/utc';
 import { LOCAL } from '../config/const';
 import { getItemFromStorage, TOKEN_KEY } from '../utils/storage';
 import { mapPostMonthsByYear, mapTasksByStatus } from '../utils/mappers';
+import { getApiErrorMessage } from './error';
 
 dayjs.extend(utc);
 
@@ -14,10 +15,21 @@ http.interceptors.response.use(
     return response;
   },
   function (error) {
-    console.log(error);
-    if (error.response.status === 401) {
+    const message = getApiErrorMessage(error);
+    const status = error.response?.status;
+    console.error('API request failed', {
+      url: error.config?.url,
+      method: error.config?.method,
+      status,
+      message,
+      data: error.response?.data,
+    });
+
+    if (status === 401) {
       window.location.replace('/auth/login');
     }
+
+    error.message = message;
     return Promise.reject(error);
   },
 );

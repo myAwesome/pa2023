@@ -12,9 +12,9 @@ const ColorPicker = ({ value, onChange }: Props) => {
   return (
     <Grid container direction="column" spacing={1}>
       {colorPairs.map((row, i) => (
-        <Grid item container spacing={1} key={i}>
+        <Grid container spacing={1} key={i}>
           {row.map((c, i) => (
-            <Grid item key={i}>
+            <Grid key={i}>
               <div
                 onClick={() => onChange(c)}
                 style={{

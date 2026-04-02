@@ -66,15 +66,17 @@ const PostCreate = () => {
   const [startDate, setStartDate] = React.useState(today);
   const [endDate, setEndDate] = React.useState('');
   const [splitDate, setSplitDate] = React.useState(today);
-  const contextQuery = useQuery(['context_segments', date], () =>
-    getContextSegments({ date }),
-  );
+  const contextQuery = useQuery({
+    queryKey: ['context_segments', date],
+    queryFn: () => getContextSegments({ date }),
+  });
   const refreshContextData = () => {
-    queryClient.invalidateQueries(['context_segments', date]);
-    queryClient.invalidateQueries(['recent_posts']);
-    queryClient.invalidateQueries(['history_posts']);
+    queryClient.invalidateQueries({ queryKey: ['context_segments', date] });
+    queryClient.invalidateQueries({ queryKey: ['recent_posts'] });
+    queryClient.invalidateQueries({ queryKey: ['history_posts'] });
   };
-  const createContextMutation = useMutation(postContextSegment, {
+  const createContextMutation = useMutation({
+    mutationFn: postContextSegment,
     onSuccess: () => {
       setTitle('');
       setDetails('');
@@ -84,8 +86,8 @@ const PostCreate = () => {
       refreshContextData();
     },
   });
-  const editContextMutation = useMutation(
-    ({
+  const editContextMutation = useMutation({
+    mutationFn: ({
       id,
       data,
     }: {
@@ -97,15 +99,13 @@ const PostCreate = () => {
         end_date?: string | null;
       };
     }) => patchContextSegment(id, data),
-    {
-      onSuccess: () => {
-        setSelectedContext(null);
-        refreshContextData();
-      },
+    onSuccess: () => {
+      setSelectedContext(null);
+      refreshContextData();
     },
-  );
-  const splitContextMutation = useMutation(
-    ({
+  });
+  const splitContextMutation = useMutation({
+    mutationFn: ({
       id,
       data,
     }: {
@@ -116,22 +116,18 @@ const PostCreate = () => {
         newDetails?: string;
       };
     }) => splitContextSegment(id, data),
-    {
-      onSuccess: () => {
-        setSelectedContext(null);
-        refreshContextData();
-      },
+    onSuccess: () => {
+      setSelectedContext(null);
+      refreshContextData();
     },
-  );
-  const deleteContextMutation = useMutation(
-    (id: number) => deleteContextSegment(id),
-    {
-      onSuccess: () => {
-        setSelectedContext(null);
-        refreshContextData();
-      },
+  });
+  const deleteContextMutation = useMutation({
+    mutationFn: (id: number) => deleteContextSegment(id),
+    onSuccess: () => {
+      setSelectedContext(null);
+      refreshContextData();
     },
-  );
+  });
   const createPostMutation = useCreateMutation(
     () => postPost(createPost(value, date)),
     ['recent_posts'],

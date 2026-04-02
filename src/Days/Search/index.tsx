@@ -1,5 +1,6 @@
 import React, { FormEvent } from 'react';
-import { Button, Grid, LinearProgress, TextField } from '@mui/material';
+import { Button, LinearProgress, TextField } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
@@ -23,7 +24,10 @@ const Search = () => {
   const [page, setPage] = React.useState(Number(searchParams.get('page')) || 1);
   const [pageSize] = React.useState(10); // You can make this adjustable if needed
   const [total, setTotal] = React.useState(0);
-  const labelsData = useQuery(['labels'], getLabels);
+  const labelsData = useQuery({
+    queryKey: ['labels'],
+    queryFn: getLabels,
+  });
 
   // Update URL params when search state changes
   const updateSearchParams = (params: {
@@ -157,7 +161,7 @@ const Search = () => {
 
   return (
     <Grid container direction="column" spacing={3}>
-      <Grid item>
+      <Grid>
         <form onSubmit={handleSearch}>
           <TextField
             value={searchQuery}
@@ -185,15 +189,15 @@ const Search = () => {
         </form>
       </Grid>
       {isSearchSubmitted ? (
-        <Grid item>
+        <Grid>
           <Typography>Found {total} posts</Typography>
         </Grid>
       ) : isSearchLoading ? (
-        <Grid item>
+        <Grid>
           <LinearProgress />
         </Grid>
       ) : null}
-      <Grid item>
+      <Grid>
         <PostList
           labels={labelsData.data || []}
           posts={posts}
@@ -202,7 +206,7 @@ const Search = () => {
         />
       </Grid>
       {isSearchSubmitted && totalPages > 1 && (
-        <Grid item>
+        <Grid>
           <Grid
             container
             justifyContent="center"

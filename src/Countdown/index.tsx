@@ -1,11 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import {
-  Box,
-  Grid,
-  IconButton,
-  LinearProgress,
-  Typography,
-} from '@mui/material';
+import { Box, IconButton, LinearProgress, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import AddIcon from '@mui/icons-material/Add';
 import React from 'react';
 import dayjs from 'dayjs';
@@ -28,7 +23,10 @@ const Countdown = () => {
     React.useState<CountdownType | null>(null);
   const [isAdd, setIsAdd] = React.useState(false);
   const [isEdit, setIsEdit] = React.useState(false);
-  const { data, isLoading } = useQuery(['countdown'], getCountdowns);
+  const { data, isLoading } = useQuery({
+    queryKey: ['countdown'],
+    queryFn: getCountdowns,
+  });
 
   const addMutation = useCreateMutation(
     (values: CountdownType) => postCountdown(values),

@@ -1,4 +1,3 @@
-import { HooksObject } from '@feathersjs/feathers';
 import * as authentication from '@feathersjs/authentication';
 import { filterByUser } from '../../app.hooks';
 
@@ -44,4 +43,4 @@ export default {
     patch: [],
     remove: [],
   },
-} as HooksObject;
+};

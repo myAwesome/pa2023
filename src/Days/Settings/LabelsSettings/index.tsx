@@ -2,11 +2,11 @@ import React, { FormEvent } from 'react';
 import {
   TextField,
   Button,
-  Grid,
   Typography,
   IconButton,
   Popover,
 } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
@@ -37,7 +37,10 @@ const LabelsSettings = () => {
   const [labelToEdit, setLabelToEdit] = React.useState<number | null>(null);
   const [newLabelEmoji, setNewLabelEmoji] = React.useState('');
   const [isEdit, setIsEdit] = React.useState(false);
-  const labelsData = useQuery(['labels'], getLabels);
+  const labelsData = useQuery({
+    queryKey: ['labels'],
+    queryFn: getLabels,
+  });
 
   const editLabelMutation = useUpdateMutation(
     () =>
@@ -156,7 +159,7 @@ const LabelsSettings = () => {
 
   return (
     <Grid container spacing={2}>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Typography variant="h6">My labels: </Typography>
         {(labelsData.data || []).map((l: LabelType) => (
           <PostLabel
@@ -192,10 +195,10 @@ const LabelsSettings = () => {
         </IconButton>
       </Popover>
       {(isAdd || isEdit) && (
-        <Grid item xs={12}>
+        <Grid size={12}>
           <form onSubmit={isAdd ? handleLabelAdd : handleLabelEdit}>
             <Grid container spacing={3} justifyContent="space-between">
-              <Grid item>
+              <Grid>
                 <TextField
                   name="labelName"
                   variant="standard"
@@ -204,7 +207,7 @@ const LabelsSettings = () => {
                   label="Name"
                 />
               </Grid>
-              <Grid item>
+              <Grid>
                 <TextField
                   name="labelEmoji"
                   variant="standard"
@@ -214,14 +217,14 @@ const LabelsSettings = () => {
                   inputProps={{ maxLength: 2 }}
                 />
               </Grid>
-              <Grid item>
+              <Grid>
                 <Typography>Color</Typography>
                 <ColorPicker
                   value={newLabelColor}
                   onChange={(val) => setNewLabelColor(val)}
                 />
               </Grid>
-              <Grid item>
+              <Grid>
                 <Typography>Preview</Typography>
                 <PostLabel
                   key="new-label"
@@ -237,7 +240,7 @@ const LabelsSettings = () => {
                   onClick={() => setIsNewLabelActive(!isNewLabelActive)}
                 />
               </Grid>
-              <Grid item>
+              <Grid>
                 <Button type="submit" variant="outlined">
                   Submit
                 </Button>

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button, Collapse, Grid, IconButton, Typography } from '@mui/material';
+import { Button, Collapse, IconButton, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import AddIcon from '@mui/icons-material/Add';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
@@ -26,7 +27,11 @@ const PeriodSettings = () => {
   const [isAdd, setIsAdd] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
   const [isPopulating, setIsPopulating] = React.useState(false);
-  const periodsData = useQuery(['periods'], getPeriods, { initialData: [] });
+  const periodsData = useQuery({
+    queryKey: ['periods'],
+    queryFn: getPeriods,
+    initialData: [],
+  });
   const createMutation = useCreateMutation(
     (vals: PeriodType) => postPeriod(vals),
     ['periods'],
@@ -79,7 +84,7 @@ const PeriodSettings = () => {
 
   return (
     <Grid container spacing={2}>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Button
           sx={{ textTransform: 'initial', padding: 0, color: 'inherit' }}
           endIcon={isOpen ? <ExpandLess /> : <ExpandMore />}
@@ -120,7 +125,7 @@ const PeriodSettings = () => {
             isAdd={isAdd}
             cancelAdd={() => setIsAdd(false)}
             onAddSubmit={(p) => handlePeriodAdd(p as PeriodType)}
-            editMutationFn={({ id, ...data }) => {
+            editMutationFn={({ id, ...data }: PeriodType) => {
               const values = {
                 end: data.isendInProgress ? null : dateToMySQLFormat(data.end),
                 start: dateToMySQLFormat(data.start),
@@ -131,7 +136,7 @@ const PeriodSettings = () => {
               return putPeriod(id, values);
             }}
             invalidateQueries={['periods']}
-            getNewItemFn={(v) => v}
+            getNewItemFn={(v: any) => v}
             deleteMutationFn={deletePeriod}
           />
           <IconButton onClick={() => setIsAdd(true)}>

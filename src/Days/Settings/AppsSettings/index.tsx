@@ -29,17 +29,18 @@ const APP_LABELS: Record<AppKey, string> = {
 const AppsSettings = () => {
   const queryClient = useQueryClient();
 
-  const { data: userData } = useQuery(['user'], getUser);
+  const { data: userData } = useQuery({
+    queryKey: ['user'],
+    queryFn: getUser,
+  });
   const enabledApps = parseUserApps(userData?.apps);
 
-  const { mutate } = useMutation(
-    (apps: AppKey[]) => editUser({ apps: JSON.stringify(apps) }),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['user']);
-      },
+  const { mutate } = useMutation({
+    mutationFn: (apps: AppKey[]) => editUser({ apps: JSON.stringify(apps) }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user'] });
     },
-  );
+  });
 
   const handleToggle = (key: AppKey) => {
     const next = enabledApps.includes(key)

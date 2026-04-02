@@ -1,5 +1,6 @@
 import React from 'react';
-import { TextField, Button, Grid } from '@mui/material';
+import { TextField, Button } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import { LastTimeItemType } from '../../shared/types';
 
 type Props = {
@@ -49,7 +50,12 @@ const AddLastTime = ({
       }}
     >
       <Grid container spacing={2} alignItems="flex-end">
-        <Grid item md={4} xs={12}>
+        <Grid
+          size={{
+            md: 4,
+            xs: 12,
+          }}
+        >
           <TextField
             name="title"
             fullWidth
@@ -59,7 +65,12 @@ const AddLastTime = ({
             onChange={(e) => setLt({ ...lt, body: e.target.value })}
           />
         </Grid>
-        <Grid item md={3} xs={12}>
+        <Grid
+          size={{
+            md: 3,
+            xs: 12,
+          }}
+        >
           <TextField
             name="reminder"
             fullWidth
@@ -72,7 +83,12 @@ const AddLastTime = ({
             }
           />
         </Grid>
-        <Grid item md={5} xs={12}>
+        <Grid
+          size={{
+            md: 5,
+            xs: 12,
+          }}
+        >
           <Button onClick={handleRemove}>Remove</Button>
           <Button type="submit">Submit</Button>
           <Button onClick={handleCancel}>Cancel</Button>

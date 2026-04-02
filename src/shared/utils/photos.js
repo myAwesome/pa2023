@@ -67,7 +67,8 @@ const getClient = (callback) => {
     return client;
   }
   client = window.google.accounts.oauth2.initTokenClient({
-    client_id: process.env.REACT_APP_OAUTH_ID,
+    client_id:
+      import.meta.env.VITE_OAUTH_ID || import.meta.env.REACT_APP_OAUTH_ID,
     scope: 'https://www.googleapis.com/auth/photoslibrary.readonly',
     callback,
   });

@@ -92,13 +92,11 @@ const TransactionsCategories = () => {
     setCategoryToEdit(category);
   };
 
-  const transCatsData = useQuery(
-    ['transactions_categories'],
-    getTransactionsCategories,
-    {
-      initialData: [],
-    },
-  );
+  const transCatsData = useQuery({
+    queryKey: ['transactions_categories'],
+    queryFn: getTransactionsCategories,
+    initialData: [],
+  });
 
   const handleCancel = () => {
     setIsEdit(false);

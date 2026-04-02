@@ -6,12 +6,12 @@ import {
   CardActions,
   CardContent,
   CardMedia,
-  Grid,
   Dialog,
   Checkbox,
   FormControl,
   FormControlLabel,
 } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import dayjs from 'dayjs';
 import { useQuery } from '@tanstack/react-query';
 import { deleteWish, getWishes, putWish } from '../../shared/api/routes';
@@ -21,7 +21,10 @@ import { useUpdateMutation } from '../../shared/hooks/useUpdateMutation';
 import { WishType } from '../../shared/types';
 
 const WishList = () => {
-  const { data, isLoading } = useQuery(['wishes'], getWishes);
+  const { data, isLoading } = useQuery({
+    queryKey: ['wishes'],
+    queryFn: getWishes,
+  });
   const [showImg, setShowImg] = React.useState<string>('');
   const [shouldHideDone, setHideDone] = React.useState(true);
   const [wishesToShow, setWishesToShow] = React.useState([]);
@@ -76,7 +79,6 @@ const WishList = () => {
           return (
             <Grid
               key={w.id}
-              item
               sx={{
                 width: {
                   xs: '100%',

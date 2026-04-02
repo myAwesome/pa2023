@@ -4,10 +4,10 @@ import {
   IconButton,
   List,
   Popover,
-  Grid,
   TextField,
   Button,
 } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import dayjs from 'dayjs';
 import AddIcon from '@mui/icons-material/Add';
 import { useQuery } from '@tanstack/react-query';
@@ -32,7 +32,10 @@ const LastTime = () => {
   const [updateDate, setUpdateDate] = React.useState(
     dayjs().format('YYYY-MM-DDTHH:mm'),
   );
-  const lastTimeData = useQuery(['last_times'], getLts);
+  const lastTimeData = useQuery({
+    queryKey: ['last_times'],
+    queryFn: getLts,
+  });
   const updateMutation = useUpdateMutation(
     (values: LastTimeItemType) =>
       editLT((itemToEdit || itemToUpdate)?.id || 0, values),
@@ -124,13 +127,23 @@ const LastTime = () => {
     <div>
       <h1>LastTime</h1>
       <Grid container>
-        <Grid item xs={12} sm={1}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 1,
+          }}
+        >
           <IconButton onClick={handleAdd}>
             <AddIcon />
           </IconButton>
         </Grid>
         {isAdd || (isEdit && itemToEdit) ? (
-          <Grid item xs={12} sm={11}>
+          <Grid
+            size={{
+              xs: 12,
+              sm: 11,
+            }}
+          >
             <AddLastTime
               handleSubmit={handleSubmit}
               initialValues={itemToEdit}
@@ -171,7 +184,7 @@ const LastTime = () => {
         }}
       >
         <Grid container spacing={1}>
-          <Grid item>
+          <Grid>
             <TextField
               fullWidth
               name="update Date"
@@ -184,7 +197,7 @@ const LastTime = () => {
               }}
             />
           </Grid>
-          <Grid item>
+          <Grid>
             <Button
               onClick={() => {
                 updateMutation.mutate({ date: dateToMySQLFormat(updateDate) });

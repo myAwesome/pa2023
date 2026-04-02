@@ -1,4 +1,5 @@
-import { FormControl, Grid, MenuItem, Select, Stack } from '@mui/material';
+import { FormControl, MenuItem, Select, Stack } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import { useQuery } from '@tanstack/react-query';
 import React, { useMemo, useState } from 'react';
 import Chip from '@mui/material/Chip';
@@ -48,12 +49,22 @@ const DaysCalendar = () => {
   const [selectedLabel, setSelectedLabel] = useState<LabelType | null>(null);
   const [selectedPeriods, setSelectedPeriods] = useState<number[]>([]);
   const [hoveredPeriod, setHoveredPeriod] = useState(-1);
-  const periodsData = useQuery(['periods'], getPeriods);
-  const labelsData = useQuery(['labels'], getLabels);
-  const yearsData = useQuery(['years'], getYears);
-  const yearLabelsData = useQuery(['year_labels', selectedYear], () =>
-    getYearLabels(selectedYear),
-  );
+  const periodsData = useQuery({
+    queryKey: ['periods'],
+    queryFn: getPeriods,
+  });
+  const labelsData = useQuery({
+    queryKey: ['labels'],
+    queryFn: getLabels,
+  });
+  const yearsData = useQuery({
+    queryKey: ['years'],
+    queryFn: getYears,
+  });
+  const yearLabelsData = useQuery({
+    queryKey: ['year_labels', selectedYear],
+    queryFn: () => getYearLabels(selectedYear),
+  });
   const labelsByMonth = useMemo(() => {
     if (yearLabelsData.data) {
       const perMonth: LabelsPerMonthType = {};
@@ -89,7 +100,7 @@ const DaysCalendar = () => {
   return (
     <Stack direction="column" gap={4}>
       <Grid container justifyContent="center" gap={2} alignItems="center">
-        <Grid item>
+        <Grid>
           <FormControl fullWidth sx={{ maxWidth: 250 }}>
             <Select
               labelId="year-label"
@@ -105,7 +116,7 @@ const DaysCalendar = () => {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item>
+        <Grid>
           {(labelsData.data || []).map((l: LabelType) => (
             <PostLabel
               key={l.id}
@@ -167,7 +178,7 @@ const DaysCalendar = () => {
           'November',
           'December',
         ].map((m, i) => (
-          <Grid item key={m}>
+          <Grid key={m}>
             <Month
               monthName={m}
               monthIndex={i + 1}

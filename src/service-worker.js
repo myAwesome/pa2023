@@ -1,5 +1,3 @@
-/* eslint-disable no-restricted-globals */
-
 // This service worker can be customized!
 // See https://developers.google.com/web/tools/workbox/modules
 // for the list of available Workbox modules, or add any other
@@ -47,7 +45,7 @@ registerRoute(
 
     return true;
   },
-  createHandlerBoundToURL(process.env.PUBLIC_URL + '/index.html'),
+  createHandlerBoundToURL('/index.html'),
 );
 
 // An example runtime caching route for requests that aren't handled by the

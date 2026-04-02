@@ -41,10 +41,14 @@ const Project = () => {
   const [dragOverColumn, setDragOverColumn] = React.useState<TaskStatus | null>(
     null,
   );
-  const projectData = useQuery(['project', params.id], () =>
-    getProject(params.id!),
-  );
-  const tasksData = useQuery(['tasks', params.id], () => getTasks(params.id!));
+  const projectData = useQuery({
+    queryKey: ['project', params.id],
+    queryFn: () => getProject(params.id!),
+  });
+  const tasksData = useQuery({
+    queryKey: ['tasks', params.id],
+    queryFn: () => getTasks(params.id!),
+  });
   const editMutation = useUpdateMutation(
     ({ id, ...values }: TaskType) => editTask(id, values),
     ['tasks', params.id],
@@ -201,12 +205,9 @@ const Project = () => {
       </Box>
       <AddTask />
 
-      <Grid item xs={12} container spacing={1}>
+      <Grid container spacing={1} size={12}>
         {Object.keys(tasksData.data || {}).map((key) => (
           <Grid
-            item
-            sm={3}
-            xs={12}
             container
             direction="column"
             spacing={1}
@@ -221,8 +222,12 @@ const Project = () => {
               borderRadius: 1,
               transition: 'background-color 0.2s ease',
             }}
+            size={{
+              sm: 3,
+              xs: 12,
+            }}
           >
-            <Grid item>
+            <Grid>
               <Paper
                 sx={{
                   position: 'relative',
@@ -240,7 +245,7 @@ const Project = () => {
               </Paper>
             </Grid>
             {tasksData.data?.[key as TaskStatus].map((task) => (
-              <Grid item key={task.id}>
+              <Grid key={task.id}>
                 <Paper
                   draggable={editedTask?.id !== task.id}
                   onDragStart={(e) => handleDragStart(e, task)}

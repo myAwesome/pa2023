@@ -8,8 +8,7 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
-import { MutationFunction } from '@tanstack/query-core';
-import { QueryKey } from '@tanstack/react-query';
+import { MutationFunction, QueryKey } from '@tanstack/react-query';
 import { useUpdateMutation } from '../../hooks/useUpdateMutation';
 import { ColumnType, TableItemType } from '../../types/table';
 import Row from './Row';

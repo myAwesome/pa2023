@@ -72,10 +72,15 @@ const PostCommentEdit = ({ postId, onCancel, invalidateQueries }: Props) => {
   return (
     <Paper style={{ width: '100%', padding: '0 10px 5px 10px' }}>
       <Grid container alignItems="center" justifyContent="space-between">
-        <Grid item style={{ minWidth: 91 }}>
+        <Grid style={{ minWidth: 91 }}>
           <Typography>{today.toString()}</Typography>
         </Grid>
-        <Grid item xs={12} md={8}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 8,
+          }}
+        >
           <TextField
             fullWidth
             value={commentBody}
@@ -85,7 +90,12 @@ const PostCommentEdit = ({ postId, onCancel, invalidateQueries }: Props) => {
             variant="standard"
           />
         </Grid>
-        <Grid item xs={12} md={2}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 2,
+          }}
+        >
           <Button onClick={onCancel}>Cancel</Button>
           <Button onClick={handleSubmit}>Send</Button>
         </Grid>

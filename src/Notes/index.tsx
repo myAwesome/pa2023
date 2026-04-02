@@ -17,7 +17,7 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import {
   deleteNoteCategory,
   getNoteCategories,
@@ -39,7 +39,10 @@ const NoteCategories = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
-  const noteCategoriesData = useQuery(['note_categories'], getNoteCategories);
+  const noteCategoriesData = useQuery({
+    queryKey: ['note_categories'],
+    queryFn: getNoteCategories,
+  });
   const addMutation = useCreateMutation(
     (val: Omit<NoteCategoryType, 'id'>) => postNoteCategory(val),
     ['note_categories'],

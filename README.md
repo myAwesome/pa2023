@@ -10,23 +10,35 @@ This project uses [Feathers](http://feathersjs.com). An open source web framewor
 
 Getting up and running is as easy as 1, 2, 3.
 
-1. Make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.npmjs.com/) installed.
+1. Make sure you have [NodeJS](https://nodejs.org/) and [pnpm](https://pnpm.io/) installed.
 2. Install your dependencies
 
     ```
     cd path/to/pa-2023
-    npm install
+    pnpm install
     ```
 
 3. Start your app
 
     ```
-    npm start
+    pnpm run dev
     ```
+
+## Client Commands
+
+- `pnpm run dev-client` starts Vite dev server.
+- `pnpm run build-client` creates the production client in `dist/`.
+- `pnpm run preview-client` serves the built client locally.
+
+## Environment Variables
+
+- `VITE_API_URL` overrides API base URL (default `/api`).
+- `VITE_OAUTH_ID` sets Google OAuth client ID.
+- `REACT_APP_API_URL` and `REACT_APP_OAUTH_ID` are still supported as fallback during migration.
 
 ## Testing
 
-Simply run `npm test` and all your tests in the `test/` directory will be run.
+Simply run `pnpm run jest` and all your tests in the `test/` directory will be run.
 
 ## Scaffolding
 

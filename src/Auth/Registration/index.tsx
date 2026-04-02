@@ -1,8 +1,7 @@
 import React, { FormEvent, useCallback, useContext, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Button,
-  Grid,
   TextField,
   Link as MUILink,
   Container,
@@ -10,12 +9,13 @@ import {
   Avatar,
   Typography,
 } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import InputAdornment from '@mui/material/InputAdornment';
 import VisibleIcon from '@mui/icons-material/VisibilityOutlined';
 import NotVisibleIcon from '@mui/icons-material/VisibilityOffOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { useNavigate } from 'react-router';
 import { sendLogin, sendRegistration } from '../../shared/api/routes';
+import { getApiErrorMessage } from '../../shared/api/error';
 import { setItemToStorage, TOKEN_KEY } from '../../shared/utils/storage';
 import UIContext from '../../shared/context/UIContext';
 
@@ -51,7 +51,7 @@ const RegistrationPage = () => {
           navigate('/days');
         })
         .catch((err) => {
-          setError(err.message);
+          setError(getApiErrorMessage(err));
         });
     } else {
       setError("Passwords don't match!");
@@ -158,7 +158,7 @@ const RegistrationPage = () => {
               Sign Up
             </Button>
             <Grid container>
-              <Grid item>
+              <Grid>
                 <MUILink variant="body2" component={Link} to="/auth/login">
                   Already have an account? Sign in
                 </MUILink>

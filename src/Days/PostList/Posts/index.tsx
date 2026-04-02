@@ -16,7 +16,7 @@ const Posts = ({ labels, posts, searchTerm, invalidateQueries }: Props) => {
   return (
     <Grid container direction="column" spacing={4}>
       {safePosts.map((p) => (
-        <Grid item key={p.id}>
+        <Grid key={p.id}>
           <PostShow
             post={{ ...p, labels: p.labels || [] }}
             labels={labels}

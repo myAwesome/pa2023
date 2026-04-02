@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useContext, FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Grid,
   TextField,
@@ -11,8 +11,8 @@ import {
   Link as MUILink,
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { useNavigate } from 'react-router';
 import { sendLogin } from '../../shared/api/routes';
+import { getApiErrorMessage } from '../../shared/api/error';
 import { setItemToStorage, TOKEN_KEY } from '../../shared/utils/storage';
 import UIContext from '../../shared/context/UIContext';
 
@@ -32,7 +32,7 @@ const LoginPage = () => {
         navigate('/days');
       })
       .catch((err) => {
-        setError(err.message);
+        setError(getApiErrorMessage(err));
       });
   };
 
@@ -91,7 +91,7 @@ const LoginPage = () => {
               Sign In
             </Button>
             <Grid container>
-              <Grid item>
+              <Grid>
                 <MUILink
                   component={Link}
                   variant="body2"

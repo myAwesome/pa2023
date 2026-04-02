@@ -18,15 +18,20 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Use Node.js 16.x
-      uses: actions/setup-node@v3
+    - uses: pnpm/action-setup@v4
       with:
-        node-version: 16.x
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run build-server
-    - run: npm run build-client
+        version: 10
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        cache: 'pnpm'
+    - run: pnpm install --frozen-lockfile
+    - run: pnpm run lint
+    - run: pnpm run build-server
+    - run: pnpm run build-client
       env:
+        VITE_OAUTH_ID: ${{ secrets.REACT_APP_OAUTH_ID }}
         REACT_APP_OAUTH_ID: ${{ secrets.REACT_APP_OAUTH_ID }}
     - name: Setup SSH key
       run: echo "${{ secrets.PEM_KEY }}" >> ./key.pem
@@ -37,7 +42,7 @@ jobs:
     - name: Set known hosts mod
       run: chmod 600 ./known_hosts
     - name: Deploy Frontend
-      run: scp -r -i ./key.pem -o UserKnownHostsFile=./known_hosts build/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDRESS }}:pa2020/frontend
+      run: scp -r -i ./key.pem -o UserKnownHostsFile=./known_hosts dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDRESS }}:pa2020/frontend
     - name: Deploy Backend
       run: scp -r -i ./key.pem -o UserKnownHostsFile=./known_hosts lib/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDRESS }}:pa2020/backend
     - name: Restart pm2

@@ -3,19 +3,19 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import localeData from 'dayjs/plugin/localeData';
 import {
-  Grid,
+  Box,
   MenuItem,
   Select,
   Checkbox,
   FormControlLabel,
-  Hidden,
   Button,
   useMediaQuery,
   useTheme,
   SelectChangeEvent,
 } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import Table from '../../shared/components/Table';
 import EditableTable from '../../shared/components/EditableTable';
 import {
@@ -105,19 +105,19 @@ const TransactionsList = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const transCatsData = useQuery(
-    ['transactions_categories'],
-    getTransactionsCategories,
-  );
-  const transactionsData = useQuery(
-    ['transactions', selectedYear, selectedMonth],
-    () => {
+  const transCatsData = useQuery({
+    queryKey: ['transactions_categories'],
+    queryFn: getTransactionsCategories,
+  });
+  const transactionsData = useQuery({
+    queryKey: ['transactions', selectedYear, selectedMonth],
+    queryFn: () => {
       return getTransactionsByMonthAndYear(
         selectedYear,
         monthsOfYear.indexOf(selectedMonth),
       );
     },
-  );
+  });
   const trState = React.useMemo(() => {
     if (!transactionsData.data || !transCatsData.data) {
       return { transactions: [], transactionsByCat: [] };
@@ -171,7 +171,7 @@ const TransactionsList = () => {
 
   return (
     <div>
-      <Hidden smUp>
+      <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
         <Button
           fullWidth
           variant="contained"
@@ -180,9 +180,9 @@ const TransactionsList = () => {
         >
           Add
         </Button>
-      </Hidden>
+      </Box>
       <Grid container justifyContent="space-around">
-        <Grid item>
+        <Grid>
           <Select
             value={selectedMonth}
             onChange={onMonthChange}
@@ -195,7 +195,7 @@ const TransactionsList = () => {
             ))}
           </Select>
         </Grid>
-        <Grid item>
+        <Grid>
           <Select
             value={selectedYear}
             onChange={onYearChange}
@@ -204,7 +204,7 @@ const TransactionsList = () => {
             {getYears()}
           </Select>
         </Grid>
-        <Grid item>
+        <Grid>
           <FormControlLabel
             control={
               <Checkbox value={groupByCategory} onChange={onGroupByChange} />

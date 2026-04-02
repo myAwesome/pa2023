@@ -10,12 +10,12 @@ import dayjs from 'dayjs';
 import {
   Button,
   Dialog,
-  Grid,
   Typography,
   LinearProgress,
   Box,
   Stack,
 } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import GPhotosContext from '../shared/context/GPhotosContext';
 import { getPhotosOnDate, photosSignIn } from '../shared/utils/photos';
 import { getPeriods } from '../shared/api/routes';
@@ -110,7 +110,11 @@ function WorldMap() {
   const svgRef = useRef<SVGSVGElement>(null);
   const matrixGroupRef = useRef<SVGSVGElement>(null);
 
-  const periodsData = useQuery(['periods'], getPeriods, { initialData: [] });
+  const periodsData = useQuery({
+    queryKey: ['periods'],
+    queryFn: getPeriods,
+    initialData: [],
+  });
 
   const visitedCities = React.useMemo(
     () =>
@@ -344,7 +348,7 @@ function WorldMap() {
           ) : (
             <Grid container spacing={1} justifyContent="center">
               {photos.map((p) => (
-                <Grid item key={p.id}>
+                <Grid key={p.id}>
                   <Box
                     sx={{
                       backgroundSize: 'cover',

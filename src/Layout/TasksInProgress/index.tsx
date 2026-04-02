@@ -1,19 +1,23 @@
 import React from 'react';
-import { useNavigate } from 'react-router';
-import { Grid, Hidden, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { Box, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import { useQuery } from '@tanstack/react-query';
 import { getInProgress } from '../../shared/api/routes';
 import { TaskType } from '../../shared/types';
 
 const TasksInProgress = () => {
-  const inProgressData = useQuery(['in_progress'], () => getInProgress());
+  const inProgressData = useQuery({
+    queryKey: ['in_progress'],
+    queryFn: () => getInProgress(),
+  });
   const navigate = useNavigate();
 
   return inProgressData.data?.length > 0 ? (
-    <Hidden smDown>
+    <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
       <Grid container>
         {inProgressData.data.map((task: TaskType) => (
-          <Grid item key={task.id}>
+          <Grid key={task.id}>
             <Typography
               sx={{
                 cursor: 'pointer',
@@ -25,7 +29,7 @@ const TasksInProgress = () => {
           </Grid>
         ))}
       </Grid>
-    </Hidden>
+    </Box>
   ) : null;
 };
 

@@ -39,7 +39,7 @@ const AddTask = () => {
       }}
     >
       <Grid container spacing={1}>
-        <Grid item>
+        <Grid>
           <TextField
             name="time"
             type="text"
@@ -50,7 +50,7 @@ const AddTask = () => {
             }}
           />
         </Grid>
-        <Grid item>
+        <Grid>
           <Button
             variant="contained"
             color="primary"

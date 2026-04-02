@@ -1,7 +1,12 @@
-import { QueryKey, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  MutationFunction,
+  QueryKey,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { useContext } from 'react';
-import { MutationFunction } from '@tanstack/query-core';
 import UIContext from '../context/UIContext';
+import { getApiErrorMessage } from '../api/error';
 
 export const useUpdateMutation = (
   mutationFn: MutationFunction<any, any>,
@@ -15,9 +20,10 @@ export const useUpdateMutation = (
   const queryClient = useQueryClient();
   const { setError } = useContext(UIContext);
 
-  return useMutation<any, any, any>(mutationFn, {
+  return useMutation<any, any, any>({
+    mutationFn,
     onMutate: async (payload) => {
-      await queryClient.cancelQueries(invalidateQueries);
+      await queryClient.cancelQueries({ queryKey: invalidateQueries });
 
       const previousValue = queryClient.getQueryData(invalidateQueries);
 
@@ -44,12 +50,12 @@ export const useUpdateMutation = (
     },
     onError: (err, variables, previousValue) => {
       queryClient.setQueryData(invalidateQueries, previousValue);
-      setError(err.message);
+      setError(getApiErrorMessage(err));
     },
     onSettled: () => {
-      queryClient.invalidateQueries(invalidateQueries);
+      queryClient.invalidateQueries({ queryKey: invalidateQueries });
       if (additionalRefetchQuery) {
-        queryClient.invalidateQueries(additionalRefetchQuery);
+        queryClient.invalidateQueries({ queryKey: additionalRefetchQuery });
       }
     },
   });

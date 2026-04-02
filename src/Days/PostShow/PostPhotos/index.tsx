@@ -1,6 +1,7 @@
 import React, { ReactNode, useContext } from 'react';
 import Button from '@mui/material/Button';
-import { Dialog, Grid, Typography, Box } from '@mui/material';
+import { Dialog, Typography, Box } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import GPhotosContext from '../../../shared/context/GPhotosContext';
 import { getPhotosOnDate, photosSignIn } from '../../../shared/utils/photos';
 import { PhotoType } from '../../../shared/types';
@@ -64,7 +65,7 @@ const PostPhotos = ({
       {isFetched && photos.length ? (
         <Grid container spacing={1}>
           {photos.map((p) => (
-            <Grid item key={p.id}>
+            <Grid key={p.id}>
               <Box
                 sx={{
                   backgroundSize: 'cover',

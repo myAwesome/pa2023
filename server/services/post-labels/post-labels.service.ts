@@ -20,7 +20,7 @@ export default function (app: Application): void {
   };
 
   // Initialize our service with any options it requires
-  app.use('/post-labels', new PostLabels(options, app));
+  (app as any).use('post-labels', new PostLabels(options, app));
 
   // Get our initialized service so that we can register hooks
   const service = app.service('post-labels');

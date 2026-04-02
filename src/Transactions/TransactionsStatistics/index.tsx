@@ -16,13 +16,11 @@ const TransactionsStatistics = () => {
   const [chartData, setChartData] = React.useState<
     ([string, number] | [string])[]
   >([]);
-  const transCatsData = useQuery(
-    ['transactions_categories'],
-    getTransactionsCategories,
-    {
-      initialData: [],
-    },
-  );
+  const transCatsData = useQuery({
+    queryKey: ['transactions_categories'],
+    queryFn: getTransactionsCategories,
+    initialData: [],
+  });
 
   const getChartData = React.useCallback(
     (d: any, cats: number[]) => {

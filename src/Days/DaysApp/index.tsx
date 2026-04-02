@@ -1,12 +1,12 @@
 import React from 'react';
 import {
-  Grid,
   Select,
   MenuItem,
   FormControl,
   InputLabel,
   SelectChangeEvent,
 } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import { useQuery } from '@tanstack/react-query';
 import PostShow from '../PostShow';
 import { getLabels, getMonth, getYears } from '../../shared/api/routes';
@@ -16,15 +16,19 @@ import Calendar from './Calendar';
 const DaysApp = () => {
   const [selectedMonth, setSelectedMonth] = React.useState('');
   const [selectedYear, setSelectedYear] = React.useState('');
-  const labelsData = useQuery(['labels'], getLabels);
-  const yearsData = useQuery(['years'], getYears);
-  const monthData = useQuery(
-    ['selected_month', selectedMonth],
-    () => getMonth(selectedMonth),
-    {
-      enabled: !!selectedMonth,
-    },
-  );
+  const labelsData = useQuery({
+    queryKey: ['labels'],
+    queryFn: getLabels,
+  });
+  const yearsData = useQuery({
+    queryKey: ['years'],
+    queryFn: getYears,
+  });
+  const monthData = useQuery({
+    queryKey: ['selected_month', selectedMonth],
+    queryFn: () => getMonth(selectedMonth),
+    enabled: !!selectedMonth,
+  });
 
   const handleYearChange = (e: SelectChangeEvent<string>) => {
     setSelectedYear(e.target.value);
@@ -36,14 +40,22 @@ const DaysApp = () => {
 
   return (
     <Grid container spacing={3}>
-      <Grid item container xs={12} md={5} direction="column">
-        <Grid item container>
+      <Grid
+        container
+        direction="column"
+        size={{
+          xs: 12,
+          md: 5,
+        }}
+      >
+        <Grid container>
           <Grid
-            item
-            xs={4}
-            sm={4}
             sx={{
               marginRight: (theme) => theme.spacing(2),
+            }}
+            size={{
+              xs: 4,
+              sm: 4,
             }}
           >
             <FormControl fullWidth>
@@ -62,7 +74,12 @@ const DaysApp = () => {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={7} sm={6}>
+          <Grid
+            size={{
+              xs: 7,
+              sm: 6,
+            }}
+          >
             <FormControl disabled={!selectedYear} fullWidth>
               <InputLabel id="month-label">Month</InputLabel>
               <Select
@@ -83,10 +100,9 @@ const DaysApp = () => {
             </FormControl>
           </Grid>
         </Grid>
-        <Grid item container direction="column">
+        <Grid container direction="column">
           {(monthData.data || []).map((p: PostType) => (
             <Grid
-              item
               key={p.id}
               sx={{
                 marginTop: (theme) => theme.spacing(3),
@@ -106,7 +122,12 @@ const DaysApp = () => {
           ))}
         </Grid>
       </Grid>
-      <Grid item xs={12} md={7}>
+      <Grid
+        size={{
+          xs: 12,
+          md: 7,
+        }}
+      >
         <Calendar
           year={selectedYear}
           month={selectedMonth?.slice(3)}
