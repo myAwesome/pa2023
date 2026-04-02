@@ -4,12 +4,8 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import {
-  createTheme,
-  CssBaseline,
-  ThemeProvider,
-  useMediaQuery,
-} from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { CssBaseline, useMediaQuery } from '@mui/material';
 import { getItemFromStorage, setItemToStorage } from '../utils/storage';
 import { themeConfig } from '../config/theme';
 import { Theme } from '../types';

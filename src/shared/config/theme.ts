@@ -1,4 +1,4 @@
-import { createTheme, Theme } from '@mui/material';
+import { createTheme, Theme } from '@mui/material/styles';
 import { cyan, pink } from '@mui/material/colors';
 
 export const themeConfig = (mode: 'dark' | 'light' = 'dark') => ({
