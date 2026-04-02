@@ -112,4 +112,5 @@ lib/
 data/
 /db/
 /build/
+/dist/
 /.env
