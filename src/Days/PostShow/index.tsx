@@ -116,8 +116,12 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
   const [startDate, setStartDate] = React.useState('');
   const [endDate, setEndDate] = React.useState('');
   const [splitDate, setSplitDate] = React.useState('');
+  const [weather, setWeather] = React.useState(post.weather || '');
   const postDate = toDateOnly(post.date);
   const [updateDate, setUpdateDate] = React.useState(postDate);
+  React.useEffect(() => {
+    setWeather(post.weather || '');
+  }, [post.weather]);
   const contextByDate = useQuery({
     queryKey: ['context_segments', postDate],
     queryFn: () => getContextSegments({ date: postDate }),
@@ -155,16 +159,21 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
     }),
     () => setIsEdit(false),
   );
-  const weatherMutation = useUpdateMutation(
-    (weather: string) =>
+  const weatherMutation = useMutation(
+    (weatherLabel: string) =>
       editPost(post.id, {
         body: post.body,
         date: dateToMySQLFormat(postDate),
-        weather,
+        weather: weatherLabel,
       }),
-    invalidateQueries,
-    post.id,
-    (weather: string) => ({ weather }),
+    {
+      onSuccess: (_, weatherLabel) => {
+        setWeather(weatherLabel);
+        if (invalidateQueries.length > 0) {
+          queryClient.invalidateQueries({ queryKey: invalidateQueries });
+        }
+      },
+    },
   );
   const refreshContextData = () => {
     queryClient.invalidateQueries({ queryKey: invalidateQueries });
@@ -332,10 +341,10 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
   )
     ? post.context_segments
     : Array.isArray(contextByDate.data)
-      ? (contextByDate.data as ContextSegmentType[])
-      : Array.isArray((contextByDate.data as any)?.data)
-        ? ((contextByDate.data as any).data as ContextSegmentType[])
-        : [];
+    ? (contextByDate.data as ContextSegmentType[])
+    : Array.isArray((contextByDate.data as any)?.data)
+    ? ((contextByDate.data as any).data as ContextSegmentType[])
+    : [];
 
   return (
     <Box
@@ -518,10 +527,10 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 ))}
               </Grid>
             ) : null}
-            {post.weather ? (
+            {weather ? (
               <Grid container sx={{ marginTop: 1 }}>
                 <Chip
-                  label={post.weather}
+                  label={weather}
                   variant="outlined"
                   sx={{
                     color: (theme) => theme.palette.secondary.main,
@@ -556,12 +565,25 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
               hideGetPhotosButton
               extraAction={
                 <Button
+                  type="button"
                   onClick={handleFetchWeather}
-                  color="inherit"
+                  variant="outlined"
+                  size="small"
                   sx={{
-                    textTransform: 'lowercase',
-                    padding: (theme) => theme.spacing(0, 1),
-                    minWidth: 40,
+                    textTransform: 'none',
+                    borderRadius: 999,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    lineHeight: 1.2,
+                    padding: (theme) => theme.spacing(0.5, 1.25),
+                    minWidth: 96,
+                    borderColor: (theme) => theme.palette.secondary.main,
+                    color: (theme) => theme.palette.secondary.main,
+                    '&:hover': {
+                      borderColor: (theme) => theme.palette.secondary.dark,
+                      backgroundColor: (theme) =>
+                        theme.palette.secondary.light + '22',
+                    },
                   }}
                   disabled={
                     post.id === 0 ||
@@ -569,7 +591,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                     weatherMutation.isPending
                   }
                 >
-                  wthr
+                  {weatherMutation.isPending ? 'Loading...' : 'Get weather'}
                 </Button>
               }
             />
