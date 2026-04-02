@@ -5,8 +5,7 @@ import compress from 'compression';
 import helmet from 'helmet';
 import cors from 'cors';
 
-import {
-  feathers,
+import feathersPkg, {
   HookContext as FeathersHookContext,
 } from '@feathersjs/feathers';
 import configuration from '@feathersjs/configuration';
@@ -29,7 +28,18 @@ import authentication from './authentication';
 import knex from './knex';
 // Don't remove this comment. It's needed to format import lines nicely.
 
-const app: Application = feathersExpress(feathers());
+const createFeathers =
+  typeof feathersPkg === 'function'
+    ? feathersPkg
+    : (feathersPkg as any).feathers;
+
+if (typeof createFeathers !== 'function') {
+  throw new Error(
+    'Failed to initialize Feathers app: @feathersjs/feathers export is not callable.',
+  );
+}
+
+const app: Application = feathersExpress(createFeathers());
 export type HookContext<T = any> = {
   app: Application;
 } & FeathersHookContext<T>;
