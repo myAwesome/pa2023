@@ -39,7 +39,10 @@ const NoteCategories = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
-  const noteCategoriesData = useQuery(['note_categories'], getNoteCategories);
+  const noteCategoriesData = useQuery({
+    queryKey: ['note_categories'],
+    queryFn: getNoteCategories,
+  });
   const addMutation = useCreateMutation(
     (val: Omit<NoteCategoryType, 'id'>) => postNoteCategory(val),
     ['note_categories'],

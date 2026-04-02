@@ -114,12 +114,15 @@ const Layout = ({ children }: PropsWithChildren) => {
 
   const APPS_STORAGE_KEY = 'user_apps';
 
-  const { data: userData } = useQuery(['user'], () => {
-    return getUser().then((data) => {
-      handleUserThemeChanged(data.theme);
-      setItemToStorage(APPS_STORAGE_KEY, data.apps ?? '');
-      return data;
-    });
+  const { data: userData } = useQuery({
+    queryKey: ['user'],
+    queryFn: () => {
+      return getUser().then((data) => {
+        handleUserThemeChanged(data.theme);
+        setItemToStorage(APPS_STORAGE_KEY, data.apps ?? '');
+        return data;
+      });
+    },
   });
 
   const enabledApps: AppKey[] = userData

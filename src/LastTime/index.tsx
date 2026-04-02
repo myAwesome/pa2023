@@ -32,7 +32,10 @@ const LastTime = () => {
   const [updateDate, setUpdateDate] = React.useState(
     dayjs().format('YYYY-MM-DDTHH:mm'),
   );
-  const lastTimeData = useQuery(['last_times'], getLts);
+  const lastTimeData = useQuery({
+    queryKey: ['last_times'],
+    queryFn: getLts,
+  });
   const updateMutation = useUpdateMutation(
     (values: LastTimeItemType) =>
       editLT((itemToEdit || itemToUpdate)?.id || 0, values),

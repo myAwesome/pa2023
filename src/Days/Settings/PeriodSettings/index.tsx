@@ -26,7 +26,11 @@ const PeriodSettings = () => {
   const [isAdd, setIsAdd] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
   const [isPopulating, setIsPopulating] = React.useState(false);
-  const periodsData = useQuery(['periods'], getPeriods, { initialData: [] });
+  const periodsData = useQuery({
+    queryKey: ['periods'],
+    queryFn: getPeriods,
+    initialData: [],
+  });
   const createMutation = useCreateMutation(
     (vals: PeriodType) => postPeriod(vals),
     ['periods'],
@@ -120,7 +124,7 @@ const PeriodSettings = () => {
             isAdd={isAdd}
             cancelAdd={() => setIsAdd(false)}
             onAddSubmit={(p) => handlePeriodAdd(p as PeriodType)}
-            editMutationFn={({ id, ...data }) => {
+            editMutationFn={({ id, ...data }: PeriodType) => {
               const values = {
                 end: data.isendInProgress ? null : dateToMySQLFormat(data.end),
                 start: dateToMySQLFormat(data.start),
@@ -131,7 +135,7 @@ const PeriodSettings = () => {
               return putPeriod(id, values);
             }}
             invalidateQueries={['periods']}
-            getNewItemFn={(v) => v}
+            getNewItemFn={(v: any) => v}
             deleteMutationFn={deletePeriod}
           />
           <IconButton onClick={() => setIsAdd(true)}>

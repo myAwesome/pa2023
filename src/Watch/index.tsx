@@ -49,9 +49,9 @@ const Watch = () => {
   const [updateDate, setUpdateDate] = React.useState(
     dayjs().format('YYYY-MM-DDTHH:mm'),
   );
-  const watchData = useQuery(
-    ['watch', { filterType, filterSeen, sortBy, sortDir }],
-    () => {
+  const watchData = useQuery({
+    queryKey: ['watch', { filterType, filterSeen, sortBy, sortDir }],
+    queryFn: () => {
       const params: Record<string, any> = { $limit: 5000 };
       if (filterType) {
         params.type = filterType;
@@ -64,7 +64,7 @@ const Watch = () => {
       }
       return getWatch(params);
     },
-  );
+  });
   const updateMutation = useUpdateMutation(
     (values: WatchItemType) =>
       editWatch((itemToEdit || itemToUpdate)?.id || 0, values),

@@ -28,7 +28,10 @@ const Countdown = () => {
     React.useState<CountdownType | null>(null);
   const [isAdd, setIsAdd] = React.useState(false);
   const [isEdit, setIsEdit] = React.useState(false);
-  const { data, isLoading } = useQuery(['countdown'], getCountdowns);
+  const { data, isLoading } = useQuery({
+    queryKey: ['countdown'],
+    queryFn: getCountdowns,
+  });
 
   const addMutation = useCreateMutation(
     (values: CountdownType) => postCountdown(values),

@@ -16,15 +16,19 @@ import Calendar from './Calendar';
 const DaysApp = () => {
   const [selectedMonth, setSelectedMonth] = React.useState('');
   const [selectedYear, setSelectedYear] = React.useState('');
-  const labelsData = useQuery(['labels'], getLabels);
-  const yearsData = useQuery(['years'], getYears);
-  const monthData = useQuery(
-    ['selected_month', selectedMonth],
-    () => getMonth(selectedMonth),
-    {
-      enabled: !!selectedMonth,
-    },
-  );
+  const labelsData = useQuery({
+    queryKey: ['labels'],
+    queryFn: getLabels,
+  });
+  const yearsData = useQuery({
+    queryKey: ['years'],
+    queryFn: getYears,
+  });
+  const monthData = useQuery({
+    queryKey: ['selected_month', selectedMonth],
+    queryFn: () => getMonth(selectedMonth),
+    enabled: !!selectedMonth,
+  });
 
   const handleYearChange = (e: SelectChangeEvent<string>) => {
     setSelectedYear(e.target.value);

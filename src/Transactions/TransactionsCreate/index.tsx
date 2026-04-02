@@ -30,10 +30,10 @@ const thisYear = dayjs().year();
 
 const TransactionsCreate = () => {
   const [values, setValues] = React.useState(initialValues);
-  const transCatsData = useQuery(
-    ['transactions_categories'],
-    getTransactionsCategories,
-  );
+  const transCatsData = useQuery({
+    queryKey: ['transactions_categories'],
+    queryFn: getTransactionsCategories,
+  });
   const theme = useTheme();
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));

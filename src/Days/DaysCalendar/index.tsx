@@ -48,12 +48,22 @@ const DaysCalendar = () => {
   const [selectedLabel, setSelectedLabel] = useState<LabelType | null>(null);
   const [selectedPeriods, setSelectedPeriods] = useState<number[]>([]);
   const [hoveredPeriod, setHoveredPeriod] = useState(-1);
-  const periodsData = useQuery(['periods'], getPeriods);
-  const labelsData = useQuery(['labels'], getLabels);
-  const yearsData = useQuery(['years'], getYears);
-  const yearLabelsData = useQuery(['year_labels', selectedYear], () =>
-    getYearLabels(selectedYear),
-  );
+  const periodsData = useQuery({
+    queryKey: ['periods'],
+    queryFn: getPeriods,
+  });
+  const labelsData = useQuery({
+    queryKey: ['labels'],
+    queryFn: getLabels,
+  });
+  const yearsData = useQuery({
+    queryKey: ['years'],
+    queryFn: getYears,
+  });
+  const yearLabelsData = useQuery({
+    queryKey: ['year_labels', selectedYear],
+    queryFn: () => getYearLabels(selectedYear),
+  });
   const labelsByMonth = useMemo(() => {
     if (yearLabelsData.data) {
       const perMonth: LabelsPerMonthType = {};

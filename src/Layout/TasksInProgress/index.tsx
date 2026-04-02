@@ -6,7 +6,10 @@ import { getInProgress } from '../../shared/api/routes';
 import { TaskType } from '../../shared/types';
 
 const TasksInProgress = () => {
-  const inProgressData = useQuery(['in_progress'], () => getInProgress());
+  const inProgressData = useQuery({
+    queryKey: ['in_progress'],
+    queryFn: () => getInProgress(),
+  });
   const navigate = useNavigate();
 
   return inProgressData.data?.length > 0 ? (

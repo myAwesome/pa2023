@@ -22,11 +22,14 @@ const PostList = ({ tab }: Props) => {
 
   const queryKey = tab === 'history' ? ['history_posts', md] : ['recent_posts'];
 
-  const { data, isLoading } = useQuery(
+  const { data, isLoading } = useQuery({
     queryKey,
-    tab === 'history' ? () => getPostsHistoryByDate(md) : getPosts,
-  );
-  const labelsData = useQuery(['labels'], getLabels);
+    queryFn: tab === 'history' ? () => getPostsHistoryByDate(md) : getPosts,
+  });
+  const labelsData = useQuery({
+    queryKey: ['labels'],
+    queryFn: getLabels,
+  });
   const posts = Array.isArray(data)
     ? data
     : Array.isArray((data as any)?.data)

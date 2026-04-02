@@ -45,15 +45,19 @@ const ContextSegmentsPanel = ({ date }: Props) => {
     setStartDate(date);
   }, [date]);
 
-  const { data } = useQuery(queryKey, () => getContextSegments({ date }));
+  const { data } = useQuery({
+    queryKey,
+    queryFn: () => getContextSegments({ date }),
+  });
 
   const refreshData = () => {
-    queryClient.invalidateQueries(queryKey);
-    queryClient.invalidateQueries(['recent_posts']);
-    queryClient.invalidateQueries(['history_posts']);
+    queryClient.invalidateQueries({ queryKey });
+    queryClient.invalidateQueries({ queryKey: ['recent_posts'] });
+    queryClient.invalidateQueries({ queryKey: ['history_posts'] });
   };
 
-  const createMutation = useMutation(postContextSegment, {
+  const createMutation = useMutation({
+    mutationFn: postContextSegment,
     onSuccess: () => {
       setTitle('');
       setDetails('');
@@ -62,8 +66,8 @@ const ContextSegmentsPanel = ({ date }: Props) => {
     },
   });
 
-  const editMutation = useMutation(
-    ({
+  const editMutation = useMutation({
+    mutationFn: ({
       id,
       data,
     }: {
@@ -75,13 +79,11 @@ const ContextSegmentsPanel = ({ date }: Props) => {
         end_date?: string | null;
       };
     }) => patchContextSegment(id, data),
-    {
-      onSuccess: refreshData,
-    },
-  );
+    onSuccess: refreshData,
+  });
 
-  const splitMutation = useMutation(
-    ({
+  const splitMutation = useMutation({
+    mutationFn: ({
       id,
       data,
     }: {
@@ -92,21 +94,20 @@ const ContextSegmentsPanel = ({ date }: Props) => {
         newDetails?: string;
       };
     }) => splitContextSegment(id, data),
-    {
-      onSuccess: refreshData,
-    },
-  );
+    onSuccess: refreshData,
+  });
 
-  const deleteMutation = useMutation((id: number) => deleteContextSegment(id), {
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => deleteContextSegment(id),
     onSuccess: refreshData,
   });
 
   const isValidDateRange = !endDate || endDate >= startDate;
   const isBusy =
-    createMutation.isLoading ||
-    editMutation.isLoading ||
-    splitMutation.isLoading ||
-    deleteMutation.isLoading;
+    createMutation.isPending ||
+    editMutation.isPending ||
+    splitMutation.isPending ||
+    deleteMutation.isPending;
 
   const segments = normalizeSegments(data);
 

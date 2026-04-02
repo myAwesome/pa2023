@@ -23,7 +23,10 @@ const Search = () => {
   const [page, setPage] = React.useState(Number(searchParams.get('page')) || 1);
   const [pageSize] = React.useState(10); // You can make this adjustable if needed
   const [total, setTotal] = React.useState(0);
-  const labelsData = useQuery(['labels'], getLabels);
+  const labelsData = useQuery({
+    queryKey: ['labels'],
+    queryFn: getLabels,
+  });
 
   // Update URL params when search state changes
   const updateSearchParams = (params: {

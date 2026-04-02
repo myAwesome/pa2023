@@ -110,7 +110,11 @@ function WorldMap() {
   const svgRef = useRef<SVGSVGElement>(null);
   const matrixGroupRef = useRef<SVGSVGElement>(null);
 
-  const periodsData = useQuery(['periods'], getPeriods, { initialData: [] });
+  const periodsData = useQuery({
+    queryKey: ['periods'],
+    queryFn: getPeriods,
+    initialData: [],
+  });
 
   const visitedCities = React.useMemo(
     () =>

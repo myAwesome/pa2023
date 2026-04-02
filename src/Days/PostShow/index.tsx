@@ -118,13 +118,11 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
   const [splitDate, setSplitDate] = React.useState('');
   const postDate = toDateOnly(post.date);
   const [updateDate, setUpdateDate] = React.useState(postDate);
-  const contextByDate = useQuery(
-    ['context_segments', postDate],
-    () => getContextSegments({ date: postDate }),
-    {
-      enabled: !Array.isArray(post.context_segments) && !!post.date,
-    },
-  );
+  const contextByDate = useQuery({
+    queryKey: ['context_segments', postDate],
+    queryFn: () => getContextSegments({ date: postDate }),
+    enabled: !Array.isArray(post.context_segments) && !!post.date,
+  });
   const deletePostMutation = useDeleteMutation(
     () => deletePost(post.id),
     invalidateQueries,
@@ -169,11 +167,11 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
     (weather: string) => ({ weather }),
   );
   const refreshContextData = () => {
-    queryClient.invalidateQueries(invalidateQueries);
-    queryClient.invalidateQueries(['context_segments', postDate]);
+    queryClient.invalidateQueries({ queryKey: invalidateQueries });
+    queryClient.invalidateQueries({ queryKey: ['context_segments', postDate] });
   };
-  const editContextMutation = useMutation(
-    ({
+  const editContextMutation = useMutation({
+    mutationFn: ({
       id,
       data,
     }: {
@@ -185,15 +183,13 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
         end_date?: string | null;
       };
     }) => patchContextSegment(id, data),
-    {
-      onSuccess: () => {
-        setSelectedContext(null);
-        refreshContextData();
-      },
+    onSuccess: () => {
+      setSelectedContext(null);
+      refreshContextData();
     },
-  );
-  const splitContextMutation = useMutation(
-    ({
+  });
+  const splitContextMutation = useMutation({
+    mutationFn: ({
       id,
       data,
     }: {
@@ -204,22 +200,18 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
         newDetails?: string;
       };
     }) => splitContextSegment(id, data),
-    {
-      onSuccess: () => {
-        setSelectedContext(null);
-        refreshContextData();
-      },
+    onSuccess: () => {
+      setSelectedContext(null);
+      refreshContextData();
     },
-  );
-  const deleteContextMutation = useMutation(
-    (id: number) => deleteContextSegment(id),
-    {
-      onSuccess: () => {
-        setSelectedContext(null);
-        refreshContextData();
-      },
+  });
+  const deleteContextMutation = useMutation({
+    mutationFn: (id: number) => deleteContextSegment(id),
+    onSuccess: () => {
+      setSelectedContext(null);
+      refreshContextData();
     },
-  );
+  });
 
   const toggleDeleteMode = () => {
     setDeletedMode(!deleteMode);
@@ -406,7 +398,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 padding: (theme) => theme.spacing(0, 1),
                 minWidth: 32,
               }}
-              disabled={post.id === 0 || editPostMutation.isLoading}
+              disabled={post.id === 0 || editPostMutation.isPending}
             >
               edit
             </Button>
@@ -418,7 +410,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 padding: (theme) => theme.spacing(0, 1),
                 minWidth: 32,
               }}
-              disabled={post.id === 0 || editPostMutation.isLoading}
+              disabled={post.id === 0 || editPostMutation.isPending}
             >
               cmnt
             </Button>
@@ -430,7 +422,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 padding: (theme) => theme.spacing(0, 1),
                 minWidth: 32,
               }}
-              disabled={post.id === 0 || editPostMutation.isLoading}
+              disabled={post.id === 0 || editPostMutation.isPending}
             >
               x
             </Button>
@@ -574,8 +566,8 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                   }}
                   disabled={
                     post.id === 0 ||
-                    editPostMutation.isLoading ||
-                    weatherMutation.isLoading
+                    editPostMutation.isPending ||
+                    weatherMutation.isPending
                   }
                 >
                   wthr

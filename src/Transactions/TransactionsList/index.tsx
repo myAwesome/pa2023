@@ -105,19 +105,19 @@ const TransactionsList = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const transCatsData = useQuery(
-    ['transactions_categories'],
-    getTransactionsCategories,
-  );
-  const transactionsData = useQuery(
-    ['transactions', selectedYear, selectedMonth],
-    () => {
+  const transCatsData = useQuery({
+    queryKey: ['transactions_categories'],
+    queryFn: getTransactionsCategories,
+  });
+  const transactionsData = useQuery({
+    queryKey: ['transactions', selectedYear, selectedMonth],
+    queryFn: () => {
       return getTransactionsByMonthAndYear(
         selectedYear,
         monthsOfYear.indexOf(selectedMonth),
       );
     },
-  );
+  });
   const trState = React.useMemo(() => {
     if (!transactionsData.data || !transCatsData.data) {
       return { transactions: [], transactionsByCat: [] };

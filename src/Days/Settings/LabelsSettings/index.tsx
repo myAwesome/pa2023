@@ -37,7 +37,10 @@ const LabelsSettings = () => {
   const [labelToEdit, setLabelToEdit] = React.useState<number | null>(null);
   const [newLabelEmoji, setNewLabelEmoji] = React.useState('');
   const [isEdit, setIsEdit] = React.useState(false);
-  const labelsData = useQuery(['labels'], getLabels);
+  const labelsData = useQuery({
+    queryKey: ['labels'],
+    queryFn: getLabels,
+  });
 
   const editLabelMutation = useUpdateMutation(
     () =>

@@ -25,7 +25,10 @@ const Projects = () => {
   const [isAdd, setIsAdd] = React.useState(false);
   const [isEdit, setIsEdit] = React.useState(false);
   const navigate = useNavigate();
-  const projectsData = useQuery(['projects'], getProjects);
+  const projectsData = useQuery({
+    queryKey: ['projects'],
+    queryFn: getProjects,
+  });
   const addMutation = useCreateMutation(
     (values: ProjectType) => postProject(values),
     ['projects'],

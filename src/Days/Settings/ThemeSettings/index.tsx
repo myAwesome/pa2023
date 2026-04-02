@@ -14,16 +14,14 @@ import { Theme } from '../../../shared/types';
 const ThemeSettings = () => {
   const { userTheme, handleUserThemeChanged } = useContext(UIContext);
   const queryClient = useQueryClient();
-  const updateMutation = useMutation<any, any, string>(
-    (theme) => {
+  const updateMutation = useMutation<any, any, string>({
+    mutationFn: (theme) => {
       return editUser({ theme });
     },
-    {
-      onSettled: () => {
-        queryClient.invalidateQueries(['user']);
-      },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['user'] });
     },
-  );
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleUserThemeChanged(e.target.value as Theme);

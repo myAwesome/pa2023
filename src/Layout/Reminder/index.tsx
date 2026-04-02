@@ -7,7 +7,10 @@ import { getExpiredLts } from '../../shared/api/routes';
 import { LastTimeItemType } from '../../shared/types';
 
 const Reminder = () => {
-  const reminderData = useQuery(['expired_last_times'], () => getExpiredLts());
+  const reminderData = useQuery({
+    queryKey: ['expired_last_times'],
+    queryFn: () => getExpiredLts(),
+  });
   const navigate = useNavigate();
 
   return reminderData.data?.length > 0 ? (

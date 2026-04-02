@@ -41,10 +41,14 @@ const Project = () => {
   const [dragOverColumn, setDragOverColumn] = React.useState<TaskStatus | null>(
     null,
   );
-  const projectData = useQuery(['project', params.id], () =>
-    getProject(params.id!),
-  );
-  const tasksData = useQuery(['tasks', params.id], () => getTasks(params.id!));
+  const projectData = useQuery({
+    queryKey: ['project', params.id],
+    queryFn: () => getProject(params.id!),
+  });
+  const tasksData = useQuery({
+    queryKey: ['tasks', params.id],
+    queryFn: () => getTasks(params.id!),
+  });
   const editMutation = useUpdateMutation(
     ({ id, ...values }: TaskType) => editTask(id, values),
     ['tasks', params.id],

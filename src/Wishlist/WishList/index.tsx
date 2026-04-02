@@ -21,7 +21,10 @@ import { useUpdateMutation } from '../../shared/hooks/useUpdateMutation';
 import { WishType } from '../../shared/types';
 
 const WishList = () => {
-  const { data, isLoading } = useQuery(['wishes'], getWishes);
+  const { data, isLoading } = useQuery({
+    queryKey: ['wishes'],
+    queryFn: getWishes,
+  });
   const [showImg, setShowImg] = React.useState<string>('');
   const [shouldHideDone, setHideDone] = React.useState(true);
   const [wishesToShow, setWishesToShow] = React.useState([]);

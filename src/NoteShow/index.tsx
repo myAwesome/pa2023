@@ -27,9 +27,10 @@ const NoteCategoryShow = () => {
   const [pressedNote, setPressedNote] = React.useState<NoteType | null>(null);
   const [isAdd, setIsAdd] = React.useState(false);
   const [noteToEdit, setNoteToEdit] = React.useState<NoteType | null>(null);
-  const notesData = useQuery(['notes', params.id], () =>
-    getNotes(params.id || 0),
-  );
+  const notesData = useQuery({
+    queryKey: ['notes', params.id],
+    queryFn: () => getNotes(params.id || 0),
+  });
   const editMutation = useUpdateMutation(
     (vals: Omit<NoteType, 'id'>) => editNote(noteToEdit?.id || 0, vals),
     ['notes', params.id],
