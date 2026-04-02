@@ -15,15 +15,19 @@ const createPost = (body: string, date: string) => ({
   body,
   date: dateToMySQLFormat(date),
 });
+type NewPostPayload = {
+  body: string;
+  date: string;
+};
 
 const PostCreate = () => {
   const [value, setValue] = React.useState('');
   const [date, setDate] = React.useState(today);
   const createPostMutation = useCreateMutation(
-    () => postPost(createPost(value, date)),
+    (payload: NewPostPayload) => postPost(createPost(payload.body, payload.date)),
     ['recent_posts'],
-    (old: any[]) => [
-      { ...createPost(value, date), id: 0, labels: [], comments: [] },
+    (old: any[], payload: NewPostPayload) => [
+      { ...createPost(payload.body, payload.date), id: 0, labels: [], comments: [] },
       ...old,
     ],
     () => {
@@ -41,7 +45,7 @@ const PostCreate = () => {
 
   const handleSubmit = () => {
     if (value) {
-      createPostMutation.mutate(value);
+      createPostMutation.mutate({ body: value, date });
     }
   };
 
