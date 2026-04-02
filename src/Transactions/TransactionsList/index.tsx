@@ -13,7 +13,7 @@ import {
   useTheme,
   SelectChangeEvent,
 } from '@mui/material';
-import Grid from '@mui/material/GridLegacy';
+import Grid from '@mui/material/Grid';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import Table from '../../shared/components/Table';

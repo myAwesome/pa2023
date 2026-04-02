@@ -1,7 +1,7 @@
 import React, { ReactNode, useContext } from 'react';
 import Button from '@mui/material/Button';
 import { Dialog, Typography, Box } from '@mui/material';
-import Grid from '@mui/material/GridLegacy';
+import Grid from '@mui/material/Grid';
 import GPhotosContext from '../../../shared/context/GPhotosContext';
 import { getPhotosOnDate, photosSignIn } from '../../../shared/utils/photos';
 import { PhotoType } from '../../../shared/types';

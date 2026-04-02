@@ -6,7 +6,7 @@ import TextField from '@mui/material/TextField';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import FormGroup from '@mui/material/FormGroup';
-import Grid from '@mui/material/GridLegacy';
+import Grid from '@mui/material/Grid';
 import { useMediaQuery, useTheme } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useCreateMutation } from '../../shared/hooks/useCreateMutation';
@@ -69,9 +69,9 @@ const TransactionsCreate = () => {
   return (
     <form onSubmit={(e) => e.preventDefault()}>
       <Grid container spacing={3}>
-        <Grid item xs={12} container justifyContent="space-between">
+        <Grid container justifyContent="space-between" size={12}>
           {[31, 52, 12, 63, 64, 60, 58].map((id) => (
-            <Grid item key={id}>
+            <Grid key={id}>
               <Button
                 variant="outlined"
                 onClick={() =>
@@ -87,7 +87,7 @@ const TransactionsCreate = () => {
             </Grid>
           ))}
         </Grid>
-        <Grid item xs={6} alignSelf="flex-end">
+        <Grid alignSelf="flex-end" size={6}>
           <Select
             value={values.category}
             onChange={handleChange}
@@ -106,7 +106,7 @@ const TransactionsCreate = () => {
             ))}
           </Select>
         </Grid>
-        <Grid item xs={6}>
+        <Grid size={6}>
           <TextField
             type="date"
             label="Date"
@@ -120,7 +120,7 @@ const TransactionsCreate = () => {
             fullWidth
           />
         </Grid>
-        <Grid item xs={6}>
+        <Grid size={6}>
           <TextField
             type="number"
             label="Amount"
@@ -132,7 +132,7 @@ const TransactionsCreate = () => {
             fullWidth
           />
         </Grid>
-        <Grid item xs={6}>
+        <Grid size={6}>
           <TextField
             label="Currency"
             name="currency"
@@ -142,7 +142,7 @@ const TransactionsCreate = () => {
             fullWidth
           />
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <FormGroup>
             <TextField
               type="text"
@@ -154,7 +154,7 @@ const TransactionsCreate = () => {
             />
           </FormGroup>
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <FormGroup>
             <Button
               type="submit"

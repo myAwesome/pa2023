@@ -1,6 +1,6 @@
 import React from 'react';
 import { Badge, Box } from '@mui/material';
-import Grid from '@mui/material/GridLegacy';
+import Grid from '@mui/material/Grid';
 import { Notifications } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';

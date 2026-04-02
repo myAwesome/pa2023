@@ -11,7 +11,7 @@ import {
   FormControl,
   FormControlLabel,
 } from '@mui/material';
-import Grid from '@mui/material/GridLegacy';
+import Grid from '@mui/material/Grid';
 import dayjs from 'dayjs';
 import { useQuery } from '@tanstack/react-query';
 import { deleteWish, getWishes, putWish } from '../../shared/api/routes';

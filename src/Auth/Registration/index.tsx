@@ -9,7 +9,7 @@ import {
   Avatar,
   Typography,
 } from '@mui/material';
-import Grid from '@mui/material/GridLegacy';
+import Grid from '@mui/material/Grid';
 import InputAdornment from '@mui/material/InputAdornment';
 import VisibleIcon from '@mui/icons-material/VisibilityOutlined';
 import NotVisibleIcon from '@mui/icons-material/VisibilityOffOutlined';

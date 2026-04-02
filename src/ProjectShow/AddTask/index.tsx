@@ -1,5 +1,5 @@
 import React from 'react';
-import Grid from '@mui/material/GridLegacy';
+import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { Box } from '@mui/material';
@@ -39,7 +39,7 @@ const AddTask = () => {
       }}
     >
       <Grid container spacing={1}>
-        <Grid item>
+        <Grid>
           <TextField
             name="time"
             type="text"
@@ -50,7 +50,7 @@ const AddTask = () => {
             }}
           />
         </Grid>
-        <Grid item>
+        <Grid>
           <Button
             variant="contained"
             color="primary"

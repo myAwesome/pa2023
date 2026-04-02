@@ -1,6 +1,6 @@
 import React, { FormEvent } from 'react';
 import { TextField, Button } from '@mui/material';
-import Grid from '@mui/material/GridLegacy';
+import Grid from '@mui/material/Grid';
 
 type Props = {
   body: string;
@@ -22,7 +22,7 @@ const PostEdit = ({ body, onCancel, handleSubmit }: Props) => {
   return (
     <form style={{ marginTop: 10 }}>
       <Grid container justifyContent="center">
-        <Grid item xs={12}>
+        <Grid size={12}>
           <TextField
             multiline
             fullWidth
@@ -31,7 +31,7 @@ const PostEdit = ({ body, onCancel, handleSubmit }: Props) => {
             onChange={handleText}
           />
         </Grid>
-        <Grid item>
+        <Grid>
           <Button onClick={onCancel}>Cancel</Button>
           <Button type="submit" onClick={(e) => handleSubmit(e, updatedValue)}>
             Submit

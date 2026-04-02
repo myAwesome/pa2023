@@ -9,7 +9,7 @@ import {
   Switch,
   FormControlLabel,
 } from '@mui/material';
-import Grid from '@mui/material/GridLegacy';
+import Grid from '@mui/material/Grid';
 import { WatchItemType } from '../../shared/types';
 
 type Props = {
@@ -69,7 +69,12 @@ const AddWatch = ({
       }}
     >
       <Grid container spacing={2} alignItems="flex-end">
-        <Grid item md={4} xs={12}>
+        <Grid
+          size={{
+            md: 4,
+            xs: 12,
+          }}
+        >
           <TextField
             name="name"
             fullWidth
@@ -79,7 +84,13 @@ const AddWatch = ({
             onChange={(e) => setWatch({ ...watch, name: e.target.value })}
           />
         </Grid>
-        <Grid item md={1} xs={4} sm={2}>
+        <Grid
+          size={{
+            md: 1,
+            xs: 4,
+            sm: 2,
+          }}
+        >
           <TextField
             name="rating"
             fullWidth
@@ -92,7 +103,13 @@ const AddWatch = ({
             }
           />
         </Grid>
-        <Grid item md={2} xs={4} sm={2}>
+        <Grid
+          size={{
+            md: 2,
+            xs: 4,
+            sm: 2,
+          }}
+        >
           <FormControl fullWidth>
             <InputLabel id="type-label" sx={{ top: '7px' }}>
               Type
@@ -119,7 +136,13 @@ const AddWatch = ({
             </Select>
           </FormControl>
         </Grid>
-        <Grid item md={1} xs={4} sm={2}>
+        <Grid
+          size={{
+            md: 1,
+            xs: 4,
+            sm: 2,
+          }}
+        >
           <FormControl fullWidth>
             <FormControlLabel
               value="is_seen"
@@ -136,7 +159,13 @@ const AddWatch = ({
             />
           </FormControl>
         </Grid>
-        <Grid item md={4} xs={12} sm={6}>
+        <Grid
+          size={{
+            md: 4,
+            xs: 12,
+            sm: 6,
+          }}
+        >
           <Button onClick={handleRemove}>Remove</Button>
           <Button type="submit">Submit</Button>
           <Button onClick={handleCancel}>Cancel</Button>

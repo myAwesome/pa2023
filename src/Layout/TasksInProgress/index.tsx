@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Typography } from '@mui/material';
-import Grid from '@mui/material/GridLegacy';
+import Grid from '@mui/material/Grid';
 import { useQuery } from '@tanstack/react-query';
 import { getInProgress } from '../../shared/api/routes';
 import { TaskType } from '../../shared/types';

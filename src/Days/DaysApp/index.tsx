@@ -6,7 +6,7 @@ import {
   InputLabel,
   SelectChangeEvent,
 } from '@mui/material';
-import Grid from '@mui/material/GridLegacy';
+import Grid from '@mui/material/Grid';
 import { useQuery } from '@tanstack/react-query';
 import PostShow from '../PostShow';
 import { getLabels, getMonth, getYears } from '../../shared/api/routes';
@@ -40,14 +40,22 @@ const DaysApp = () => {
 
   return (
     <Grid container spacing={3}>
-      <Grid item container xs={12} md={5} direction="column">
+      <Grid
+        container
+        direction="column"
+        size={{
+          xs: 12,
+          md: 5,
+        }}
+      >
         <Grid container>
           <Grid
-            item
-            xs={4}
-            sm={4}
             sx={{
               marginRight: (theme) => theme.spacing(2),
+            }}
+            size={{
+              xs: 4,
+              sm: 4,
             }}
           >
             <FormControl fullWidth>
@@ -66,7 +74,12 @@ const DaysApp = () => {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={7} sm={6}>
+          <Grid
+            size={{
+              xs: 7,
+              sm: 6,
+            }}
+          >
             <FormControl disabled={!selectedYear} fullWidth>
               <InputLabel id="month-label">Month</InputLabel>
               <Select
@@ -90,7 +103,6 @@ const DaysApp = () => {
         <Grid container direction="column">
           {(monthData.data || []).map((p: PostType) => (
             <Grid
-              item
               key={p.id}
               sx={{
                 marginTop: (theme) => theme.spacing(3),
@@ -110,7 +122,12 @@ const DaysApp = () => {
           ))}
         </Grid>
       </Grid>
-      <Grid item xs={12} md={7}>
+      <Grid
+        size={{
+          xs: 12,
+          md: 7,
+        }}
+      >
         <Calendar
           year={selectedYear}
           month={selectedMonth?.slice(3)}

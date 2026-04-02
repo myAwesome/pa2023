@@ -15,7 +15,7 @@ import {
   Box,
   Stack,
 } from '@mui/material';
-import Grid from '@mui/material/GridLegacy';
+import Grid from '@mui/material/Grid';
 import GPhotosContext from '../shared/context/GPhotosContext';
 import { getPhotosOnDate, photosSignIn } from '../shared/utils/photos';
 import { getPeriods } from '../shared/api/routes';

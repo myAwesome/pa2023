@@ -1,5 +1,5 @@
 import { FormControl, MenuItem, Select, Stack } from '@mui/material';
-import Grid from '@mui/material/GridLegacy';
+import Grid from '@mui/material/Grid';
 import { useQuery } from '@tanstack/react-query';
 import React, { useMemo, useState } from 'react';
 import Chip from '@mui/material/Chip';
@@ -100,7 +100,7 @@ const DaysCalendar = () => {
   return (
     <Stack direction="column" gap={4}>
       <Grid container justifyContent="center" gap={2} alignItems="center">
-        <Grid item>
+        <Grid>
           <FormControl fullWidth sx={{ maxWidth: 250 }}>
             <Select
               labelId="year-label"
@@ -116,7 +116,7 @@ const DaysCalendar = () => {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item>
+        <Grid>
           {(labelsData.data || []).map((l: LabelType) => (
             <PostLabel
               key={l.id}
@@ -178,7 +178,7 @@ const DaysCalendar = () => {
           'November',
           'December',
         ].map((m, i) => (
-          <Grid item key={m}>
+          <Grid key={m}>
             <Month
               monthName={m}
               monthIndex={i + 1}

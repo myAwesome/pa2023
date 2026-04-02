@@ -12,7 +12,7 @@ import {
   MenuItem,
   FormControl,
 } from '@mui/material';
-import Grid from '@mui/material/GridLegacy';
+import Grid from '@mui/material/Grid';
 import dayjs from 'dayjs';
 import AddIcon from '@mui/icons-material/Add';
 import ArrowUpward from '@mui/icons-material/ArrowUpward';
@@ -249,7 +249,7 @@ const Watch = () => {
         }}
       >
         <Grid container spacing={1}>
-          <Grid item>
+          <Grid>
             <TextField
               fullWidth
               name="update Date"
@@ -262,7 +262,7 @@ const Watch = () => {
               }}
             />
           </Grid>
-          <Grid item>
+          <Grid>
             <Button
               onClick={() => {
                 updateMutation.mutate({
