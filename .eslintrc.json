@@ -59,6 +59,7 @@
     "import/order": "error",
     "no-undef": "error",
     "import/no-unresolved": "off",
+    "import/namespace": "off",
     "react/react-in-jsx-scope": "off"
   }
 }
