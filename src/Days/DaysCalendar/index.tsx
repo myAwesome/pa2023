@@ -100,7 +100,7 @@ const DaysCalendar = () => {
   return (
     <Stack direction="column" gap={4}>
       <Grid container justifyContent="center" gap={2} alignItems="center">
-        <Grid>
+        <Grid item>
           <FormControl fullWidth sx={{ maxWidth: 250 }}>
             <Select
               labelId="year-label"
@@ -116,7 +116,7 @@ const DaysCalendar = () => {
             </Select>
           </FormControl>
         </Grid>
-        <Grid>
+        <Grid item>
           {(labelsData.data || []).map((l: LabelType) => (
             <PostLabel
               key={l.id}
@@ -178,7 +178,7 @@ const DaysCalendar = () => {
           'November',
           'December',
         ].map((m, i) => (
-          <Grid key={m}>
+          <Grid item key={m}>
             <Month
               monthName={m}
               monthIndex={i + 1}

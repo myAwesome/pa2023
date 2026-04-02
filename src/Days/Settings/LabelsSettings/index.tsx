@@ -159,7 +159,7 @@ const LabelsSettings = () => {
 
   return (
     <Grid container spacing={2}>
-      <Grid xs={12}>
+      <Grid item xs={12}>
         <Typography variant="h6">My labels: </Typography>
         {(labelsData.data || []).map((l: LabelType) => (
           <PostLabel
@@ -195,10 +195,10 @@ const LabelsSettings = () => {
         </IconButton>
       </Popover>
       {(isAdd || isEdit) && (
-        <Grid xs={12}>
+        <Grid item xs={12}>
           <form onSubmit={isAdd ? handleLabelAdd : handleLabelEdit}>
             <Grid container spacing={3} justifyContent="space-between">
-              <Grid>
+              <Grid item>
                 <TextField
                   name="labelName"
                   variant="standard"
@@ -207,7 +207,7 @@ const LabelsSettings = () => {
                   label="Name"
                 />
               </Grid>
-              <Grid>
+              <Grid item>
                 <TextField
                   name="labelEmoji"
                   variant="standard"
@@ -217,14 +217,14 @@ const LabelsSettings = () => {
                   inputProps={{ maxLength: 2 }}
                 />
               </Grid>
-              <Grid>
+              <Grid item>
                 <Typography>Color</Typography>
                 <ColorPicker
                   value={newLabelColor}
                   onChange={(val) => setNewLabelColor(val)}
                 />
               </Grid>
-              <Grid>
+              <Grid item>
                 <Typography>Preview</Typography>
                 <PostLabel
                   key="new-label"
@@ -240,7 +240,7 @@ const LabelsSettings = () => {
                   onClick={() => setIsNewLabelActive(!isNewLabelActive)}
                 />
               </Grid>
-              <Grid>
+              <Grid item>
                 <Button type="submit" variant="outlined">
                   Submit
                 </Button>

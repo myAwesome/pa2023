@@ -161,7 +161,7 @@ const Search = () => {
 
   return (
     <Grid container direction="column" spacing={3}>
-      <Grid>
+      <Grid item>
         <form onSubmit={handleSearch}>
           <TextField
             value={searchQuery}
@@ -189,15 +189,15 @@ const Search = () => {
         </form>
       </Grid>
       {isSearchSubmitted ? (
-        <Grid>
+        <Grid item>
           <Typography>Found {total} posts</Typography>
         </Grid>
       ) : isSearchLoading ? (
-        <Grid>
+        <Grid item>
           <LinearProgress />
         </Grid>
       ) : null}
-      <Grid>
+      <Grid item>
         <PostList
           labels={labelsData.data || []}
           posts={posts}
@@ -206,7 +206,7 @@ const Search = () => {
         />
       </Grid>
       {isSearchSubmitted && totalPages > 1 && (
-        <Grid>
+        <Grid item>
           <Grid
             container
             justifyContent="center"
