@@ -129,11 +129,11 @@ const PostCreate = () => {
     },
   });
   const createPostMutation = useCreateMutation(
-    () => postPost(createPost(value, date)),
+    (payload: { body: string; date: string }) => postPost(payload),
     ['recent_posts'],
-    (old: any[]) => [
+    (old: any[] = [], payload: { body: string; date: string }) => [
       {
-        ...createPost(value, date),
+        ...payload,
         id: 0,
         labels: [],
         comments: [],
@@ -157,7 +157,7 @@ const PostCreate = () => {
 
   const handleSubmit = () => {
     if (value) {
-      createPostMutation.mutate(value);
+      createPostMutation.mutate(createPost(value, date));
     }
   };
   const isValidDateRange = !endDate || endDate >= startDate;
