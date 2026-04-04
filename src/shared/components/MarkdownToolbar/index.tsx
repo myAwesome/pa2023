@@ -1,5 +1,7 @@
 import React from 'react';
-import { Box, Button } from '@mui/material';
+import { Box, Button, ButtonGroup } from '@mui/material';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
 type TextInputRef = HTMLInputElement | HTMLTextAreaElement;
 
@@ -15,6 +17,13 @@ type ApplyResult = {
   text: string;
   selectionStart: number;
   selectionEnd: number;
+};
+
+type ToolbarButton = {
+  key: string;
+  label: React.ReactNode;
+  ariaLabel: string;
+  onClick: () => void;
 };
 
 const replaceSelection = (
@@ -44,16 +53,6 @@ const replaceSelection = (
   });
 };
 
-const linePrefix = (selectedText: string, prefix: string) => {
-  if (!selectedText) {
-    return `${prefix}text`;
-  }
-  return selectedText
-    .split('\n')
-    .map((line) => `${prefix}${line}`)
-    .join('\n');
-};
-
 const MarkdownToolbar = ({
   value,
   onChange,
@@ -61,9 +60,11 @@ const MarkdownToolbar = ({
   isPreview = false,
   onTogglePreview,
 }: Props) => {
-  const buttons = [
+  const buttons: ToolbarButton[] = [
     {
-      label: 'H1',
+      key: 'h1',
+      label: <strong>H1</strong>,
+      ariaLabel: 'Heading 1',
       onClick: () =>
         replaceSelection(value, inputRef, onChange, (selectedText) => {
           const text = `# ${selectedText || 'Heading'}`;
@@ -76,7 +77,9 @@ const MarkdownToolbar = ({
         }),
     },
     {
-      label: 'H2',
+      key: 'h2',
+      label: <strong>H2</strong>,
+      ariaLabel: 'Heading 2',
       onClick: () =>
         replaceSelection(value, inputRef, onChange, (selectedText) => {
           const text = `## ${selectedText || 'Heading'}`;
@@ -89,7 +92,9 @@ const MarkdownToolbar = ({
         }),
     },
     {
-      label: 'b',
+      key: 'bold',
+      label: <strong>b</strong>,
+      ariaLabel: 'Bold',
       onClick: () =>
         replaceSelection(value, inputRef, onChange, (selectedText) => {
           const fallback = 'bold text';
@@ -104,7 +109,9 @@ const MarkdownToolbar = ({
         }),
     },
     {
-      label: 'i',
+      key: 'italic',
+      label: <em>i</em>,
+      ariaLabel: 'Italic',
       onClick: () =>
         replaceSelection(value, inputRef, onChange, (selectedText) => {
           const fallback = 'italic text';
@@ -119,7 +126,9 @@ const MarkdownToolbar = ({
         }),
     },
     {
-      label: 's',
+      key: 'strike',
+      label: <s>s</s>,
+      ariaLabel: 'Strikethrough',
       onClick: () =>
         replaceSelection(value, inputRef, onChange, (selectedText) => {
           const fallback = 'strikethrough';
@@ -132,19 +141,6 @@ const MarkdownToolbar = ({
           };
         }),
     },
-    {
-      label: 'List',
-      onClick: () =>
-        replaceSelection(value, inputRef, onChange, (selectedText) => {
-          const text = selectedText ? linePrefix(selectedText, '- ') : '- ';
-          const cursorPos = text.length;
-          return {
-            text,
-            selectionStart: cursorPos,
-            selectionEnd: cursorPos,
-          };
-        }),
-    },
   ];
 
   return (
@@ -152,37 +148,55 @@ const MarkdownToolbar = ({
       sx={{
         display: 'flex',
         flexWrap: 'wrap',
-        gap: 1,
         marginTop: 1,
         marginBottom: 1.5,
         justifyContent: 'flex-start',
       }}
     >
-      {buttons.map((button) => (
-        <Button
-          key={button.label}
-          type="button"
-          size="small"
-          color="inherit"
-          variant="outlined"
-          onClick={button.onClick}
-          sx={{ minWidth: 0, textTransform: 'none' }}
-        >
-          {button.label}
-        </Button>
-      ))}
-      {onTogglePreview ? (
-        <Button
-          type="button"
-          size="small"
-          color="inherit"
-          variant={isPreview ? 'contained' : 'outlined'}
-          onClick={onTogglePreview}
-          sx={{ minWidth: 0, textTransform: 'none' }}
-        >
-          {isPreview ? 'edit' : 'preview'}
-        </Button>
-      ) : null}
+      <ButtonGroup
+        size="small"
+        variant="outlined"
+        color="inherit"
+        sx={{
+          '& .MuiButton-root': {
+            minWidth: 34,
+            textTransform: 'none',
+            borderColor: (theme) => theme.palette.grey[300],
+            color: (theme) => theme.palette.text.secondary,
+            backgroundColor: (theme) => theme.palette.grey[100],
+          },
+          '& .MuiButton-root:hover': {
+            backgroundColor: (theme) => theme.palette.grey[200],
+            borderColor: (theme) => theme.palette.grey[300],
+          },
+        }}
+      >
+        {buttons.map((button) => (
+          <Button
+            key={button.key}
+            type="button"
+            onClick={button.onClick}
+            aria-label={button.ariaLabel}
+            title={button.ariaLabel}
+          >
+            {button.label}
+          </Button>
+        ))}
+        {onTogglePreview ? (
+          <Button
+            type="button"
+            onClick={onTogglePreview}
+            aria-label={isPreview ? 'Edit mode' : 'Preview mode'}
+            title={isPreview ? 'Edit mode' : 'Preview mode'}
+          >
+            {isPreview ? (
+              <EditOutlinedIcon fontSize="small" />
+            ) : (
+              <VisibilityOutlinedIcon fontSize="small" />
+            )}
+          </Button>
+        ) : null}
+      </ButtonGroup>
     </Box>
   );
 };
