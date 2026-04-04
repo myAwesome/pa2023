@@ -25,6 +25,7 @@ import { ContextSegmentType } from '../../../shared/types';
 import { dateToMySQLFormat } from '../../../shared/utils/mappers';
 import MarkdownToolbar from '../../../shared/components/MarkdownToolbar';
 import MarkdownRenderer from '../../../shared/components/MarkdownRenderer';
+import TagMentionsInput from '../../../shared/components/TagMentionsInput';
 
 dayjs.extend(utc);
 
@@ -154,10 +155,6 @@ const PostCreate = () => {
     },
   );
 
-  const handleText = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(e.target.value);
-  };
-
   const handleDate = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDate(e.target.value);
   };
@@ -243,14 +240,12 @@ const PostCreate = () => {
           <MarkdownRenderer body={value} />
         </Box>
       ) : (
-        <TextField
-          multiline
-          fullWidth
+        <TagMentionsInput
+          value={value}
+          onChange={setValue}
+          inputRef={inputRef}
           rows={4}
           variant="outlined"
-          value={value}
-          onChange={handleText}
-          inputRef={inputRef}
         />
       )}
       <MarkdownToolbar

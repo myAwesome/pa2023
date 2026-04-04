@@ -37,6 +37,11 @@ export type ContextSegmentType = {
   updated_at?: string;
 };
 
+export type TagType = {
+  id: number;
+  name: string;
+};
+
 export type LabelType = {
   id: number;
   name?: string;
