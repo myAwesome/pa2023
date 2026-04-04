@@ -107,7 +107,7 @@ const PostPhotos = ({
       />
       <Grid container spacing={1} alignItems="center">
         {extraAction ? <Box>{extraAction}</Box> : null}
-        {!hideGetPhotosButton && !isFetched ? (
+        {!isFetched && !hideGetPhotosButton ? (
           <Button onClick={getPhotos}>GET PHOTOS</Button>
         ) : null}
         <Button onClick={handleUploadButtonClick} disabled={isUploading}>
