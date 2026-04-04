@@ -97,7 +97,6 @@ const PostPhotos = ({
         marginTop: (theme) => theme.spacing(1),
       }}
     >
-      {extraAction ? <Box>{extraAction}</Box> : null}
       <input
         ref={uploadInputRef}
         type="file"
@@ -106,7 +105,8 @@ const PostPhotos = ({
         hidden
         onChange={handleFileSelected}
       />
-      <Grid container spacing={1}>
+      <Grid container spacing={1} alignItems="center">
+        {extraAction ? <Box>{extraAction}</Box> : null}
         {!hideGetPhotosButton && !isFetched ? (
           <Button onClick={getPhotos}>GET PHOTOS</Button>
         ) : null}
