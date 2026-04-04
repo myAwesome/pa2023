@@ -46,6 +46,7 @@ import PostEdit from './PostEdit';
 import PostComment from './PostComment';
 import PostCommentEdit from './PostCommentEdit';
 import PostPhotos from './PostPhotos';
+import MarkdownRenderer from '../../shared/components/MarkdownRenderer';
 
 dayjs.extend(utc);
 dayjs.extend(relativeTime);
@@ -502,14 +503,20 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 handleSubmit={handleSubmit}
               />
             ) : (
-              <p>
-                {post.body.split('\n').map((item, key) => (
-                  <Fragment key={key}>
-                    {searchTerm ? getHighlightedText(item, searchTerm) : item}
-                    <br />
-                  </Fragment>
-                ))}
-              </p>
+              <>
+                {searchTerm ? (
+                  <p>
+                    {post.body.split('\n').map((item, key) => (
+                      <Fragment key={key}>
+                        {getHighlightedText(item, searchTerm)}
+                        <br />
+                      </Fragment>
+                    ))}
+                  </p>
+                ) : (
+                  <MarkdownRenderer body={post.body} />
+                )}
+              </>
             )}
             {post.periods && post.periods.length > 0 ? (
               <Grid container flexWrap="wrap" gap={1}>

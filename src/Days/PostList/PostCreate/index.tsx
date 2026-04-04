@@ -23,6 +23,7 @@ import {
 import { useCreateMutation } from '../../../shared/hooks/useCreateMutation';
 import { ContextSegmentType } from '../../../shared/types';
 import { dateToMySQLFormat } from '../../../shared/utils/mappers';
+import MarkdownToolbar from '../../../shared/components/MarkdownToolbar';
 
 dayjs.extend(utc);
 
@@ -57,6 +58,9 @@ const normalizeSegments = (val: any): ContextSegmentType[] => {
 const PostCreate = () => {
   const queryClient = useQueryClient();
   const [value, setValue] = React.useState('');
+  const inputRef = React.useRef<HTMLTextAreaElement | HTMLInputElement | null>(
+    null,
+  );
   const [date, setDate] = React.useState(today);
   const [isAddContextOpen, setAddContextOpen] = React.useState(false);
   const [selectedContext, setSelectedContext] =
@@ -230,6 +234,12 @@ const PostCreate = () => {
         variant="outlined"
         value={value}
         onChange={handleText}
+        inputRef={inputRef}
+      />
+      <MarkdownToolbar
+        value={value}
+        onChange={setValue}
+        inputRef={inputRef}
       />
       <Box
         sx={{

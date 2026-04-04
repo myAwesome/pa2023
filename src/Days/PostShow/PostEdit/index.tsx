@@ -1,6 +1,7 @@
 import React, { FormEvent } from 'react';
 import { TextField, Button } from '@mui/material';
 import Grid from '@mui/material/Grid';
+import MarkdownToolbar from '../../../shared/components/MarkdownToolbar';
 
 type Props = {
   body: string;
@@ -10,6 +11,9 @@ type Props = {
 
 const PostEdit = ({ body, onCancel, handleSubmit }: Props) => {
   const [updatedValue, setUpdatedValue] = React.useState(body);
+  const inputRef = React.useRef<HTMLTextAreaElement | HTMLInputElement | null>(
+    null,
+  );
 
   React.useEffect(() => {
     setUpdatedValue(body);
@@ -29,6 +33,12 @@ const PostEdit = ({ body, onCancel, handleSubmit }: Props) => {
             value={updatedValue}
             variant="standard"
             onChange={handleText}
+            inputRef={inputRef}
+          />
+          <MarkdownToolbar
+            value={updatedValue}
+            onChange={setUpdatedValue}
+            inputRef={inputRef}
           />
         </Grid>
         <Grid>
