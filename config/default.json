@@ -47,5 +47,12 @@
   "mysql": {
     "client": "mysql2",
     "connection": "mysql://vova:vova@localhost:3310/pa2023"
+  },
+  "media": {
+    "bucket": "pa2023-media",
+    "region": "us-east-1",
+    "prefix": "media/",
+    "getUrlTtlSeconds": 300,
+    "putUrlTtlSeconds": 900
   }
 }

@@ -3,7 +3,7 @@ import Button from '@mui/material/Button';
 import { Dialog, Typography, Box } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import GPhotosContext from '../../../shared/context/GPhotosContext';
-import { getPhotosOnDate, photosSignIn } from '../../../shared/utils/photos';
+import { getPhotosOnDate } from '../../../shared/utils/photos';
 import { PhotoType } from '../../../shared/types';
 
 type Props = {
@@ -21,25 +21,16 @@ const PostPhotos = ({
   const [isFetched, setFetched] = React.useState(false);
   const [showImg, setShowImg] = React.useState('');
   const {
-    handleSignIn,
     value: { token: oauthToken },
   } = useContext(GPhotosContext);
 
   const getPhotos = () => {
     getPhotosOnDate(oauthToken, date)
-      .then(async ({ photos, error }) => {
+      .then(({ photos, error }) => {
         setFetched(true);
         if (error) {
-          if (error.code === 401) {
-            const newToken = await photosSignIn(handleSignIn);
-            getPhotosOnDate(newToken, date)
-              .then(({ photos }) => {
-                if (photos?.mediaItems) {
-                  setPhotos(photos.mediaItems);
-                }
-              })
-              .catch(console.log);
-          }
+          console.log(error);
+          return;
         }
         if (photos?.mediaItems) {
           setPhotos(photos.mediaItems);
