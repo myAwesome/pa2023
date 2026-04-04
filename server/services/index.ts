@@ -18,6 +18,7 @@ import blogPost from './blog-post/blog-post.service';
 import blogPostBlock from './blog-post-block/blog-post-block.service';
 import contextSegments from './context-segments/context-segments.service';
 import watch from './watch/watch.service';
+import passwordManagement from './password-management/password-management.service';
 // Don't remove this comment. It's needed to format import lines nicely.
 
 export default function (app: Application): void {
@@ -40,4 +41,5 @@ export default function (app: Application): void {
   app.configure(blogPostBlock);
   app.configure(contextSegments);
   app.configure(watch);
+  app.configure(passwordManagement);
 }

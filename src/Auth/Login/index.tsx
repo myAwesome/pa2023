@@ -90,7 +90,16 @@ const LoginPage = () => {
             >
               Sign In
             </Button>
-            <Grid container>
+            <Grid container direction="column" gap={1}>
+              <Grid>
+                <MUILink
+                  component={Link}
+                  variant="body2"
+                  to="/auth/forgot-password"
+                >
+                  Forgot password?
+                </MUILink>
+              </Grid>
               <Grid>
                 <MUILink
                   component={Link}

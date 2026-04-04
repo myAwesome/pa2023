@@ -262,6 +262,38 @@ export const sendLogin = (data: any) =>
   apiPostRequest(`${LOCAL}/authentication`, { ...data, strategy: 'local' });
 export const sendRegistration = (data: any) =>
   apiPostRequest(`${LOCAL}/users`, data);
+export const requestForgotPassword = (email: string) =>
+  apiPostRequest(`${LOCAL}/password-management`, {
+    action: 'forgot-password',
+    email,
+  }).then((resp) => resp.data);
+export const resetForgotPassword = ({
+  email,
+  token,
+  password,
+}: {
+  email: string;
+  token: string;
+  password: string;
+}) =>
+  apiPostRequest(`${LOCAL}/password-management`, {
+    action: 'reset-password',
+    email,
+    token,
+    password,
+  }).then((resp) => resp.data);
+export const changePassword = ({
+  currentPassword,
+  newPassword,
+}: {
+  currentPassword: string;
+  newPassword: string;
+}) =>
+  apiLocalPostRequest(`password-management`, {
+    action: 'change-password',
+    currentPassword,
+    newPassword,
+  }).then((resp) => resp.data);
 
 export const getPeriods = () =>
   apiLocalGetRequest(`periods?$limit=200`).then((resp) => resp.data?.data);

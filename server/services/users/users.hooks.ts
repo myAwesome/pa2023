@@ -20,7 +20,7 @@ export default {
     all: [
       // Make sure the password field is never sent to the client
       // Always must be the last hook
-      protect('password'),
+      protect('password', 'reset_password_token', 'reset_password_expires_at'),
     ],
     find: [],
     get: [],

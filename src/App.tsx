@@ -50,6 +50,13 @@ const Layout = lazy(() => import(/* webpackChunkName: "layout" */ './Layout'));
 const RegistrationPage = lazy(
   () => import(/* webpackChunkName: "registration" */ './Auth/Registration'),
 );
+const ForgotPasswordPage = lazy(
+  () =>
+    import(/* webpackChunkName: "forgot-password" */ './Auth/ForgotPassword'),
+);
+const ResetPasswordPage = lazy(
+  () => import(/* webpackChunkName: "reset-password" */ './Auth/ResetPassword'),
+);
 const DaysApp = lazy(
   () => import(/* webpackChunkName: "days-app" */ './Days/DaysApp'),
 );
@@ -103,6 +110,11 @@ function App() {
               <Route path="/auth" loader={authLoader} element={<AuthRoot />}>
                 <Route path="login" element={<LoginPage />} />
                 <Route path="registration" element={<RegistrationPage />} />
+                <Route
+                  path="forgot-password"
+                  element={<ForgotPasswordPage />}
+                />
+                <Route path="reset-password" element={<ResetPasswordPage />} />
               </Route>
               <Route
                 path="/"
