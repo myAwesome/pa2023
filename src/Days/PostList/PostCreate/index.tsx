@@ -23,6 +23,8 @@ import {
 import { useCreateMutation } from '../../../shared/hooks/useCreateMutation';
 import { ContextSegmentType } from '../../../shared/types';
 import { dateToMySQLFormat } from '../../../shared/utils/mappers';
+import MarkdownToolbar from '../../../shared/components/MarkdownToolbar';
+import MarkdownRenderer from '../../../shared/components/MarkdownRenderer';
 
 dayjs.extend(utc);
 
@@ -57,6 +59,10 @@ const normalizeSegments = (val: any): ContextSegmentType[] => {
 const PostCreate = () => {
   const queryClient = useQueryClient();
   const [value, setValue] = React.useState('');
+  const [isPreview, setIsPreview] = React.useState(false);
+  const inputRef = React.useRef<HTMLTextAreaElement | HTMLInputElement | null>(
+    null,
+  );
   const [date, setDate] = React.useState(today);
   const [isAddContextOpen, setAddContextOpen] = React.useState(false);
   const [selectedContext, setSelectedContext] =
@@ -144,6 +150,7 @@ const PostCreate = () => {
     ],
     () => {
       setValue('');
+      setIsPreview(false);
     },
   );
 
@@ -223,13 +230,35 @@ const PostCreate = () => {
 
   return (
     <form style={{ marginBottom: '30px', textAlign: 'center' }}>
-      <TextField
-        multiline
-        fullWidth
-        rows={4}
-        variant="outlined"
+      {isPreview ? (
+        <Box
+          sx={{
+            border: (theme) => `1px solid ${theme.palette.divider}`,
+            borderRadius: 1,
+            minHeight: 120,
+            textAlign: 'left',
+            padding: 1.5,
+          }}
+        >
+          <MarkdownRenderer body={value} />
+        </Box>
+      ) : (
+        <TextField
+          multiline
+          fullWidth
+          rows={4}
+          variant="outlined"
+          value={value}
+          onChange={handleText}
+          inputRef={inputRef}
+        />
+      )}
+      <MarkdownToolbar
         value={value}
-        onChange={handleText}
+        onChange={setValue}
+        inputRef={inputRef}
+        isPreview={isPreview}
+        onTogglePreview={() => setIsPreview((prev) => !prev)}
       />
       <Box
         sx={{
