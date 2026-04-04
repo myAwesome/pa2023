@@ -56,7 +56,7 @@
       "tabWidth": 2,
       "bracketSameLine": false
     }],
-    "import/order": "error",
+    "import/order": "off",
     "no-undef": "error",
     "import/no-unresolved": "off",
     "import/namespace": "off",
