@@ -557,7 +557,6 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
             ) : null}
             <PostPhotos
               date={post.date}
-              hideGetPhotosButton
               extraAction={
                 weather ? (
                   <Typography
