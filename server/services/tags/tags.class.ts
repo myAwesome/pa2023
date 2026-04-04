@@ -16,7 +16,7 @@ const normalizeTagName = (value: unknown) => {
     .trim()
     .toLowerCase()
     .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9_-]/g, '');
+    .replace(/[^a-z0-9_\-\u0400-\u04FF]/g, '');
 };
 
 export class Tags extends Service {
@@ -56,9 +56,7 @@ export class Tags extends Service {
     }
 
     const knex = this.app.get('knexClient');
-    const existingTag = await knex('tags')
-      .whereRaw('LOWER(name) = ?', [name])
-      .first();
+    const existingTag = await knex('tags').where({ name }).first();
 
     if (existingTag) {
       return existingTag;

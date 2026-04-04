@@ -39,11 +39,11 @@ const normalizeTagName = (value: string) =>
     .trim()
     .toLowerCase()
     .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9_-]/g, '');
+    .replace(/[^a-z0-9_\-\u0400-\u04FF]/g, '');
 
 const getMentionMatch = (text: string, cursor: number): MentionMatch | null => {
   const beforeCursor = text.slice(0, cursor);
-  const match = beforeCursor.match(/(^|\s)@([a-zA-Z0-9_-]*)$/);
+  const match = beforeCursor.match(/(^|\s)@([a-zA-Z0-9_\-\u0400-\u04FF]*)$/);
   if (!match) {
     return null;
   }
