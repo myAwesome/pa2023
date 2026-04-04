@@ -252,6 +252,58 @@ async function buildMetadataIndex(zipFiles, indexFilePath) {
   return index;
 }
 
+async function saveMetadataIndex(indexFilePath, index) {
+  await fsp.writeFile(indexFilePath, JSON.stringify(index), 'utf8');
+}
+
+async function loadMetadataIndex(indexFilePath) {
+  try {
+    return JSON.parse(await fsp.readFile(indexFilePath, 'utf8'));
+  } catch (error) {
+    if (error.code === 'ENOENT') return {};
+    throw error;
+  }
+}
+
+async function mergeMetadataFromZip(zipPath, index) {
+  const entries = runUnzipList(zipPath);
+  const jsonEntries = entries.filter((e) => e.toLowerCase().endsWith('.json'));
+  let added = 0;
+
+  for (const entryPath of jsonEntries) {
+    const raw = runUnzipReadText(zipPath, entryPath);
+    if (!raw) continue;
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      continue;
+    }
+    const ts = extractTimestampFromSidecar(parsed);
+    if (!ts) continue;
+
+    const iso = toIsoUtc(ts);
+    const normalized = normalizeRel(entryPath);
+    if (!index[normalized]) {
+      index[normalized] = iso;
+      added += 1;
+    }
+
+    const title = parsed?.title;
+    if (title && typeof title === 'string') {
+      const byTitlePath = normalizeRel(path.posix.join(path.posix.dirname(normalized), title));
+      if (!index[`${byTitlePath}.json`]) {
+        index[`${byTitlePath}.json`] = iso;
+        added += 1;
+      }
+    }
+  }
+
+  console.log(
+    `Indexed sidecars from ${path.basename(zipPath)} (${jsonEntries.length} json entries, +${added} keys)`,
+  );
+}
+
 async function main() {
   const args = parseArgs(process.argv);
   const inputDir = requireArg(args, 'input', null);
@@ -262,12 +314,14 @@ async function main() {
   if (!prefix.endsWith('/')) prefix += '/';
   const storageClass = args.storageClass || process.env.AWS_S3_UPLOAD_STORAGE_CLASS || 'GLACIER_IR';
   const deleteArchives = Boolean(args.deleteArchives);
+  const requireMetadata = !args.allowMissingMetadata;
   const stateDir = path.resolve(args.stateDir || '.takeout-upload-state');
   const includePattern = args.archive ? args.archive.toLowerCase() : null;
 
   await fsp.mkdir(stateDir, { recursive: true });
   const uploadedLog = path.join(stateDir, 'uploaded.jsonl');
   const failedLog = path.join(stateDir, 'failed.jsonl');
+  const deferredLog = path.join(stateDir, 'deferred.jsonl');
   const doneZipsFile = path.join(stateDir, 'done-zips.txt');
   const metadataIndexFile = path.join(stateDir, 'metadata-index.json');
 
@@ -288,8 +342,13 @@ async function main() {
   if (args.rebuildIndex || !fs.existsSync(metadataIndexFile)) {
     metadataIndex = await buildMetadataIndex(allZipFiles, metadataIndexFile);
   } else {
-    metadataIndex = JSON.parse(await fsp.readFile(metadataIndexFile, 'utf8'));
+    metadataIndex = await loadMetadataIndex(metadataIndexFile);
     console.log(`Loaded metadata index: ${Object.keys(metadataIndex).length} keys`);
+    for (const zipPath of allZipFiles) {
+      await mergeMetadataFromZip(zipPath, metadataIndex);
+    }
+    await saveMetadataIndex(metadataIndexFile, metadataIndex);
+    console.log(`Updated metadata index: ${Object.keys(metadataIndex).length} keys`);
   }
 
   const s3 = new S3Client({ region });
@@ -306,6 +365,7 @@ async function main() {
     console.log(`Processing zip: ${zipName}`);
     const entries = runUnzipList(zipPath);
     const mediaEntries = entries.filter(isMediaPath);
+    let hasPendingOrFailed = false;
 
     for (const entryPath of mediaEntries) {
       const uploadId = `${zipName}::${entryPath}`;
@@ -322,10 +382,22 @@ async function main() {
       try {
         await extractEntryToTemp(zipPath, entryPath, tmpFile);
         const candidates = sidecarCandidates(entryPath);
-        const capturedAt =
-          candidates.map((c) => metadataIndex[c]).find(Boolean) ||
-          toIsoUtc(new Date());
-        const s3Key = buildS3Key({ prefix, owner, iso: capturedAt, ext });
+        const capturedAt = candidates.map((c) => metadataIndex[c]).find(Boolean);
+        if (!capturedAt && requireMetadata) {
+          hasPendingOrFailed = true;
+          await appendJsonLine(deferredLog, {
+            uploadId,
+            status: 'deferred-missing-metadata',
+            zipName,
+            entryPath,
+            deferredAt: new Date().toISOString(),
+          });
+          console.log(`Deferred (missing metadata): ${entryPath}`);
+          continue;
+        }
+
+        const finalCapturedAt = capturedAt || toIsoUtc(new Date());
+        const s3Key = buildS3Key({ prefix, owner, iso: finalCapturedAt, ext });
         const contentType = CONTENT_TYPE_BY_EXT[ext.toLowerCase()] || 'application/octet-stream';
 
         await s3.send(
@@ -350,12 +422,13 @@ async function main() {
           zipName,
           entryPath,
           s3Key,
-          capturedAt,
+          capturedAt: finalCapturedAt,
           uploadedAt: new Date().toISOString(),
         });
         uploadedSet.add(uploadId);
         console.log(`Uploaded: ${entryPath} -> s3://${bucket}/${s3Key}`);
       } catch (error) {
+        hasPendingOrFailed = true;
         await appendJsonLine(failedLog, {
           uploadId,
           status: 'failed',
@@ -370,16 +443,24 @@ async function main() {
       }
     }
 
-    await appendDoneZip(doneZipsFile, zipName);
-    if (deleteArchives) {
+    if (!hasPendingOrFailed) {
+      await appendDoneZip(doneZipsFile, zipName);
+    }
+
+    if (deleteArchives && !hasPendingOrFailed) {
       await fsp.rm(zipPath, { force: true });
       console.log(`Deleted processed archive: ${zipName}`);
+    } else if (hasPendingOrFailed) {
+      console.log(
+        `Keeping archive: ${zipName} (contains deferred/failed media that must be retried later)`,
+      );
     }
   }
 
   console.log('Done.');
   console.log(`Uploaded log: ${uploadedLog}`);
   console.log(`Failed log: ${failedLog}`);
+  console.log(`Deferred log: ${deferredLog}`);
 }
 
 main().catch((error) => {
