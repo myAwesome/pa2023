@@ -48,7 +48,53 @@ export const getPhotosOnDate = async (_authToken, date, ranges, nextPageToken) =
   return { photos, error };
 };
 
+export const initMediaUpload = async ({ filename, mimeType, capturedAt }) => {
+  let data = null;
+  let error = null;
+
+  try {
+    const response = await fetch(`${LOCAL}/media`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({
+        action: 'init-upload',
+        filename,
+        mimeType,
+        capturedAt,
+      }),
+    });
+    const result = await response.json();
+    if (response.ok && !result.error) {
+      data = result;
+    } else {
+      error = result.error || { code: response.status, message: 'Failed to init upload' };
+    }
+  } catch (err) {
+    error = err;
+  }
+
+  return { data, error };
+};
+
+export const uploadFileToPresignedUrl = async ({ uploadUrl, file, mimeType }) => {
+  let error = null;
+  try {
+    const response = await fetch(uploadUrl, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': mimeType || 'application/octet-stream',
+      },
+      body: file,
+    });
+    if (!response.ok) {
+      error = { code: response.status, message: 'Upload failed' };
+    }
+  } catch (err) {
+    error = err;
+  }
+  return { error };
+};
+
 export const photosSignIn = () => Promise.resolve('');
 
 export const photosVerifyToken = async () => true;
-
