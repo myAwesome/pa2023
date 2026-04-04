@@ -1,18 +1,21 @@
 # This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
 
-name: Node.js CI
+name: Build and Deploy
 
 on:
   push:
     branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+    types: [ opened, synchronize, reopened ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build:
+  build-and-check:
 
     runs-on: ubuntu-latest
 
@@ -32,18 +35,26 @@ jobs:
         VITE_OAUTH_ID: ${{ secrets.REACT_APP_OAUTH_ID }}
         REACT_APP_OAUTH_ID: ${{ secrets.REACT_APP_OAUTH_ID }}
     - name: Setup SSH key
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       run: echo "${{ secrets.PEM_KEY }}" >> ./key.pem
     - name: Setup SSH key mod
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       run: chmod 400 ./key.pem
     - name: Set known hosts
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       run: echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> ./known_hosts
     - name: Set known hosts mod
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       run: chmod 600 ./known_hosts
     - name: Deploy Frontend
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       run: scp -r -i ./key.pem -o UserKnownHostsFile=./known_hosts dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDRESS }}:pa2020/frontend
     - name: Deploy Backend
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       run: scp -r -i ./key.pem -o UserKnownHostsFile=./known_hosts lib/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDRESS }}:pa2020/backend
     - name: Deploy dependency manifests
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       run: scp -i ./key.pem -o UserKnownHostsFile=./known_hosts package.json pnpm-lock.yaml ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDRESS }}:pa2020/
     - name: Restart pm2
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       run: ssh -i ./key.pem -o UserKnownHostsFile=./known_hosts ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDRESS }} "pm2 restart all"
