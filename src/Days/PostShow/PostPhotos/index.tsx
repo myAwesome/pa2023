@@ -106,7 +106,9 @@ const PostPhotos = ({
         onChange={handleFileSelected}
       />
       <Grid container spacing={1}>
-        {!hideGetPhotosButton ? <Button onClick={getPhotos}>GET PHOTOS</Button> : null}
+        {!hideGetPhotosButton && !isFetched ? (
+          <Button onClick={getPhotos}>GET PHOTOS</Button>
+        ) : null}
         <Button onClick={handleUploadButtonClick} disabled={isUploading}>
           {isUploading ? 'UPLOADING...' : 'UPLOAD PHOTO'}
         </Button>

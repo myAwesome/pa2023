@@ -555,6 +555,20 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 ))}
               </Grid>
             ) : null}
+            {post.comments.map((comment) => (
+              <PostComment key={comment.id} comment={comment} />
+            ))}
+            {isCommentOpen ? (
+              <PostCommentEdit
+                postId={post.id}
+                onCancel={() => {
+                  setCommentOpen(false);
+                }}
+                invalidateQueries={invalidateQueries}
+              />
+            ) : (
+              ''
+            )}
             <PostPhotos
               date={post.date}
               extraAction={
@@ -587,20 +601,6 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 )
               }
             />
-            {post.comments.map((comment) => (
-              <PostComment key={comment.id} comment={comment} />
-            ))}
-            {isCommentOpen ? (
-              <PostCommentEdit
-                postId={post.id}
-                onCancel={() => {
-                  setCommentOpen(false);
-                }}
-                invalidateQueries={invalidateQueries}
-              />
-            ) : (
-              ''
-            )}
             <Dialog
               open={!!selectedContext}
               onClose={() => setSelectedContext(null)}
