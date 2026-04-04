@@ -47,5 +47,13 @@
   "mysql": {
     "client": "mysql2",
     "connection": "mysql://vova:vova@localhost:3310/pa2023"
+  },
+  "media": {
+    "bucket": "pa2026-662203418679-us-east-1-an",
+    "region": "us-east-1",
+    "prefix": "media/",
+    "uploadStorageClass": "GLACIER_IR",
+    "getUrlTtlSeconds": 300,
+    "putUrlTtlSeconds": 900
   }
 }

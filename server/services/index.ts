@@ -20,6 +20,7 @@ import contextSegments from './context-segments/context-segments.service';
 import watch from './watch/watch.service';
 import tags from './tags/tags.service';
 import passwordManagement from './password-management/password-management.service';
+import media from './media/media.service';
 // Don't remove this comment. It's needed to format import lines nicely.
 
 export default function (app: Application): void {
@@ -44,4 +45,5 @@ export default function (app: Application): void {
   app.configure(watch);
   app.configure(tags);
   app.configure(passwordManagement);
+  app.configure(media);
 }

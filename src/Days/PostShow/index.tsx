@@ -555,9 +555,22 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 ))}
               </Grid>
             ) : null}
+            {post.comments.map((comment) => (
+              <PostComment key={comment.id} comment={comment} />
+            ))}
+            {isCommentOpen ? (
+              <PostCommentEdit
+                postId={post.id}
+                onCancel={() => {
+                  setCommentOpen(false);
+                }}
+                invalidateQueries={invalidateQueries}
+              />
+            ) : (
+              ''
+            )}
             <PostPhotos
               date={post.date}
-              hideGetPhotosButton
               extraAction={
                 weather ? (
                   <Typography
@@ -577,18 +590,6 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                   <Button
                     type="button"
                     onClick={handleFetchWeather}
-                    variant="text"
-                    color="primary"
-                    size="small"
-                    sx={{
-                      textTransform: 'uppercase',
-                      fontSize: 12,
-                      fontWeight: 600,
-                      letterSpacing: 0.3,
-                      minWidth: 0,
-                      padding: 0,
-                      lineHeight: 1.25,
-                    }}
                     disabled={
                       post.id === 0 ||
                       editPostMutation.isPending ||
@@ -600,20 +601,6 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 )
               }
             />
-            {post.comments.map((comment) => (
-              <PostComment key={comment.id} comment={comment} />
-            ))}
-            {isCommentOpen ? (
-              <PostCommentEdit
-                postId={post.id}
-                onCancel={() => {
-                  setCommentOpen(false);
-                }}
-                invalidateQueries={invalidateQueries}
-              />
-            ) : (
-              ''
-            )}
             <Dialog
               open={!!selectedContext}
               onClose={() => setSelectedContext(null)}

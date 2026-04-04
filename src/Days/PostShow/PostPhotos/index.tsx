@@ -3,7 +3,11 @@ import Button from '@mui/material/Button';
 import { Dialog, Typography, Box } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import GPhotosContext from '../../../shared/context/GPhotosContext';
-import { getPhotosOnDate, photosSignIn } from '../../../shared/utils/photos';
+import {
+  getPhotosOnDate,
+  initMediaUpload,
+  uploadFileToPresignedUrl,
+} from '../../../shared/utils/photos';
 import { PhotoType } from '../../../shared/types';
 
 type Props = {
@@ -20,26 +24,19 @@ const PostPhotos = ({
   const [photos, setPhotos] = React.useState<PhotoType[]>([]);
   const [isFetched, setFetched] = React.useState(false);
   const [showImg, setShowImg] = React.useState('');
+  const [isUploading, setUploading] = React.useState(false);
+  const uploadInputRef = React.useRef<HTMLInputElement | null>(null);
   const {
-    handleSignIn,
     value: { token: oauthToken },
   } = useContext(GPhotosContext);
 
   const getPhotos = () => {
     getPhotosOnDate(oauthToken, date)
-      .then(async ({ photos, error }) => {
+      .then(({ photos, error }) => {
         setFetched(true);
         if (error) {
-          if (error.code === 401) {
-            const newToken = await photosSignIn(handleSignIn);
-            getPhotosOnDate(newToken, date)
-              .then(({ photos }) => {
-                if (photos?.mediaItems) {
-                  setPhotos(photos.mediaItems);
-                }
-              })
-              .catch(console.log);
-          }
+          console.log(error);
+          return;
         }
         if (photos?.mediaItems) {
           setPhotos(photos.mediaItems);
@@ -48,17 +45,75 @@ const PostPhotos = ({
       .catch(console.log);
   };
 
+  const handleUploadButtonClick = () => {
+    uploadInputRef.current?.click();
+  };
+
+  const handleFileSelected = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const files = event.target.files;
+    if (!files?.length) {
+      return;
+    }
+    setUploading(true);
+    try {
+      const parsedDate = new Date(date);
+      const capturedAt = Number.isNaN(parsedDate.getTime())
+        ? new Date().toISOString()
+        : parsedDate.toISOString();
+      for (const file of Array.from(files)) {
+        const { data, error } = await initMediaUpload({
+          filename: file.name,
+          mimeType: file.type,
+          capturedAt,
+        });
+        if (error || !data?.uploadUrl) {
+          throw error || new Error('Upload init failed');
+        }
+        const uploadResult = await uploadFileToPresignedUrl({
+          uploadUrl: data.uploadUrl,
+          file,
+          mimeType: file.type,
+        });
+        if (uploadResult.error) {
+          throw uploadResult.error;
+        }
+      }
+      getPhotos();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      event.target.value = '';
+      setUploading(false);
+    }
+  };
+
   return (
     <Grid
       container
+      direction="column"
       sx={{
         marginTop: (theme) => theme.spacing(1),
       }}
     >
-      {!isFetched && !hideGetPhotosButton ? (
-        <Button onClick={getPhotos}>GET PHOTOS</Button>
-      ) : null}
-      {extraAction ? <Box>{extraAction}</Box> : null}
+      <input
+        ref={uploadInputRef}
+        type="file"
+        accept="image/*,video/*"
+        multiple
+        hidden
+        onChange={handleFileSelected}
+      />
+      <Grid container spacing={1} alignItems="center">
+        {extraAction ? <Box>{extraAction}</Box> : null}
+        {!hideGetPhotosButton && !isFetched ? (
+          <Button onClick={getPhotos}>GET PHOTOS</Button>
+        ) : null}
+        <Button onClick={handleUploadButtonClick} disabled={isUploading}>
+          {isUploading ? 'UPLOADING...' : 'UPLOAD PHOTO'}
+        </Button>
+      </Grid>
       {isFetched && !photos.length ? (
         <Typography>No photos found...</Typography>
       ) : null}

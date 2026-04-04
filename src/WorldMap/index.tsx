@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import GPhotosContext from '../shared/context/GPhotosContext';
-import { getPhotosOnDate, photosSignIn } from '../shared/utils/photos';
+import { getPhotosOnDate } from '../shared/utils/photos';
 import { getPeriods } from '../shared/api/routes';
 import { PeriodType, PhotoType } from '../shared/types';
 import citiesList from './citiesList.json';
@@ -104,7 +104,6 @@ function WorldMap() {
   const [currZoom, setCurrZoom] = React.useState(1);
   const [nextPageToken, setNextPageToken] = React.useState();
   const {
-    handleSignIn,
     value: { token: oauthToken },
   } = useContext(GPhotosContext);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -130,28 +129,17 @@ function WorldMap() {
     setPhotos([]);
     setNextPageToken(undefined);
     setFetched(false);
-    getPhotosOnDate(oauthToken, null, periods).then(
-      async ({ photos, error }) => {
-        setFetched(true);
-        if (error) {
-          if (error.code === 401) {
-            const newToken = await photosSignIn(handleSignIn);
-            getPhotosOnDate(newToken, null, periods)
-              .then(({ photos }) => {
-                if (photos?.mediaItems) {
-                  setPhotos(photos.mediaItems);
-                  setNextPageToken(photos?.nextPageToken);
-                }
-              })
-              .catch(console.log);
-          }
-        }
-        if (photos?.mediaItems) {
-          setPhotos(photos.mediaItems);
-          setNextPageToken(photos?.nextPageToken);
-        }
-      },
-    );
+    getPhotosOnDate(oauthToken, null, periods).then(({ photos, error }) => {
+      setFetched(true);
+      if (error) {
+        console.log(error);
+        return;
+      }
+      if (photos?.mediaItems) {
+        setPhotos(photos.mediaItems);
+        setNextPageToken(photos?.nextPageToken);
+      }
+    });
     setShowCountry(periods);
   };
 
