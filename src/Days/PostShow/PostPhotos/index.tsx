@@ -92,6 +92,7 @@ const PostPhotos = ({
   return (
     <Grid
       container
+      direction="column"
       sx={{
         marginTop: (theme) => theme.spacing(1),
       }}
