@@ -7,6 +7,8 @@ type Props = {
   value: string;
   onChange: (value: string) => void;
   inputRef: React.RefObject<TextInputRef | null>;
+  isPreview?: boolean;
+  onTogglePreview?: () => void;
 };
 
 type ApplyResult = {
@@ -52,8 +54,27 @@ const linePrefix = (selectedText: string, prefix: string) => {
     .join('\n');
 };
 
-const MarkdownToolbar = ({ value, onChange, inputRef }: Props) => {
+const MarkdownToolbar = ({
+  value,
+  onChange,
+  inputRef,
+  isPreview = false,
+  onTogglePreview,
+}: Props) => {
   const buttons = [
+    {
+      label: 'H1',
+      onClick: () =>
+        replaceSelection(value, inputRef, onChange, (selectedText) => {
+          const text = `# ${selectedText || 'Heading'}`;
+          const cursorPos = selectedText ? text.length : 2;
+          return {
+            text,
+            selectionStart: cursorPos,
+            selectionEnd: text.length,
+          };
+        }),
+    },
     {
       label: 'H2',
       onClick: () =>
@@ -68,13 +89,13 @@ const MarkdownToolbar = ({ value, onChange, inputRef }: Props) => {
         }),
     },
     {
-      label: 'Bold',
+      label: 'b',
       onClick: () =>
         replaceSelection(value, inputRef, onChange, (selectedText) => {
           const fallback = 'bold text';
           const content = selectedText || fallback;
           const text = `**${content}**`;
-          const start = selectedText ? 2 : 2;
+          const start = 2;
           return {
             text,
             selectionStart: start,
@@ -83,7 +104,7 @@ const MarkdownToolbar = ({ value, onChange, inputRef }: Props) => {
         }),
     },
     {
-      label: 'Italic',
+      label: 'i',
       onClick: () =>
         replaceSelection(value, inputRef, onChange, (selectedText) => {
           const fallback = 'italic text';
@@ -98,15 +119,16 @@ const MarkdownToolbar = ({ value, onChange, inputRef }: Props) => {
         }),
     },
     {
-      label: 'Link',
+      label: 's',
       onClick: () =>
         replaceSelection(value, inputRef, onChange, (selectedText) => {
-          const content = selectedText || 'link text';
-          const text = `[${content}](https://example.com)`;
+          const fallback = 'strikethrough';
+          const content = selectedText || fallback;
+          const text = `~~${content}~~`;
           return {
             text,
-            selectionStart: 1,
-            selectionEnd: 1 + content.length,
+            selectionStart: 2,
+            selectionEnd: 2 + content.length,
           };
         }),
     },
@@ -114,36 +136,12 @@ const MarkdownToolbar = ({ value, onChange, inputRef }: Props) => {
       label: 'List',
       onClick: () =>
         replaceSelection(value, inputRef, onChange, (selectedText) => {
-          const text = linePrefix(selectedText, '- ');
+          const text = selectedText ? linePrefix(selectedText, '- ') : '- ';
+          const cursorPos = text.length;
           return {
             text,
-            selectionStart: 0,
-            selectionEnd: text.length,
-          };
-        }),
-    },
-    {
-      label: 'Quote',
-      onClick: () =>
-        replaceSelection(value, inputRef, onChange, (selectedText) => {
-          const text = linePrefix(selectedText, '> ');
-          return {
-            text,
-            selectionStart: 0,
-            selectionEnd: text.length,
-          };
-        }),
-    },
-    {
-      label: 'Code',
-      onClick: () =>
-        replaceSelection(value, inputRef, onChange, (selectedText) => {
-          const content = selectedText || 'code';
-          const text = `\`\`\`\n${content}\n\`\`\``;
-          return {
-            text,
-            selectionStart: 4,
-            selectionEnd: 4 + content.length,
+            selectionStart: cursorPos,
+            selectionEnd: cursorPos,
           };
         }),
     },
@@ -173,6 +171,18 @@ const MarkdownToolbar = ({ value, onChange, inputRef }: Props) => {
           {button.label}
         </Button>
       ))}
+      {onTogglePreview ? (
+        <Button
+          type="button"
+          size="small"
+          color="inherit"
+          variant={isPreview ? 'contained' : 'outlined'}
+          onClick={onTogglePreview}
+          sx={{ minWidth: 0, textTransform: 'none' }}
+        >
+          {isPreview ? 'edit' : 'preview'}
+        </Button>
+      ) : null}
     </Box>
   );
 };
