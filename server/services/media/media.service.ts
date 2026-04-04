@@ -14,4 +14,3 @@ export default function (app: Application): void {
   const service = app.service('media');
   service.hooks(hooks);
 }
-

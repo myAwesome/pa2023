@@ -129,19 +129,17 @@ function WorldMap() {
     setPhotos([]);
     setNextPageToken(undefined);
     setFetched(false);
-    getPhotosOnDate(oauthToken, null, periods).then(
-      ({ photos, error }) => {
-        setFetched(true);
-        if (error) {
-          console.log(error);
-          return;
-        }
-        if (photos?.mediaItems) {
-          setPhotos(photos.mediaItems);
-          setNextPageToken(photos?.nextPageToken);
-        }
-      },
-    );
+    getPhotosOnDate(oauthToken, null, periods).then(({ photos, error }) => {
+      setFetched(true);
+      if (error) {
+        console.log(error);
+        return;
+      }
+      if (photos?.mediaItems) {
+        setPhotos(photos.mediaItems);
+        setNextPageToken(photos?.nextPageToken);
+      }
+    });
     setShowCountry(periods);
   };
 

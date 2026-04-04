@@ -13,7 +13,12 @@ const normalizeRanges = (ranges = []) =>
     end: r.end,
   }));
 
-export const getPhotosOnDate = async (_authToken, date, ranges, nextPageToken) => {
+export const getPhotosOnDate = async (
+  _authToken,
+  date,
+  ranges,
+  nextPageToken,
+) => {
   let photos = [];
   let error = null;
 
@@ -39,7 +44,10 @@ export const getPhotosOnDate = async (_authToken, date, ranges, nextPageToken) =
     if (response.ok && !result.error) {
       photos = result;
     } else {
-      error = result.error || { code: response.status, message: 'Failed to get media' };
+      error = result.error || {
+        code: response.status,
+        message: 'Failed to get media',
+      };
     }
   } catch (err) {
     error = err;
@@ -67,7 +75,10 @@ export const initMediaUpload = async ({ filename, mimeType, capturedAt }) => {
     if (response.ok && !result.error) {
       data = result;
     } else {
-      error = result.error || { code: response.status, message: 'Failed to init upload' };
+      error = result.error || {
+        code: response.status,
+        message: 'Failed to init upload',
+      };
     }
   } catch (err) {
     error = err;
@@ -76,7 +87,11 @@ export const initMediaUpload = async ({ filename, mimeType, capturedAt }) => {
   return { data, error };
 };
 
-export const uploadFileToPresignedUrl = async ({ uploadUrl, file, mimeType }) => {
+export const uploadFileToPresignedUrl = async ({
+  uploadUrl,
+  file,
+  mimeType,
+}) => {
   let error = null;
   try {
     const response = await fetch(uploadUrl, {

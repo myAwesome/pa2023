@@ -122,7 +122,9 @@ export class MediaService {
     this.s3 = new S3Client({
       region: cfg.region || process.env.AWS_REGION || 'us-east-1',
       endpoint: cfg.endpoint || process.env.AWS_S3_ENDPOINT || undefined,
-      forcePathStyle: Boolean(cfg.forcePathStyle || process.env.AWS_S3_FORCE_PATH_STYLE === 'true'),
+      forcePathStyle: Boolean(
+        cfg.forcePathStyle || process.env.AWS_S3_FORCE_PATH_STYLE === 'true',
+      ),
     });
   }
 
@@ -143,7 +145,7 @@ export class MediaService {
     if (query.ranges) {
       try {
         ranges = JSON.parse(query.ranges) as MediaRange[];
-      } catch (_err) {
+      } catch {
         throw new BadRequest('Invalid ranges query JSON');
       }
     }
@@ -174,11 +176,17 @@ export class MediaService {
         if (!item.Key || !keyContainsOwner(item.Key, query.owner)) {
           continue;
         }
-        const createdAt = toIsoFromKey(item.Key) || item.LastModified?.toISOString();
+        const createdAt =
+          toIsoFromKey(item.Key) || item.LastModified?.toISOString();
         if (!createdAt) {
           continue;
         }
-        if (date && !onThisDay && dayjs.utc(createdAt).format('YYYY-MM-DD') !== date.format('YYYY-MM-DD')) {
+        if (
+          date &&
+          !onThisDay &&
+          dayjs.utc(createdAt).format('YYYY-MM-DD') !==
+            date.format('YYYY-MM-DD')
+        ) {
           continue;
         }
         if (ranges.length && !isWithinRanges(createdAt, ranges)) {
@@ -192,7 +200,10 @@ export class MediaService {
       }
     }
 
-    collected.sort((a, b) => dayjs.utc(b.createdAt).valueOf() - dayjs.utc(a.createdAt).valueOf());
+    collected.sort(
+      (a, b) =>
+        dayjs.utc(b.createdAt).valueOf() - dayjs.utc(a.createdAt).valueOf(),
+    );
     const selected = collected.slice(0, pageSize);
 
     const mediaItems = await Promise.all(
