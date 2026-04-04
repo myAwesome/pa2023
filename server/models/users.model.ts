@@ -23,6 +23,8 @@ export default function (app: Application): Knex {
           table.integer('project_group_id');
           table.string('theme');
           table.text('apps');
+          table.string('reset_password_token');
+          table.dateTime('reset_password_expires_at');
         })
         .then(() => console.log(`Created ${tableName} table`))
         .catch((e) => console.error(`Error creating ${tableName} table`, e));
@@ -38,6 +40,38 @@ export default function (app: Application): Knex {
             );
         }
       });
+
+      db.schema.hasColumn(tableName, 'reset_password_token').then((exists) => {
+        if (!exists) {
+          db.schema
+            .table(tableName, (table) => {
+              table.string('reset_password_token');
+            })
+            .catch((e) =>
+              console.error(
+                `Error adding reset_password_token column to ${tableName}`,
+                e,
+              ),
+            );
+        }
+      });
+
+      db.schema
+        .hasColumn(tableName, 'reset_password_expires_at')
+        .then((exists) => {
+          if (!exists) {
+            db.schema
+              .table(tableName, (table) => {
+                table.dateTime('reset_password_expires_at');
+              })
+              .catch((e) =>
+                console.error(
+                  `Error adding reset_password_expires_at column to ${tableName}`,
+                  e,
+                ),
+              );
+          }
+        });
     }
   });
 

@@ -5,6 +5,7 @@ import PeriodSettings from './PeriodSettings';
 import PhotosSettings from './PhotosSettings';
 import ThemeSettings from './ThemeSettings';
 import AppsSettings from './AppsSettings';
+import SecuritySettings from './SecuritySettings';
 
 const DaysSettings = () => {
   return (
@@ -14,6 +15,7 @@ const DaysSettings = () => {
       <PeriodSettings />
       <ThemeSettings />
       <AppsSettings />
+      <SecuritySettings />
     </Stack>
   );
 };
