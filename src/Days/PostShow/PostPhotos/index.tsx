@@ -46,10 +46,10 @@ const PostPhotos = ({
         marginTop: (theme) => theme.spacing(1),
       }}
     >
+      {extraAction ? <Box>{extraAction}</Box> : null}
       {!isFetched && !hideGetPhotosButton ? (
         <Button onClick={getPhotos}>GET PHOTOS</Button>
       ) : null}
-      {extraAction ? <Box>{extraAction}</Box> : null}
       {isFetched && !photos.length ? (
         <Typography>No photos found...</Typography>
       ) : null}

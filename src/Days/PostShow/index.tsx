@@ -576,18 +576,6 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                   <Button
                     type="button"
                     onClick={handleFetchWeather}
-                    variant="text"
-                    color="primary"
-                    size="small"
-                    sx={{
-                      textTransform: 'uppercase',
-                      fontSize: 12,
-                      fontWeight: 600,
-                      letterSpacing: 0.3,
-                      minWidth: 0,
-                      padding: 0,
-                      lineHeight: 1.25,
-                    }}
                     disabled={
                       post.id === 0 ||
                       editPostMutation.isPending ||
