@@ -1,8 +1,9 @@
 import React, { FormEvent } from 'react';
-import { Box, TextField, Button } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import MarkdownToolbar from '../../../shared/components/MarkdownToolbar';
 import MarkdownRenderer from '../../../shared/components/MarkdownRenderer';
+import TagMentionsInput from '../../../shared/components/TagMentionsInput';
 
 type Props = {
   body: string;
@@ -22,10 +23,6 @@ const PostEdit = ({ body, onCancel, handleSubmit }: Props) => {
     setIsPreview(false);
   }, [body]);
 
-  const handleText = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUpdatedValue(e.target.value);
-  };
-
   return (
     <form style={{ marginTop: 10 }}>
       <Grid container justifyContent="center">
@@ -43,13 +40,11 @@ const PostEdit = ({ body, onCancel, handleSubmit }: Props) => {
               <MarkdownRenderer body={updatedValue} />
             </Box>
           ) : (
-            <TextField
-              multiline
-              fullWidth
+            <TagMentionsInput
               value={updatedValue}
-              variant="standard"
-              onChange={handleText}
+              onChange={setUpdatedValue}
               inputRef={inputRef}
+              variant="standard"
             />
           )}
           <MarkdownToolbar

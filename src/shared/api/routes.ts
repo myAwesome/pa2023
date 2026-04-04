@@ -170,6 +170,12 @@ export const splitContextSegment = (
   }).then((resp) => resp.data);
 export const deleteContextSegment = (id: number) =>
   apiLocalDeleteRequest(`context-segments/${id}`).then((resp) => resp.data);
+export const getTags = (q = '') => {
+  const query = q.trim() ? `?q=${encodeURIComponent(q.trim())}` : '';
+  return apiLocalGetRequest(`tags${query}`).then((resp) => resp.data?.data);
+};
+export const postTag = (data: { name: string }) =>
+  apiLocalPostRequest('tags', data).then((resp) => resp.data);
 
 export const getYears = () =>
   apiLocalGetRequest(`posts-history?get=months`).then((resp) =>
