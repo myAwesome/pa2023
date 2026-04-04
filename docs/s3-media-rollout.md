@@ -24,6 +24,7 @@ Example:
 - `media.bucket`
 - `media.region`
 - `media.prefix`
+- `media.uploadStorageClass` (set to `GLACIER_IR` if you want to skip Standard)
 - `media.getUrlTtlSeconds`
 - `media.putUrlTtlSeconds`
 

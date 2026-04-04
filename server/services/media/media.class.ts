@@ -6,6 +6,7 @@ import {
   ListObjectsV2Command,
   PutObjectCommand,
   S3Client,
+  StorageClass,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import dayjs from 'dayjs';
@@ -96,6 +97,7 @@ export class MediaService {
   prefix: string;
   getUrlTtlSeconds: number;
   putUrlTtlSeconds: number;
+  uploadStorageClass?: StorageClass;
 
   constructor(app: Application) {
     this.app = app;
@@ -107,6 +109,12 @@ export class MediaService {
 
     this.getUrlTtlSeconds = Number(cfg.getUrlTtlSeconds || 300);
     this.putUrlTtlSeconds = Number(cfg.putUrlTtlSeconds || 900);
+    const uploadStorageClass = String(
+      cfg.uploadStorageClass || process.env.AWS_S3_UPLOAD_STORAGE_CLASS || '',
+    ).trim();
+    this.uploadStorageClass = uploadStorageClass
+      ? (uploadStorageClass as StorageClass)
+      : undefined;
     this.prefix = String(cfg.prefix || 'media/').replace(/^\/+/, '');
     if (!this.prefix.endsWith('/')) {
       this.prefix += '/';
@@ -239,6 +247,9 @@ export class MediaService {
         Bucket: this.bucket,
         Key: key,
         ContentType: data.mimeType || 'application/octet-stream',
+        ...(this.uploadStorageClass
+          ? { StorageClass: this.uploadStorageClass }
+          : {}),
         Metadata: {
           owner,
           captured_at: data.capturedAt || '',
