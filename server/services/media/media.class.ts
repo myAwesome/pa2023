@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto';
 import { Params } from '@feathersjs/feathers';
 import { BadRequest, GeneralError } from '@feathersjs/errors';
 import {
+  DeleteObjectCommand,
   GetObjectCommand,
   ListObjectsV2Command,
   PutObjectCommand,
@@ -18,6 +19,7 @@ dayjs.extend(utc);
 type MediaQuery = {
   date?: string;
   mmdd?: string;
+  key?: string;
   owner?: string;
   ranges?: string;
   pageToken?: string;
@@ -306,5 +308,43 @@ export class MediaService {
         'Content-Type': data.mimeType || 'application/octet-stream',
       },
     };
+  }
+
+  async remove(id: string | null, params: Params<MediaQuery>) {
+    const query = params.query || {};
+    const key = String(id || query.key || '').trim();
+    if (!key) {
+      throw new BadRequest('key is required');
+    }
+
+    const owner = String(params.user?.id || '');
+    if (!owner || !keyContainsOwner(key, owner)) {
+      throw new BadRequest('Not allowed to delete this media item');
+    }
+
+    try {
+      await this.s3.send(
+        new DeleteObjectCommand({
+          Bucket: this.bucket,
+          Key: key,
+        }),
+      );
+
+      // Best effort delete for paired metadata object.
+      await this.s3.send(
+        new DeleteObjectCommand({
+          Bucket: this.bucket,
+          Key: `${key}.metadata.json`,
+        }),
+      );
+
+      return {
+        id: key,
+        key,
+        deleted: true,
+      };
+    } catch (error) {
+      throw new GeneralError('Failed to delete media', { error });
+    }
   }
 }
