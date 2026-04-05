@@ -227,7 +227,7 @@ async function main() {
   const uploadMetadata = !args.skipMetadataUpload;
   const uploadConcurrency = Math.max(
     1,
-    Number(args.concurrency || args.uploadConcurrency || 4) || 4,
+    Number(args.concurrency || args.uploadConcurrency || 8) || 8,
   );
 
   let prefix = args.prefix || 'media/';
@@ -368,41 +368,50 @@ async function main() {
 
     try {
       if (!dryRun) {
-        await s3.send(
-          new PutObjectCommand({
-            Bucket: bucket,
-            Key: s3Key,
-            StorageClass: storageClass,
-            ContentType: contentType,
-            Body: fs.createReadStream(mediaPath),
-            Metadata: {
-              source: 'google-takeout-folder',
-              owner,
-              original_path_b64: toMetadataBase64(relMediaNorm),
-              ...(detailsS3Key
-                ? { details_key_b64: toMetadataBase64(detailsS3Key) }
-                : {}),
-            },
-          }),
-        );
+        const uploads = [
+          s3.send(
+            new PutObjectCommand({
+              Bucket: bucket,
+              Key: s3Key,
+              StorageClass: storageClass,
+              ContentType: contentType,
+              Body: fs.createReadStream(mediaPath),
+              Metadata: {
+                source: 'google-takeout-folder',
+                owner,
+                original_path_b64: toMetadataBase64(relMediaNorm),
+                ...(detailsS3Key
+                  ? { details_key_b64: toMetadataBase64(detailsS3Key) }
+                  : {}),
+              },
+            }),
+          ),
+        ];
+
+        if (detailsS3Key && matchedSidecarRel) {
+          uploads.push(
+            s3.send(
+              new PutObjectCommand({
+                Bucket: bucket,
+                Key: detailsS3Key,
+                StorageClass: storageClass,
+                ContentType: 'application/json',
+                Body: fs.createReadStream(path.join(inputDir, matchedSidecarRel)),
+                Metadata: {
+                  source: 'google-takeout-folder-media-details',
+                  owner,
+                  media_key_b64: toMetadataBase64(s3Key),
+                  original_path_b64: toMetadataBase64(matchedSidecarRel),
+                },
+              }),
+            ),
+          );
+        }
+
+        await Promise.all(uploads);
 
         if (detailsS3Key && matchedSidecarRel) {
           const metadataUploadId = `${uploadId}::details`;
-          await s3.send(
-            new PutObjectCommand({
-              Bucket: bucket,
-              Key: detailsS3Key,
-              StorageClass: storageClass,
-              ContentType: 'application/json',
-              Body: fs.createReadStream(path.join(inputDir, matchedSidecarRel)),
-              Metadata: {
-                source: 'google-takeout-folder-media-details',
-                owner,
-                media_key_b64: toMetadataBase64(s3Key),
-                original_path_b64: toMetadataBase64(matchedSidecarRel),
-              },
-            }),
-          );
           metadataUploadedCount += 1;
           await appendJsonLine(metadataUploadedLog, {
             uploadId: metadataUploadId,
