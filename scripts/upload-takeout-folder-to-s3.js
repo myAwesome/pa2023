@@ -43,6 +43,8 @@ const CONTENT_TYPE_BY_EXT = {
   '.webm': 'video/webm',
 };
 
+const PROGRESS_EVERY = 100;
+
 function parseArgs(argv) {
   const args = {};
   for (let i = 2; i < argv.length; i += 1) {
@@ -243,8 +245,14 @@ async function main() {
   const metadataByJsonPath = new Map();
   const jsonRelByNormalized = new Map();
   const mediaIsoByPath = new Map();
+  let jsonParsedCount = 0;
 
   for (const jsonPath of jsonFiles) {
+    jsonParsedCount += 1;
+    if (jsonParsedCount % PROGRESS_EVERY === 0) {
+      console.log(`Indexing metadata JSON: ${jsonParsedCount}/${jsonFiles.length}`);
+    }
+
     let parsed;
     try {
       parsed = JSON.parse(await fsp.readFile(jsonPath, 'utf8'));
@@ -293,7 +301,19 @@ async function main() {
   let metadataFailedCount = 0;
 
   if (uploadMetadata) {
+    let metadataProcessedCount = 0;
     for (const jsonPath of jsonFiles) {
+      metadataProcessedCount += 1;
+      if (
+        metadataProcessedCount % PROGRESS_EVERY === 0 ||
+        metadataProcessedCount === jsonFiles.length
+      ) {
+        console.log(
+          `Uploading metadata files: ${metadataProcessedCount}/${jsonFiles.length} ` +
+            `(uploaded=${metadataUploadedCount}, failed=${metadataFailedCount})`,
+        );
+      }
+
       const relJson = path.relative(inputDir, jsonPath);
       const uploadId = normalizeRel(relJson);
       if (metadataUploadedSet.has(uploadId)) {
@@ -342,7 +362,19 @@ async function main() {
     }
   }
 
+  let mediaProcessedCount = 0;
   for (const mediaPath of mediaFiles) {
+    mediaProcessedCount += 1;
+    if (
+      mediaProcessedCount % PROGRESS_EVERY === 0 ||
+      mediaProcessedCount === mediaFiles.length
+    ) {
+      console.log(
+        `Processing media files: ${mediaProcessedCount}/${mediaFiles.length} ` +
+          `(uploaded=${uploadedCount}, deferred=${deferredCount}, failed=${failedCount})`,
+      );
+    }
+
     const relMedia = path.relative(inputDir, mediaPath);
     const relMediaNorm = normalizeRel(relMedia);
     const uploadId = relMediaNorm;
