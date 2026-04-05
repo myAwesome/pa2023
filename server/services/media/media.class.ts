@@ -61,8 +61,6 @@ const MEDIA_EXTENSIONS = new Set([
 const toBool = (value: MediaQuery['onThisDay']) =>
   value === true || value === 'true' || value === 1 || value === '1';
 
-const toMmDd = (date: string) => dayjs.utc(date).format('MM-DD');
-
 const toIsoFromKey = (key: string) => {
   const tsMatch = key.match(/\/ts=([^_\/]+)_/);
   if (!tsMatch?.[1]) {
@@ -111,9 +109,8 @@ const buildKey = ({
     ? `.${filename.split('.').pop() || ''}`.replace(/\.+$/, '')
     : '';
   const ts = captured.format('YYYY-MM-DDTHH:mm:ss[Z]');
-  const mmdd = captured.format('MM-DD');
   const yyyymmdd = captured.format('YYYY-MM-DD');
-  return `${prefix}mmdd=${mmdd}/date=${yyyymmdd}/owner=${owner}/ts=${ts}_${randomUUID()}${extension}`;
+  return `${prefix}date=${yyyymmdd}/owner=${owner}/ts=${ts}_${randomUUID()}${extension}`;
 };
 
 export class MediaService {
@@ -176,13 +173,11 @@ export class MediaService {
       }
     }
 
-    const targetMmdd = query.mmdd || (date ? toMmDd(date.toISOString()) : null);
     const targetDate = date?.format('YYYY-MM-DD');
-    const prefix = targetMmdd
-      ? date && !onThisDay && targetDate
-        ? `${this.prefix}mmdd=${targetMmdd}/date=${targetDate}/`
-        : `${this.prefix}mmdd=${targetMmdd}/`
-      : this.prefix;
+    const prefix =
+      date && !onThisDay && targetDate
+        ? `${this.prefix}date=${targetDate}/`
+        : this.prefix;
 
     let continuationToken = query.pageToken;
     const collected: Array<{ key: string; createdAt: string }> = [];
