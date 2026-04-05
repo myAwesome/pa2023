@@ -91,11 +91,6 @@ function buildS3Key({ prefix, owner, iso, ext }) {
   return `${prefix}mmdd=${mmdd}/owner=${owner}/ts=${iso}_${crypto.randomUUID()}${ext.toLowerCase()}`;
 }
 
-function buildMetadataS3Key({ prefix, owner, relPath }) {
-  const safeRel = relPath.replace(/\\/g, '/').replace(/^\/+/, '').replace(/^(\.\.\/)+/, '');
-  return `${prefix}takeout-metadata/owner=${owner}/${safeRel}`;
-}
-
 function toMetadataBase64(value) {
   return Buffer.from(String(value), 'utf8').toString('base64');
 }
@@ -292,75 +287,12 @@ async function main() {
 
   const s3 = new S3Client({ region });
   const uploadedSet = await loadSuccessSet(uploadedLog);
-  const metadataUploadedSet = await loadSuccessSet(metadataUploadedLog);
 
   let uploadedCount = 0;
   let deferredCount = 0;
   let failedCount = 0;
   let metadataUploadedCount = 0;
   let metadataFailedCount = 0;
-
-  if (uploadMetadata) {
-    let metadataProcessedCount = 0;
-    for (const jsonPath of jsonFiles) {
-      metadataProcessedCount += 1;
-      if (
-        metadataProcessedCount % PROGRESS_EVERY === 0 ||
-        metadataProcessedCount === jsonFiles.length
-      ) {
-        console.log(
-          `Uploading metadata files: ${metadataProcessedCount}/${jsonFiles.length} ` +
-            `(uploaded=${metadataUploadedCount}, failed=${metadataFailedCount})`,
-        );
-      }
-
-      const relJson = path.relative(inputDir, jsonPath);
-      const uploadId = normalizeRel(relJson);
-      if (metadataUploadedSet.has(uploadId)) {
-        continue;
-      }
-
-      const s3Key = buildMetadataS3Key({ prefix, owner, relPath: relJson });
-      try {
-        if (!dryRun) {
-          await s3.send(
-            new PutObjectCommand({
-              Bucket: bucket,
-              Key: s3Key,
-              StorageClass: storageClass,
-              ContentType: 'application/json',
-              Body: fs.createReadStream(jsonPath),
-              Metadata: {
-                source: 'google-takeout-folder-metadata',
-                owner,
-                original_path_b64: toMetadataBase64(relJson),
-              },
-            }),
-          );
-        }
-
-        await appendJsonLine(metadataUploadedLog, {
-          uploadId,
-          status: 'success',
-          jsonPath: relJson,
-          s3Key,
-          uploadedAt: new Date().toISOString(),
-          dryRun,
-        });
-        metadataUploadedSet.add(uploadId);
-        metadataUploadedCount += 1;
-      } catch (error) {
-        metadataFailedCount += 1;
-        await appendJsonLine(metadataFailedLog, {
-          uploadId,
-          status: 'failed',
-          jsonPath: relJson,
-          error: error.message,
-          failedAt: new Date().toISOString(),
-        });
-      }
-    }
-  }
 
   let mediaProcessedCount = 0;
   for (const mediaPath of mediaFiles) {
@@ -431,6 +363,7 @@ async function main() {
         );
 
         if (detailsS3Key && matchedSidecarRel) {
+          const metadataUploadId = `${uploadId}::details`;
           await s3.send(
             new PutObjectCommand({
               Bucket: bucket,
@@ -446,6 +379,16 @@ async function main() {
               },
             }),
           );
+          metadataUploadedCount += 1;
+          await appendJsonLine(metadataUploadedLog, {
+            uploadId: metadataUploadId,
+            status: 'success',
+            mediaPath: relMedia,
+            jsonPath: matchedSidecarRel,
+            s3Key: detailsS3Key,
+            uploadedAt: new Date().toISOString(),
+            dryRun,
+          });
         }
       }
 
@@ -466,15 +409,26 @@ async function main() {
 
       if (!dryRun) {
         await fsp.rm(mediaPath, { force: true });
-        for (const sidecarRel of candidates) {
-          const sidecarAbs = path.join(inputDir, sidecarRel);
-          await fsp.rm(sidecarAbs, { force: true });
+        if (matchedSidecarRel) {
+          await fsp.rm(path.join(inputDir, matchedSidecarRel), { force: true });
         }
       }
 
       console.log(`Uploaded: ${relMedia} -> s3://${bucket}/${s3Key}`);
     } catch (error) {
       failedCount += 1;
+      if (detailsS3Key && matchedSidecarRel) {
+        metadataFailedCount += 1;
+        await appendJsonLine(metadataFailedLog, {
+          uploadId: `${uploadId}::details`,
+          status: 'failed',
+          mediaPath: relMedia,
+          jsonPath: matchedSidecarRel,
+          s3Key: detailsS3Key,
+          error: error.message,
+          failedAt: new Date().toISOString(),
+        });
+      }
       await appendJsonLine(failedLog, {
         uploadId,
         status: 'failed',
