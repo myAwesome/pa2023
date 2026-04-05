@@ -87,7 +87,8 @@ const buildKey = ({
     : '';
   const ts = captured.format('YYYY-MM-DDTHH:mm:ss[Z]');
   const mmdd = captured.format('MM-DD');
-  return `${prefix}mmdd=${mmdd}/owner=${owner}/ts=${ts}_${randomUUID()}${extension}`;
+  const yyyymmdd = captured.format('YYYY-MM-DD');
+  return `${prefix}mmdd=${mmdd}/date=${yyyymmdd}/owner=${owner}/ts=${ts}_${randomUUID()}${extension}`;
 };
 
 export class MediaService {
@@ -151,8 +152,11 @@ export class MediaService {
     }
 
     const targetMmdd = query.mmdd || (date ? toMmDd(date.toISOString()) : null);
+    const targetDate = date?.format('YYYY-MM-DD');
     const prefix = targetMmdd
-      ? `${this.prefix}mmdd=${targetMmdd}/`
+      ? date && !onThisDay && targetDate
+        ? `${this.prefix}mmdd=${targetMmdd}/date=${targetDate}/`
+        : `${this.prefix}mmdd=${targetMmdd}/`
       : this.prefix;
 
     let continuationToken = query.pageToken;

@@ -86,9 +86,14 @@ function toMmDd(iso) {
   return iso.slice(5, 10);
 }
 
+function toYyyyMmDd(iso) {
+  return iso.slice(0, 10);
+}
+
 function buildS3Key({ prefix, owner, iso, ext }) {
   const mmdd = toMmDd(iso);
-  return `${prefix}mmdd=${mmdd}/owner=${owner}/ts=${iso}_${crypto.randomUUID()}${ext.toLowerCase()}`;
+  const yyyymmdd = toYyyyMmDd(iso);
+  return `${prefix}mmdd=${mmdd}/date=${yyyymmdd}/owner=${owner}/ts=${iso}_${crypto.randomUUID()}${ext.toLowerCase()}`;
 }
 
 function toMetadataBase64(value) {
