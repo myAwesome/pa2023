@@ -45,6 +45,14 @@ const CONTENT_TYPE_BY_EXT = {
 
 const PROGRESS_EVERY = 100;
 
+const CLOCK_SKEW_PATTERNS = [
+  'difference between the request time and the current time is too large',
+  'requesttimetooskewed',
+  'request expired',
+  'signature not yet current',
+  'signaturedoesnotmatch',
+];
+
 function parseArgs(argv) {
   const args = {};
   for (let i = 2; i < argv.length; i += 1) {
@@ -102,6 +110,29 @@ function buildS3Key({ prefix, owner, iso, ext }) {
 
 function toMetadataBase64(value) {
   return Buffer.from(String(value), 'utf8').toString('base64');
+}
+
+function isClockSkewError(error) {
+  const code = String(error?.Code || error?.code || '').toLowerCase();
+  const message = String(error?.message || '').toLowerCase();
+  return CLOCK_SKEW_PATTERNS.some(
+    (pattern) => code.includes(pattern) || message.includes(pattern),
+  );
+}
+
+async function getS3ClockOffsetMs(region) {
+  try {
+    const response = await fetch(`https://s3.${region}.amazonaws.com/`, {
+      method: 'HEAD',
+    });
+    const dateHeader = response.headers.get('date');
+    if (!dateHeader) return null;
+    const serverMs = Date.parse(dateHeader);
+    if (!Number.isFinite(serverMs)) return null;
+    return serverMs - Date.now();
+  } catch {
+    return null;
+  }
 }
 
 function isMediaPath(filePath) {
@@ -227,7 +258,7 @@ async function main() {
   const uploadMetadata = !args.skipMetadataUpload;
   const uploadConcurrency = Math.max(
     1,
-    Number(args.concurrency || args.uploadConcurrency || 8) || 8,
+    Number(args.concurrency || args.uploadConcurrency || 6) || 6,
   );
 
   let prefix = args.prefix || 'media/';
@@ -368,63 +399,83 @@ async function main() {
       CONTENT_TYPE_BY_EXT[ext.toLowerCase()] || 'application/octet-stream';
 
     inFlightUploads += 1;
-    try {
-      if (!dryRun) {
-        const uploads = [
+    const uploadPair = async () => {
+      if (dryRun) return;
+      const uploads = [
+        s3.send(
+          new PutObjectCommand({
+            Bucket: bucket,
+            Key: s3Key,
+            StorageClass: storageClass,
+            ContentType: contentType,
+            Body: fs.createReadStream(mediaPath),
+            Metadata: {
+              source: 'google-takeout-folder',
+              owner,
+              original_path_b64: toMetadataBase64(relMediaNorm),
+              ...(detailsS3Key
+                ? { details_key_b64: toMetadataBase64(detailsS3Key) }
+                : {}),
+            },
+          }),
+        ),
+      ];
+
+      if (detailsS3Key && matchedSidecarRel) {
+        uploads.push(
           s3.send(
             new PutObjectCommand({
               Bucket: bucket,
-              Key: s3Key,
+              Key: detailsS3Key,
               StorageClass: storageClass,
-              ContentType: contentType,
-              Body: fs.createReadStream(mediaPath),
+              ContentType: 'application/json',
+              Body: fs.createReadStream(path.join(inputDir, matchedSidecarRel)),
               Metadata: {
-                source: 'google-takeout-folder',
+                source: 'google-takeout-folder-media-details',
                 owner,
-                original_path_b64: toMetadataBase64(relMediaNorm),
-                ...(detailsS3Key
-                  ? { details_key_b64: toMetadataBase64(detailsS3Key) }
-                  : {}),
+                media_key_b64: toMetadataBase64(s3Key),
+                original_path_b64: toMetadataBase64(matchedSidecarRel),
               },
             }),
           ),
-        ];
+        );
+      }
+      await Promise.all(uploads);
+    };
 
-        if (detailsS3Key && matchedSidecarRel) {
-          uploads.push(
-            s3.send(
-              new PutObjectCommand({
-                Bucket: bucket,
-                Key: detailsS3Key,
-                StorageClass: storageClass,
-                ContentType: 'application/json',
-                Body: fs.createReadStream(path.join(inputDir, matchedSidecarRel)),
-                Metadata: {
-                  source: 'google-takeout-folder-media-details',
-                  owner,
-                  media_key_b64: toMetadataBase64(s3Key),
-                  original_path_b64: toMetadataBase64(matchedSidecarRel),
-                },
-              }),
-            ),
-          );
+    try {
+      try {
+        await uploadPair();
+      } catch (error) {
+        if (!isClockSkewError(error)) {
+          throw error;
         }
 
-        await Promise.all(uploads);
-
-        if (detailsS3Key && matchedSidecarRel) {
-          const metadataUploadId = `${uploadId}::details`;
-          metadataUploadedCount += 1;
-          await appendJsonLine(metadataUploadedLog, {
-            uploadId: metadataUploadId,
-            status: 'success',
-            mediaPath: relMedia,
-            jsonPath: matchedSidecarRel,
-            s3Key: detailsS3Key,
-            uploadedAt: new Date().toISOString(),
-            dryRun,
-          });
+        const offsetMs = await getS3ClockOffsetMs(region);
+        if (!Number.isFinite(offsetMs)) {
+          throw error;
         }
+
+        // @ts-ignore runtime config mutation is supported in JS.
+        s3.config.systemClockOffset = offsetMs;
+        console.warn(
+          `[worker ${workerId}] Clock skew detected. Retrying with systemClockOffset=${offsetMs}ms`,
+        );
+        await uploadPair();
+      }
+
+      if (detailsS3Key && matchedSidecarRel) {
+        const metadataUploadId = `${uploadId}::details`;
+        metadataUploadedCount += 1;
+        await appendJsonLine(metadataUploadedLog, {
+          uploadId: metadataUploadId,
+          status: 'success',
+          mediaPath: relMedia,
+          jsonPath: matchedSidecarRel,
+          s3Key: detailsS3Key,
+          uploadedAt: new Date().toISOString(),
+          dryRun,
+        });
       }
 
       await appendJsonLine(uploadedLog, {
