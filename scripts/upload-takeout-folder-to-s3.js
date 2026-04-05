@@ -241,6 +241,7 @@ async function main() {
   console.log(`JSON files: ${jsonFiles.length}`);
 
   const metadataByJsonPath = new Map();
+  const jsonRelByNormalized = new Map();
   const mediaIsoByPath = new Map();
 
   for (const jsonPath of jsonFiles) {
@@ -256,6 +257,9 @@ async function main() {
 
     const relJson = normalizeRel(path.relative(inputDir, jsonPath));
     metadataByJsonPath.set(relJson, iso);
+    if (!jsonRelByNormalized.has(relJson)) {
+      jsonRelByNormalized.set(relJson, path.relative(inputDir, jsonPath));
+    }
 
     const title = parsed?.title;
     if (title && typeof title === 'string') {
@@ -364,6 +368,14 @@ async function main() {
     const finalCapturedAt = capturedAt || toIsoUtc(new Date());
     const ext = path.extname(mediaPath) || '';
     const s3Key = buildS3Key({ prefix, owner, iso: finalCapturedAt, ext });
+    const matchedSidecarNorm = candidates.find((c) => metadataByJsonPath.has(c) || jsonRelByNormalized.has(c));
+    const matchedSidecarRel = matchedSidecarNorm
+      ? jsonRelByNormalized.get(matchedSidecarNorm) || matchedSidecarNorm
+      : null;
+    const detailsS3Key =
+      uploadMetadata && matchedSidecarRel
+        ? `${s3Key}.metadata.json`
+        : null;
     const contentType = CONTENT_TYPE_BY_EXT[ext.toLowerCase()] || 'application/octet-stream';
 
     try {
@@ -379,9 +391,30 @@ async function main() {
               source: 'google-takeout-folder',
               owner,
               original_path_b64: toMetadataBase64(relMediaNorm),
+              ...(detailsS3Key
+                ? { details_key_b64: toMetadataBase64(detailsS3Key) }
+                : {}),
             },
           }),
         );
+
+        if (detailsS3Key && matchedSidecarRel) {
+          await s3.send(
+            new PutObjectCommand({
+              Bucket: bucket,
+              Key: detailsS3Key,
+              StorageClass: storageClass,
+              ContentType: 'application/json',
+              Body: fs.createReadStream(path.join(inputDir, matchedSidecarRel)),
+              Metadata: {
+                source: 'google-takeout-folder-media-details',
+                owner,
+                media_key_b64: toMetadataBase64(s3Key),
+                original_path_b64: toMetadataBase64(matchedSidecarRel),
+              },
+            }),
+          );
+        }
       }
 
       await appendJsonLine(uploadedLog, {
@@ -389,6 +422,8 @@ async function main() {
         status: 'success',
         mediaPath: relMedia,
         s3Key,
+        detailsS3Key,
+        sidecarPath: matchedSidecarRel,
         capturedAt: finalCapturedAt,
         uploadedAt: new Date().toISOString(),
         dryRun,

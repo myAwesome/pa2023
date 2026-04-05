@@ -421,6 +421,8 @@ async function main() {
 
         const finalCapturedAt = capturedAt || toIsoUtc(new Date());
         const s3Key = buildS3Key({ prefix, owner, iso: finalCapturedAt, ext });
+        const matchedSidecarEntry = candidates.find((c) => metadataIndex[c]);
+        const detailsS3Key = matchedSidecarEntry ? `${s3Key}.metadata.json` : null;
         const contentType = CONTENT_TYPE_BY_EXT[ext.toLowerCase()] || 'application/octet-stream';
 
         await s3.send(
@@ -435,9 +437,34 @@ async function main() {
               owner,
               original_zip: zipName,
               original_entry_b64: toMetadataBase64(entryPath),
+              ...(detailsS3Key
+                ? { details_key_b64: toMetadataBase64(detailsS3Key) }
+                : {}),
             },
           }),
         );
+
+        if (detailsS3Key && matchedSidecarEntry) {
+          const sidecarRaw = runUnzipReadText(zipPath, matchedSidecarEntry);
+          if (sidecarRaw) {
+            await s3.send(
+              new PutObjectCommand({
+                Bucket: bucket,
+                Key: detailsS3Key,
+                StorageClass: storageClass,
+                ContentType: 'application/json',
+                Body: sidecarRaw,
+                Metadata: {
+                  source: 'google-takeout-media-details',
+                  owner,
+                  media_key_b64: toMetadataBase64(s3Key),
+                  original_zip: zipName,
+                  original_entry_b64: toMetadataBase64(matchedSidecarEntry),
+                },
+              }),
+            );
+          }
+        }
 
         await appendJsonLine(uploadedLog, {
           uploadId,
@@ -445,6 +472,8 @@ async function main() {
           zipName,
           entryPath,
           s3Key,
+          detailsS3Key,
+          sidecarEntry: matchedSidecarEntry || null,
           capturedAt: finalCapturedAt,
           uploadedAt: new Date().toISOString(),
         });
