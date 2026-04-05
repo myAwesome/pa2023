@@ -570,7 +570,7 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
               ''
             )}
             <PostPhotos
-              date={post.date}
+              date={postDate}
               extraAction={
                 weather ? (
                   <Typography
