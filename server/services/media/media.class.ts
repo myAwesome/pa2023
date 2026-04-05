@@ -40,6 +40,23 @@ type MediaRange = {
 
 const MAX_PAGE_SIZE = 100;
 const DEFAULT_PAGE_SIZE = 24;
+const MEDIA_EXTENSIONS = new Set([
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.gif',
+  '.webp',
+  '.heic',
+  '.heif',
+  '.avif',
+  '.mp4',
+  '.mov',
+  '.avi',
+  '.m4v',
+  '.3gp',
+  '.mkv',
+  '.webm',
+]);
 
 const toBool = (value: MediaQuery['onThisDay']) =>
   value === true || value === 'true' || value === 1 || value === '1';
@@ -57,6 +74,14 @@ const toIsoFromKey = (key: string) => {
 
 const keyContainsOwner = (key: string, owner?: string) =>
   !owner || key.includes(`/owner=${owner}/`);
+
+const isMediaKey = (key: string) => {
+  const lower = key.toLowerCase();
+  const ext = lower.includes('.')
+    ? `.${lower.split('.').pop() || ''}`
+    : '';
+  return MEDIA_EXTENSIONS.has(ext);
+};
 
 const isWithinRanges = (isoDate: string, ranges: MediaRange[]) =>
   ranges.some((range) => {
@@ -177,7 +202,11 @@ export class MediaService {
       const objects = result.Contents || [];
 
       for (const item of objects) {
-        if (!item.Key || !keyContainsOwner(item.Key, query.owner)) {
+        if (
+          !item.Key ||
+          !keyContainsOwner(item.Key, query.owner) ||
+          !isMediaKey(item.Key)
+        ) {
           continue;
         }
         const createdAt =
