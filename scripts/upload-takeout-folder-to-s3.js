@@ -74,6 +74,15 @@ function normalizeRel(p) {
   return p.replace(/\\/g, '/').replace(/^\/+/, '').toLowerCase();
 }
 
+function canonicalTakeoutRel(p) {
+  const normalized = normalizeRel(p);
+  const parts = normalized.split('/').filter(Boolean);
+  if (parts.length > 1 && /^takeout(?: \d+)?$/i.test(parts[0])) {
+    return parts.slice(1).join('/');
+  }
+  return normalized;
+}
+
 function toIsoUtc(date) {
   const value = new Date(date);
   if (Number.isNaN(value.getTime())) {
@@ -258,15 +267,18 @@ async function main() {
     const iso = extractTimestampFromSidecar(parsed);
     if (!iso) continue;
 
-    const relJson = normalizeRel(path.relative(inputDir, jsonPath));
-    metadataByJsonPath.set(relJson, iso);
-    if (!jsonRelByNormalized.has(relJson)) {
-      jsonRelByNormalized.set(relJson, path.relative(inputDir, jsonPath));
+    const relJsonRaw = path.relative(inputDir, jsonPath);
+    const relJsonCanonical = canonicalTakeoutRel(relJsonRaw);
+    metadataByJsonPath.set(relJsonCanonical, iso);
+    if (!jsonRelByNormalized.has(relJsonCanonical)) {
+      jsonRelByNormalized.set(relJsonCanonical, relJsonRaw);
     }
 
     const title = parsed?.title;
     if (title && typeof title === 'string') {
-      const mediaRelByTitle = normalizeRel(path.posix.join(path.posix.dirname(relJson), title));
+      const mediaRelByTitle = normalizeRel(
+        path.posix.join(path.posix.dirname(relJsonCanonical), title),
+      );
       if (!mediaIsoByPath.has(mediaRelByTitle)) {
         mediaIsoByPath.set(mediaRelByTitle, iso);
       }
@@ -309,14 +321,17 @@ async function main() {
 
     const relMedia = path.relative(inputDir, mediaPath);
     const relMediaNorm = normalizeRel(relMedia);
+    const relMediaCanonical = canonicalTakeoutRel(relMedia);
     const uploadId = relMediaNorm;
 
     if (uploadedSet.has(uploadId)) {
       continue;
     }
 
-    const candidates = sidecarCandidates(relMediaNorm);
-    const capturedAt = mediaIsoByPath.get(relMediaNorm) || candidates.map((c) => metadataByJsonPath.get(c)).find(Boolean);
+    const candidates = sidecarCandidates(relMediaCanonical);
+    const capturedAt =
+      mediaIsoByPath.get(relMediaCanonical) ||
+      candidates.map((c) => metadataByJsonPath.get(c)).find(Boolean);
 
     if (!capturedAt && !allowMissingMetadata) {
       deferredCount += 1;
@@ -332,7 +347,9 @@ async function main() {
     const finalCapturedAt = capturedAt || toIsoUtc(new Date());
     const ext = path.extname(mediaPath) || '';
     const s3Key = buildS3Key({ prefix, owner, iso: finalCapturedAt, ext });
-    const matchedSidecarNorm = candidates.find((c) => metadataByJsonPath.has(c) || jsonRelByNormalized.has(c));
+    const matchedSidecarNorm = candidates.find(
+      (c) => metadataByJsonPath.has(c) || jsonRelByNormalized.has(c),
+    );
     const matchedSidecarRel = matchedSidecarNorm
       ? jsonRelByNormalized.get(matchedSidecarNorm) || matchedSidecarNorm
       : null;
