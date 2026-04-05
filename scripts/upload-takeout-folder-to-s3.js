@@ -309,11 +309,12 @@ async function main() {
   let failedCount = 0;
   let metadataUploadedCount = 0;
   let metadataFailedCount = 0;
+  let inFlightUploads = 0;
 
   let mediaProcessedCount = 0;
   let nextMediaIndex = 0;
 
-  const processOneMedia = async (mediaPath) => {
+  const processOneMedia = async (mediaPath, workerId) => {
     mediaProcessedCount += 1;
     if (
       mediaProcessedCount % PROGRESS_EVERY === 0 ||
@@ -366,6 +367,7 @@ async function main() {
     const contentType =
       CONTENT_TYPE_BY_EXT[ext.toLowerCase()] || 'application/octet-stream';
 
+    inFlightUploads += 1;
     try {
       if (!dryRun) {
         const uploads = [
@@ -447,7 +449,9 @@ async function main() {
         }
       }
 
-      console.log(`Uploaded: ${relMedia} -> s3://${bucket}/${s3Key}`);
+      console.log(
+        `[worker ${workerId}] Uploaded (in-flight=${inFlightUploads}): ${relMedia} -> s3://${bucket}/${s3Key}`,
+      );
     } catch (error) {
       failedCount += 1;
       if (detailsS3Key && matchedSidecarRel) {
@@ -469,18 +473,23 @@ async function main() {
         error: error.message,
         failedAt: new Date().toISOString(),
       });
-      console.error(`Failed: ${relMedia} (${error.message})`);
+      console.error(
+        `[worker ${workerId}] Failed (in-flight=${inFlightUploads}): ${relMedia} (${error.message})`,
+      );
+    } finally {
+      inFlightUploads = Math.max(0, inFlightUploads - 1);
     }
   };
 
-  const workers = Array.from({ length: uploadConcurrency }, async () => {
+  const workers = Array.from({ length: uploadConcurrency }, async (_, i) => {
+    const workerId = i + 1;
     while (true) {
       const index = nextMediaIndex;
       nextMediaIndex += 1;
       if (index >= mediaFiles.length) {
         return;
       }
-      await processOneMedia(mediaFiles[index]);
+      await processOneMedia(mediaFiles[index], workerId);
     }
   });
 
