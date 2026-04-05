@@ -89,6 +89,11 @@ function buildS3Key({ prefix, owner, iso, ext }) {
   return `${prefix}mmdd=${mmdd}/owner=${owner}/ts=${iso}_${crypto.randomUUID()}${ext.toLowerCase()}`;
 }
 
+function buildMetadataS3Key({ prefix, owner, relPath }) {
+  const safeRel = relPath.replace(/\\/g, '/').replace(/^\/+/, '').replace(/^(\.\.\/)+/, '');
+  return `${prefix}takeout-metadata/owner=${owner}/${safeRel}`;
+}
+
 function toMetadataBase64(value) {
   return Buffer.from(String(value), 'utf8').toString('base64');
 }
@@ -139,7 +144,8 @@ async function appendJsonLine(filePath, obj) {
   await fsp.appendFile(filePath, `${JSON.stringify(obj)}\n`, 'utf8');
 }
 
-async function loadUploadedSet(filePath) {
+async function loadSuccessSet(filePath, options = {}) {
+  const includeDryRun = Boolean(options.includeDryRun);
   try {
     const text = await fsp.readFile(filePath, 'utf8');
     const set = new Set();
@@ -147,7 +153,11 @@ async function loadUploadedSet(filePath) {
       if (!line.trim()) continue;
       try {
         const row = JSON.parse(line);
-        if (row?.status === 'success' && row?.uploadId && !row?.dryRun) {
+        if (
+          row?.status === 'success' &&
+          row?.uploadId &&
+          (includeDryRun || !row?.dryRun)
+        ) {
           set.add(row.uploadId);
         }
       } catch {
@@ -208,6 +218,7 @@ async function main() {
   const storageClass = args.storageClass || process.env.AWS_S3_UPLOAD_STORAGE_CLASS || 'GLACIER_IR';
   const dryRun = Boolean(args.dryRun);
   const allowMissingMetadata = Boolean(args.allowMissingMetadata);
+  const uploadMetadata = !args.skipMetadataUpload;
 
   let prefix = args.prefix || 'media/';
   if (!prefix.endsWith('/')) prefix += '/';
@@ -218,6 +229,8 @@ async function main() {
   const uploadedLog = path.join(stateDir, 'uploaded.jsonl');
   const failedLog = path.join(stateDir, 'failed.jsonl');
   const deferredLog = path.join(stateDir, 'deferred.jsonl');
+  const metadataUploadedLog = path.join(stateDir, 'metadata-uploaded.jsonl');
+  const metadataFailedLog = path.join(stateDir, 'metadata-failed.jsonl');
 
   const allFiles = await walkFiles(inputDir);
   const mediaFiles = allFiles.filter(isMediaPath);
@@ -266,11 +279,64 @@ async function main() {
   }
 
   const s3 = new S3Client({ region });
-  const uploadedSet = await loadUploadedSet(uploadedLog);
+  const uploadedSet = await loadSuccessSet(uploadedLog);
+  const metadataUploadedSet = await loadSuccessSet(metadataUploadedLog);
 
   let uploadedCount = 0;
   let deferredCount = 0;
   let failedCount = 0;
+  let metadataUploadedCount = 0;
+  let metadataFailedCount = 0;
+
+  if (uploadMetadata) {
+    for (const jsonPath of jsonFiles) {
+      const relJson = path.relative(inputDir, jsonPath);
+      const uploadId = normalizeRel(relJson);
+      if (metadataUploadedSet.has(uploadId)) {
+        continue;
+      }
+
+      const s3Key = buildMetadataS3Key({ prefix, owner, relPath: relJson });
+      try {
+        if (!dryRun) {
+          await s3.send(
+            new PutObjectCommand({
+              Bucket: bucket,
+              Key: s3Key,
+              StorageClass: storageClass,
+              ContentType: 'application/json',
+              Body: fs.createReadStream(jsonPath),
+              Metadata: {
+                source: 'google-takeout-folder-metadata',
+                owner,
+                original_path_b64: toMetadataBase64(relJson),
+              },
+            }),
+          );
+        }
+
+        await appendJsonLine(metadataUploadedLog, {
+          uploadId,
+          status: 'success',
+          jsonPath: relJson,
+          s3Key,
+          uploadedAt: new Date().toISOString(),
+          dryRun,
+        });
+        metadataUploadedSet.add(uploadId);
+        metadataUploadedCount += 1;
+      } catch (error) {
+        metadataFailedCount += 1;
+        await appendJsonLine(metadataFailedLog, {
+          uploadId,
+          status: 'failed',
+          jsonPath: relJson,
+          error: error.message,
+          failedAt: new Date().toISOString(),
+        });
+      }
+    }
+  }
 
   for (const mediaPath of mediaFiles) {
     const relMedia = path.relative(inputDir, mediaPath);
@@ -361,9 +427,15 @@ async function main() {
   console.log(`Uploaded: ${uploadedCount}`);
   console.log(`Deferred: ${deferredCount}`);
   console.log(`Failed: ${failedCount}`);
+  console.log(`Metadata uploaded: ${metadataUploadedCount}`);
+  console.log(`Metadata failed: ${metadataFailedCount}`);
   console.log(`Uploaded log: ${uploadedLog}`);
   console.log(`Deferred log: ${deferredLog}`);
   console.log(`Failed log: ${failedLog}`);
+  if (uploadMetadata) {
+    console.log(`Metadata uploaded log: ${metadataUploadedLog}`);
+    console.log(`Metadata failed log: ${metadataFailedLog}`);
+  }
 }
 
 main().catch((error) => {
