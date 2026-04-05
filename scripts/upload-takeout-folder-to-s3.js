@@ -143,7 +143,7 @@ async function loadUploadedSet(filePath) {
       if (!line.trim()) continue;
       try {
         const row = JSON.parse(line);
-        if (row?.status === 'success' && row?.uploadId) {
+        if (row?.status === 'success' && row?.uploadId && !row?.dryRun) {
           set.add(row.uploadId);
         }
       } catch {
