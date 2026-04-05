@@ -17,6 +17,13 @@ type Props = {
   extraAction?: ReactNode;
 };
 
+const VIDEO_EXTENSIONS = ['.mp4', '.mov', '.avi', '.m4v', '.3gp', '.mkv', '.webm'];
+
+const isVideoMedia = (photo: PhotoType) => {
+  const key = (photo?.id || '').toLowerCase();
+  return VIDEO_EXTENSIONS.some((ext) => key.endsWith(ext));
+};
+
 const PostPhotos = ({
   date,
   hideGetPhotosButton = false,
@@ -24,7 +31,10 @@ const PostPhotos = ({
 }: Props) => {
   const [photos, setPhotos] = React.useState<PhotoType[]>([]);
   const [isFetched, setFetched] = React.useState(false);
-  const [showImg, setShowImg] = React.useState('');
+  const [previewMedia, setPreviewMedia] = React.useState<{
+    url: string;
+    type: 'image' | 'video';
+  } | null>(null);
   const [isUploading, setUploading] = React.useState(false);
   const [deleteTarget, setDeleteTarget] = React.useState<PhotoType | null>(null);
   const [isDeleting, setDeleting] = React.useState(false);
@@ -152,7 +162,12 @@ const PostPhotos = ({
                       cursor: 'pointer',
                       backgroundImage: `url(${p.baseUrl})`,
                     }}
-                    onClick={() => setShowImg(p.baseUrl)}
+                    onClick={() =>
+                      setPreviewMedia({
+                        url: p.baseUrl,
+                        type: isVideoMedia(p) ? 'video' : 'image',
+                      })
+                    }
                   />
                 </Grid>
                 <Grid>
@@ -170,15 +185,27 @@ const PostPhotos = ({
           ))}
         </Grid>
       ) : null}
-      <Dialog open={!!showImg} onClose={() => setShowImg('')}>
-        <img
-          src={showImg}
-          style={{
-            maxWidth: '90vw',
-            maxHeight: '90vh',
-          }}
-          alt={date.toString()}
-        />
+      <Dialog open={!!previewMedia} onClose={() => setPreviewMedia(null)}>
+        {previewMedia?.type === 'video' ? (
+          <video
+            src={previewMedia.url}
+            controls
+            autoPlay
+            style={{
+              maxWidth: '90vw',
+              maxHeight: '90vh',
+            }}
+          />
+        ) : (
+          <img
+            src={previewMedia?.url}
+            style={{
+              maxWidth: '90vw',
+              maxHeight: '90vh',
+            }}
+            alt={date.toString()}
+          />
+        )}
       </Dialog>
       <Dialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
         <Box sx={{ padding: 2, maxWidth: 360 }}>
