@@ -71,6 +71,17 @@ function requireArg(args, key, fallback) {
 }
 
 function runUnzipList(zipPath) {
+  const bsdtar = spawnSync('bsdtar', ['-tf', zipPath], {
+    encoding: 'utf8',
+    maxBuffer: 1024 * 1024 * 256,
+  });
+  if (bsdtar.status === 0) {
+    return bsdtar.stdout
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean);
+  }
+
   const result = spawnSync('unzip', ['-Z1', zipPath], {
     encoding: 'utf8',
     maxBuffer: 1024 * 1024 * 256,
@@ -85,6 +96,14 @@ function runUnzipList(zipPath) {
 }
 
 function runUnzipReadText(zipPath, entryPath) {
+  const bsdtar = spawnSync('bsdtar', ['-xOf', zipPath, entryPath], {
+    encoding: 'utf8',
+    maxBuffer: 1024 * 1024 * 50,
+  });
+  if (bsdtar.status === 0) {
+    return bsdtar.stdout;
+  }
+
   const result = spawnSync('unzip', ['-p', zipPath, entryPath], {
     encoding: 'utf8',
     maxBuffer: 1024 * 1024 * 50,
@@ -98,28 +117,28 @@ function runUnzipReadText(zipPath, entryPath) {
 async function extractEntryToTemp(zipPath, entryPath, outPath) {
   await fsp.mkdir(path.dirname(outPath), { recursive: true });
   return new Promise((resolve, reject) => {
-    const unzip = spawn('unzip', ['-p', zipPath, entryPath], {
+    const extract = spawn('bsdtar', ['-xOf', zipPath, entryPath], {
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     const out = fs.createWriteStream(outPath);
 
     let stderr = '';
-    unzip.stderr.on('data', (d) => {
+    extract.stderr.on('data', (d) => {
       stderr += d.toString();
     });
-    unzip.on('error', reject);
+    extract.on('error', reject);
     out.on('error', reject);
-    unzip.stdout.pipe(out);
+    extract.stdout.pipe(out);
     out.on('finish', () => {
-      if (unzip.exitCode !== 0 && unzip.exitCode !== null) {
-        reject(new Error(stderr || `unzip failed for ${entryPath}`));
+      if (extract.exitCode !== 0 && extract.exitCode !== null) {
+        reject(new Error(stderr || `extract failed for ${entryPath}`));
         return;
       }
       resolve();
     });
-    unzip.on('close', (code) => {
+    extract.on('close', (code) => {
       if (code !== 0) {
-        reject(new Error(stderr || `unzip failed for ${entryPath}`));
+        reject(new Error(stderr || `extract failed for ${entryPath}`));
       }
     });
   });
