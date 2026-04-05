@@ -225,6 +225,10 @@ async function main() {
   const dryRun = Boolean(args.dryRun);
   const allowMissingMetadata = Boolean(args.allowMissingMetadata);
   const uploadMetadata = !args.skipMetadataUpload;
+  const uploadConcurrency = Math.max(
+    1,
+    Number(args.concurrency || args.uploadConcurrency || 4) || 4,
+  );
 
   let prefix = args.prefix || 'media/';
   if (!prefix.endsWith('/')) prefix += '/';
@@ -307,7 +311,9 @@ async function main() {
   let metadataFailedCount = 0;
 
   let mediaProcessedCount = 0;
-  for (const mediaPath of mediaFiles) {
+  let nextMediaIndex = 0;
+
+  const processOneMedia = async (mediaPath) => {
     mediaProcessedCount += 1;
     if (
       mediaProcessedCount % PROGRESS_EVERY === 0 ||
@@ -325,7 +331,7 @@ async function main() {
     const uploadId = relMediaNorm;
 
     if (uploadedSet.has(uploadId)) {
-      continue;
+      return;
     }
 
     const candidates = sidecarCandidates(relMediaCanonical);
@@ -341,7 +347,7 @@ async function main() {
         mediaPath: relMedia,
         deferredAt: new Date().toISOString(),
       });
-      continue;
+      return;
     }
 
     const finalCapturedAt = capturedAt || toIsoUtc(new Date());
@@ -357,7 +363,8 @@ async function main() {
       uploadMetadata && matchedSidecarRel
         ? `${s3Key}.metadata.json`
         : null;
-    const contentType = CONTENT_TYPE_BY_EXT[ext.toLowerCase()] || 'application/octet-stream';
+    const contentType =
+      CONTENT_TYPE_BY_EXT[ext.toLowerCase()] || 'application/octet-stream';
 
     try {
       if (!dryRun) {
@@ -455,7 +462,20 @@ async function main() {
       });
       console.error(`Failed: ${relMedia} (${error.message})`);
     }
-  }
+  };
+
+  const workers = Array.from({ length: uploadConcurrency }, async () => {
+    while (true) {
+      const index = nextMediaIndex;
+      nextMediaIndex += 1;
+      if (index >= mediaFiles.length) {
+        return;
+      }
+      await processOneMedia(mediaFiles[index]);
+    }
+  });
+
+  await Promise.all(workers);
 
   if (!dryRun) {
     await removeEmptyDirs(inputDir);
