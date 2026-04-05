@@ -181,6 +181,10 @@ function buildS3Key({ prefix, owner, iso, ext }) {
   return `${prefix}mmdd=${mmdd}/owner=${owner}/ts=${iso}_${crypto.randomUUID()}${ext.toLowerCase()}`;
 }
 
+function toMetadataBase64(value) {
+  return Buffer.from(String(value), 'utf8').toString('base64');
+}
+
 async function appendJsonLine(filePath, obj) {
   await fsp.appendFile(filePath, `${JSON.stringify(obj)}\n`, 'utf8');
 }
@@ -430,7 +434,7 @@ async function main() {
               source: 'google-takeout',
               owner,
               original_zip: zipName,
-              original_entry: entryPath,
+              original_entry_b64: toMetadataBase64(entryPath),
             },
           }),
         );

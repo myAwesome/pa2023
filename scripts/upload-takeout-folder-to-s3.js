@@ -89,6 +89,10 @@ function buildS3Key({ prefix, owner, iso, ext }) {
   return `${prefix}mmdd=${mmdd}/owner=${owner}/ts=${iso}_${crypto.randomUUID()}${ext.toLowerCase()}`;
 }
 
+function toMetadataBase64(value) {
+  return Buffer.from(String(value), 'utf8').toString('base64');
+}
+
 function isMediaPath(filePath) {
   const ext = path.extname(filePath).toLowerCase();
   return MEDIA_EXTENSIONS.has(ext);
@@ -308,7 +312,7 @@ async function main() {
             Metadata: {
               source: 'google-takeout-folder',
               owner,
-              original_path: relMediaNorm,
+              original_path_b64: toMetadataBase64(relMediaNorm),
             },
           }),
         );
