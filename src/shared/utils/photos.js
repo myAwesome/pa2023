@@ -13,6 +13,27 @@ const normalizeRanges = (ranges = []) =>
     end: r.end,
   }));
 
+const toDayParam = (value) => {
+  if (!value) return null;
+
+  if (typeof value === 'string') {
+    const dayMatch = value.match(/^(\d{4}-\d{2}-\d{2})/);
+    if (dayMatch?.[1]) {
+      return dayMatch[1];
+    }
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+
+  const yyyy = parsed.getFullYear();
+  const mm = String(parsed.getMonth() + 1).padStart(2, '0');
+  const dd = String(parsed.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
+
 export const getPhotosOnDate = async (
   _authToken,
   date,
@@ -29,7 +50,10 @@ export const getPhotosOnDate = async (
       params.set('pageToken', nextPageToken);
     }
     if (date) {
-      params.set('date', new Date(date).toISOString());
+      const dayParam = toDayParam(date);
+      if (dayParam) {
+        params.set('date', dayParam);
+      }
     }
     if (ranges?.length) {
       params.set('ranges', JSON.stringify(normalizeRanges(ranges)));
