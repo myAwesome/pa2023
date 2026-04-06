@@ -16,7 +16,7 @@ import { useCreateMutation } from '../shared/hooks/useCreateMutation';
 import { useUpdateMutation } from '../shared/hooks/useUpdateMutation';
 import { useDeleteMutation } from '../shared/hooks/useDeleteMutation';
 import AddCountdown from './AddCountdown';
-import calendarIcon from './calendar.svg';
+import calendarIcon from './calendar.svg?no-inline';
 
 const Countdown = () => {
   const [countdownToEdit, setCountdownToEdit] =
@@ -96,6 +96,8 @@ const Countdown = () => {
               width: 300,
               height: 300,
               backgroundImage: `url(${calendarIcon})`,
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'center',
               backgroundSize: 'cover',
               color: (theme) => theme.palette.getContrastText('#fff'),
               cursor: 'pointer',
