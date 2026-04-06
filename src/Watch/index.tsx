@@ -32,6 +32,10 @@ import { dateToMySQLFormat } from '../shared/utils/mappers';
 import WatchEntry from './WatchEntry';
 import AddWatch from './AddWatch';
 
+type WatchPatchPayload = {
+  id: number;
+} & Partial<Omit<WatchItemType, 'id' | 'created_at'>>;
+
 const Watch = () => {
   const [isAdd, setIsAdd] = React.useState(false);
   const [isEdit, setIsEdit] = React.useState(false);
@@ -66,12 +70,12 @@ const Watch = () => {
     },
   });
   const updateMutation = useUpdateMutation(
-    (values: WatchItemType) =>
-      editWatch((itemToEdit || itemToUpdate)?.id || 0, values),
+    ({ id, ...values }: WatchPatchPayload) => editWatch(id, values),
     ['watch', { filterType, filterSeen, sortBy, sortDir }],
-    (itemToEdit || itemToUpdate)?.id,
-    (values: WatchItemType) => ({
-      ...(itemToEdit || itemToUpdate),
+    'id-from-payload',
+    ({ id, ...values }: WatchPatchPayload, item: WatchItemType) => ({
+      ...item,
+      id,
       ...values,
     }),
     () => {
@@ -112,8 +116,17 @@ const Watch = () => {
   const handleSubmit = (
     values: Omit<WatchItemType, 'last_seen' | 'id' | 'created_at'>,
   ) => {
-    const action = isAdd ? createMutation : updateMutation;
-    action.mutate(values);
+    if (isAdd) {
+      createMutation.mutate(values);
+      return;
+    }
+
+    const activeItem = itemToEdit || itemToUpdate;
+    if (!activeItem?.id) {
+      return;
+    }
+
+    updateMutation.mutate({ id: activeItem.id, ...values });
   };
 
   const handleClose = () => {
@@ -265,7 +278,11 @@ const Watch = () => {
           <Grid>
             <Button
               onClick={() => {
+                if (!itemToUpdate?.id) {
+                  return;
+                }
                 updateMutation.mutate({
+                  id: itemToUpdate.id,
                   last_seen: dateToMySQLFormat(updateDate),
                 });
               }}

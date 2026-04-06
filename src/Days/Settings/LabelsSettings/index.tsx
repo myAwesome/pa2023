@@ -24,6 +24,14 @@ import { useDeleteMutation } from '../../../shared/hooks/useDeleteMutation';
 import { useCreateMutation } from '../../../shared/hooks/useCreateMutation';
 import { LabelType } from '../../../shared/types';
 
+type LabelPatchPayload = {
+  id: number;
+  name: string;
+  color: string;
+  color_active: string;
+  emoji: string | null;
+};
+
 const LabelsSettings = () => {
   const [activeLabels, setActiveLabels] = React.useState<number[]>([]);
   const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
@@ -43,21 +51,10 @@ const LabelsSettings = () => {
   });
 
   const editLabelMutation = useUpdateMutation(
-    () =>
-      putLabel(labelToEdit || 0, {
-        name: newLabelName,
-        color: newLabelColor[0],
-        color_active: newLabelColor[1],
-        emoji: newLabelEmoji || null,
-      }),
+    ({ id, ...values }: LabelPatchPayload) => putLabel(id, values),
     ['labels'],
-    labelToEdit,
-    () => ({
-      name: newLabelName,
-      color: newLabelColor[0],
-      color_active: newLabelColor[1],
-      emoji: newLabelEmoji || null,
-    }),
+    'id-from-payload',
+    ({ id, ...values }: LabelPatchPayload) => ({ id, ...values }),
     () => {
       setIsEdit(false);
       setNewLabelName('');
@@ -108,7 +105,16 @@ const LabelsSettings = () => {
 
   const handleLabelEdit = (e: FormEvent) => {
     e.preventDefault();
-    editLabelMutation.mutate('');
+    if (!labelToEdit) {
+      return;
+    }
+    editLabelMutation.mutate({
+      id: labelToEdit,
+      name: newLabelName,
+      color: newLabelColor[0],
+      color_active: newLabelColor[1],
+      emoji: newLabelEmoji || null,
+    });
   };
 
   const handleLabelAdd = (e: FormEvent) => {

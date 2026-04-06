@@ -18,6 +18,10 @@ import { useUpdateMutation } from '../shared/hooks/useUpdateMutation';
 import { ProjectType } from '../shared/types';
 import AddProject from './AddProject';
 
+type ProjectPatchPayload = {
+  id: number;
+} & Omit<ProjectType, 'id' | 'created_at'>;
+
 const Projects = () => {
   const [projectToEdit, setProjectToEdit] = React.useState<ProjectType | null>(
     null,
@@ -38,10 +42,10 @@ const Projects = () => {
     },
   );
   const editMutation = useUpdateMutation(
-    (values: ProjectType) => putProject(projectToEdit?.id || 0, values),
+    ({ id, ...values }: ProjectPatchPayload) => putProject(id, values),
     ['projects'],
-    projectToEdit?.id,
-    (values: ProjectType) => values,
+    'id-from-payload',
+    ({ id, ...values }: ProjectPatchPayload) => ({ id, ...values }),
     () => {
       setIsEdit(false);
       setProjectToEdit(null);
@@ -52,9 +56,14 @@ const Projects = () => {
   const handleSubmit = (values: Omit<ProjectType, 'id' | 'created_at'>) => {
     if (isAdd) {
       addMutation.mutate(values);
-    } else {
-      editMutation.mutate(values);
+      return;
     }
+
+    if (!projectToEdit?.id) {
+      return;
+    }
+
+    editMutation.mutate({ id: projectToEdit.id, ...values });
   };
 
   const handleEditClick = (

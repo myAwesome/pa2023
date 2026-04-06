@@ -29,6 +29,10 @@ import { useUpdateMutation } from '../../shared/hooks/useUpdateMutation';
 import { useDeleteMutation } from '../../shared/hooks/useDeleteMutation';
 import TransactionsCategoriesCreate from './AddCategory';
 
+type TransactionCategoryPatchPayload = {
+  id: number;
+} & Omit<TransactionCategoryType, 'id'>;
+
 const TransactionsCategories = () => {
   const [categoryToEdit, setCategoryToEdit] =
     React.useState<TransactionCategoryType | null>(null);
@@ -52,11 +56,11 @@ const TransactionsCategories = () => {
     },
   );
   const editMutation = useUpdateMutation(
-    (values: TransactionCategoryType) =>
-      patchTransactionCategory(categoryToEdit?.id || 0, values),
+    ({ id, ...values }: TransactionCategoryPatchPayload) =>
+      patchTransactionCategory(id, values),
     ['transactions_categories'],
-    categoryToEdit?.id,
-    (values: TransactionCategoryType) => values,
+    'id-from-payload',
+    ({ id, ...values }: TransactionCategoryPatchPayload) => ({ id, ...values }),
     () => {
       setIsEdit(false);
       setIsEdit(false);
@@ -75,9 +79,14 @@ const TransactionsCategories = () => {
   const handleSubmit = (name: string) => {
     if (isAdd) {
       addMutation.mutate(name);
-    } else {
-      editMutation.mutate({ name });
+      return;
     }
+
+    if (!categoryToEdit?.id) {
+      return;
+    }
+
+    editMutation.mutate({ id: categoryToEdit.id, name });
   };
 
   const handleEditClick = (

@@ -30,6 +30,10 @@ import { useDeleteMutation } from '../shared/hooks/useDeleteMutation';
 import { NoteCategoryType } from '../shared/types';
 import AddNoteCategory from './AddNoteCategory';
 
+type NoteCategoryPatchPayload = {
+  id: number;
+} & Omit<NoteCategoryType, 'id'>;
+
 const NoteCategories = () => {
   const [isAdd, setIsAdd] = React.useState(false);
   const [noteCategoryToEdit, setNoteCategoryToEdit] =
@@ -52,11 +56,10 @@ const NoteCategories = () => {
     },
   );
   const editMutation = useUpdateMutation(
-    (vals: NoteCategoryType) =>
-      putNoteCategory(noteCategoryToEdit?.id || 0, vals),
+    ({ id, ...vals }: NoteCategoryPatchPayload) => putNoteCategory(id, vals),
     ['note_categories'],
-    noteCategoryToEdit?.id,
-    (vals: NoteCategoryType) => vals,
+    'id-from-payload',
+    ({ id, ...vals }: NoteCategoryPatchPayload) => ({ id, ...vals }),
     () => {
       setNoteCategoryToEdit(null);
     },
@@ -78,9 +81,14 @@ const NoteCategories = () => {
   const handleSubmit = (values: Omit<NoteCategoryType, 'note_count'>) => {
     if (isAdd) {
       addMutation.mutate({ name: values.name });
-    } else {
-      editMutation.mutate(values);
+      return;
     }
+
+    if (!noteCategoryToEdit?.id) {
+      return;
+    }
+
+    editMutation.mutate({ id: noteCategoryToEdit.id, name: values.name });
   };
 
   const handleEditClick = (

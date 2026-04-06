@@ -11,6 +11,10 @@ import { deleteNote, getNotes, postNote, editNote } from '../shared/api/routes';
 import { NoteType } from '../shared/types';
 import AddNote from './AddNote';
 
+type NotePatchPayload = {
+  id: number;
+} & Omit<NoteType, 'id' | 'note_category' | 'created_at' | 'updated_at'>;
+
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   return date.toLocaleDateString('en-US', {
@@ -32,10 +36,10 @@ const NoteCategoryShow = () => {
     queryFn: () => getNotes(params.id || 0),
   });
   const editMutation = useUpdateMutation(
-    (vals: Omit<NoteType, 'id'>) => editNote(noteToEdit?.id || 0, vals),
+    ({ id, ...vals }: NotePatchPayload) => editNote(id, vals),
     ['notes', params.id],
-    noteToEdit?.id,
-    (val: NoteType) => val,
+    'id-from-payload',
+    ({ id, ...vals }: NotePatchPayload) => ({ id, ...vals }),
     () => {
       setNoteToEdit(null);
     },
@@ -67,9 +71,14 @@ const NoteCategoryShow = () => {
   ) => {
     if (isAdd) {
       addMutation.mutate(values);
-    } else {
-      editMutation.mutate(values);
+      return;
     }
+
+    if (!noteToEdit?.id) {
+      return;
+    }
+
+    editMutation.mutate({ id: noteToEdit.id, ...values });
   };
 
   const handleCancel = () => {
