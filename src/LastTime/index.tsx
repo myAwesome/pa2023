@@ -20,6 +20,10 @@ import { dateToMySQLFormat } from '../shared/utils/mappers';
 import LastTimeEntry from './LastTimeEntry';
 import AddLastTime from './AddLastTime';
 
+type LastTimePatchPayload = {
+  id: number;
+} & Partial<Omit<LastTimeItemType, 'expired'>>;
+
 const LastTime = () => {
   const [isAdd, setIsAdd] = React.useState(false);
   const [isEdit, setIsEdit] = React.useState(false);
@@ -37,12 +41,10 @@ const LastTime = () => {
     queryFn: getLts,
   });
   const updateMutation = useUpdateMutation(
-    (values: LastTimeItemType) =>
-      editLT((itemToEdit || itemToUpdate)?.id || 0, values),
+    ({ id, ...values }: LastTimePatchPayload) => editLT(id, values),
     ['last_times'],
-    (itemToEdit || itemToUpdate)?.id,
-    (values: LastTimeItemType) => ({
-      ...(itemToEdit || itemToUpdate),
+    'id-from-payload',
+    (values: LastTimePatchPayload) => ({
       ...values,
     }),
     () => {
@@ -85,8 +87,17 @@ const LastTime = () => {
   const handleSubmit = (
     values: Omit<LastTimeItemType, 'expired' | 'id' | 'date'>,
   ) => {
-    const action = isAdd ? createMutation : updateMutation;
-    action.mutate(values);
+    if (isAdd) {
+      createMutation.mutate(values);
+      return;
+    }
+
+    const activeItem = itemToEdit || itemToUpdate;
+    if (!activeItem?.id) {
+      return;
+    }
+
+    updateMutation.mutate({ id: activeItem.id, ...values });
   };
 
   const handleClose = () => {
@@ -200,7 +211,13 @@ const LastTime = () => {
           <Grid>
             <Button
               onClick={() => {
-                updateMutation.mutate({ date: dateToMySQLFormat(updateDate) });
+                if (!itemToUpdate?.id) {
+                  return;
+                }
+                updateMutation.mutate({
+                  id: itemToUpdate.id,
+                  date: dateToMySQLFormat(updateDate),
+                });
               }}
             >
               OK
