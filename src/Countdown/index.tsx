@@ -18,6 +18,10 @@ import { useDeleteMutation } from '../shared/hooks/useDeleteMutation';
 import AddCountdown from './AddCountdown';
 import calendarIcon from './calendar.svg?no-inline';
 
+type CountdownPatchPayload = {
+  id: number;
+} & Omit<CountdownType, 'id' | 'created_at' | 'user_id' | 'is_done'>;
+
 const Countdown = () => {
   const [countdownToEdit, setCountdownToEdit] =
     React.useState<CountdownType | null>(null);
@@ -37,10 +41,10 @@ const Countdown = () => {
     },
   );
   const editMutation = useUpdateMutation(
-    (values: CountdownType) => editCountdown(countdownToEdit?.id || 0, values),
+    ({ id, ...values }: CountdownPatchPayload) => editCountdown(id, values),
     ['countdown'],
-    countdownToEdit?.id,
-    (values: CountdownType) => values,
+    'id-from-payload',
+    ({ id, ...values }: CountdownPatchPayload) => ({ id, ...values }),
     () => {
       setIsEdit(false);
       setCountdownToEdit(null);
@@ -57,9 +61,14 @@ const Countdown = () => {
   ) => {
     if (isAdd) {
       addMutation.mutate(values);
-    } else {
-      editMutation.mutate(values);
+      return;
     }
+
+    if (!countdownToEdit?.id) {
+      return;
+    }
+
+    editMutation.mutate({ id: countdownToEdit.id, ...values });
   };
 
   const handleEditClick = (
