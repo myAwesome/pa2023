@@ -161,13 +161,16 @@ const MarkdownToolbar = ({
           '& .MuiButton-root': {
             minWidth: 34,
             textTransform: 'none',
-            borderColor: (theme) => theme.palette.grey[300],
-            color: (theme) => theme.palette.text.secondary,
-            backgroundColor: (theme) => theme.palette.grey[100],
+            borderColor: (theme) => theme.palette.divider,
+            color: (theme) => theme.palette.text.primary,
+            backgroundColor: (theme) =>
+              theme.palette.mode === 'dark'
+                ? theme.palette.background.paper
+                : theme.palette.grey[50],
           },
           '& .MuiButton-root:hover': {
-            backgroundColor: (theme) => theme.palette.grey[200],
-            borderColor: (theme) => theme.palette.grey[300],
+            backgroundColor: (theme) => theme.palette.action.hover,
+            borderColor: (theme) => theme.palette.divider,
           },
         }}
       >
