@@ -91,6 +91,22 @@ function canonicalTakeoutRel(p) {
   return normalized;
 }
 
+function stripCopySuffixInPath(p) {
+  const normalized = normalizeRel(p);
+  const ext = path.posix.extname(normalized);
+  const dir = path.posix.dirname(normalized);
+  const base = path.posix.basename(normalized, ext);
+  const strippedBase = base.replace(/\(\d+\)$/i, '');
+  if (strippedBase === base) {
+    return normalized;
+  }
+  return normalizeRel(path.posix.join(dir, `${strippedBase}${ext}`));
+}
+
+function normalizeJsonKey(p) {
+  return normalizeRel(p).replace(/\(\d+\)(?=\.json$)/i, '');
+}
+
 function toIsoUtc(date) {
   const value = new Date(date);
   if (Number.isNaN(value.getTime())) {
@@ -146,19 +162,27 @@ function isJsonPath(filePath) {
 
 function sidecarCandidates(mediaRelPath) {
   const normalized = normalizeRel(mediaRelPath);
-  const ext = path.extname(normalized);
-  const noExt = ext ? normalized.slice(0, -ext.length) : normalized;
-  const dir = path.posix.dirname(normalized);
-  const base = path.posix.basename(normalized);
+  const variants = [normalized];
+  const stripped = stripCopySuffixInPath(normalized);
+  if (stripped !== normalized) {
+    variants.push(stripped);
+  }
 
-  return [
-    `${normalized}.json`,
-    `${noExt}.json`,
-    `${dir}/${base}.supplemental-metadata.json`,
-    `${dir}/${base}.supplemental-met.json`,
-    `${dir}/${base}.supple.json`,
-    `${dir}/${base}.suppl.json`,
-  ];
+  const out = new Set();
+  for (const variant of variants) {
+    const ext = path.extname(variant);
+    const noExt = ext ? variant.slice(0, -ext.length) : variant;
+    const dir = path.posix.dirname(variant);
+    const base = path.posix.basename(variant);
+
+    out.add(`${variant}.json`);
+    out.add(`${noExt}.json`);
+    out.add(`${dir}/${base}.supplemental-metadata.json`);
+    out.add(`${dir}/${base}.supplemental-met.json`);
+    out.add(`${dir}/${base}.supple.json`);
+    out.add(`${dir}/${base}.suppl.json`);
+  }
+  return Array.from(out);
 }
 
 function extractTimestampFromSidecar(json) {
@@ -304,9 +328,14 @@ async function main() {
 
     const relJsonRaw = path.relative(inputDir, jsonPath);
     const relJsonCanonical = canonicalTakeoutRel(relJsonRaw);
+    const relJsonNormalized = normalizeJsonKey(relJsonCanonical);
     metadataByJsonPath.set(relJsonCanonical, iso);
+    metadataByJsonPath.set(relJsonNormalized, iso);
     if (!jsonRelByNormalized.has(relJsonCanonical)) {
       jsonRelByNormalized.set(relJsonCanonical, relJsonRaw);
+    }
+    if (!jsonRelByNormalized.has(relJsonNormalized)) {
+      jsonRelByNormalized.set(relJsonNormalized, relJsonRaw);
     }
 
     const title = parsed?.title;
@@ -321,7 +350,10 @@ async function main() {
   }
 
   for (const [relJson, iso] of metadataByJsonPath.entries()) {
-    const relWithoutSuffix = relJson.replace(/\.(supplemental-metadata|supplemental-met|supple|suppl)\.json$/i, '');
+    const relWithoutSuffix = relJson.replace(
+      /\.(supplemental-metadata|supplemental-met|supple|suppl)(?:\(\d+\))?\.json$/i,
+      '',
+    );
     if (relWithoutSuffix !== relJson && !mediaIsoByPath.has(relWithoutSuffix)) {
       mediaIsoByPath.set(relWithoutSuffix, iso);
     }
@@ -360,6 +392,7 @@ async function main() {
     const relMedia = path.relative(inputDir, mediaPath);
     const relMediaNorm = normalizeRel(relMedia);
     const relMediaCanonical = canonicalTakeoutRel(relMedia);
+    const relMediaCanonicalStripped = stripCopySuffixInPath(relMediaCanonical);
     const uploadId = relMediaNorm;
 
     if (uploadedSet.has(uploadId)) {
@@ -369,6 +402,7 @@ async function main() {
     const candidates = sidecarCandidates(relMediaCanonical);
     const capturedAt =
       mediaIsoByPath.get(relMediaCanonical) ||
+      mediaIsoByPath.get(relMediaCanonicalStripped) ||
       candidates.map((c) => metadataByJsonPath.get(c)).find(Boolean);
 
     if (!capturedAt && !allowMissingMetadata) {
