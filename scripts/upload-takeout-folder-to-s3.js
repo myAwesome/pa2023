@@ -288,6 +288,59 @@ function extractTimestampFromSidecar(json) {
   return null;
 }
 
+function buildIsoFromParts(year, month, day, hour, minute, second = '00') {
+  const iso = `${year}-${month}-${day}T${hour}:${minute}:${second}Z`;
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return null;
+  return toIsoUtc(date);
+}
+
+function deriveTimestampFromFilename(filePath) {
+  const name = path.basename(filePath);
+  const stem = stripEditedSuffix(stripKnownMediaExtFromStem(name));
+
+  // 20220925_173941, VID_20240202_151616, Screenshot_20201224-164311_...
+  const ymdHms = stem.match(/(?:^|[^0-9])(20\d{2})(\d{2})(\d{2})[_-]?(\d{2})(\d{2})(\d{2})(?:[^0-9]|$)/);
+  if (ymdHms) {
+    return buildIsoFromParts(
+      ymdHms[1],
+      ymdHms[2],
+      ymdHms[3],
+      ymdHms[4],
+      ymdHms[5],
+      ymdHms[6],
+    );
+  }
+
+  // Screenshot_20201224-164311 (6-digit time)
+  const ymdHm = stem.match(/(?:^|[^0-9])(20\d{2})(\d{2})(\d{2})[_-]?(\d{2})(\d{2})(?:[^0-9]|$)/);
+  if (ymdHm) {
+    return buildIsoFromParts(
+      ymdHm[1],
+      ymdHm[2],
+      ymdHm[3],
+      ymdHm[4],
+      ymdHm[5],
+      '00',
+    );
+  }
+
+  // P71111-123048 => 2017-11-11T12:30:48Z, V81116-193558 => 2018-11-16T19:35:58Z
+  const legacy = stem.match(/^[pv](\d{2})(\d{2})(\d{2})-(\d{2})(\d{2})(\d{2})$/i);
+  if (legacy) {
+    return buildIsoFromParts(
+      `20${legacy[1]}`,
+      legacy[2],
+      legacy[3],
+      legacy[4],
+      legacy[5],
+      legacy[6],
+    );
+  }
+
+  return null;
+}
+
 async function appendJsonLine(filePath, obj) {
   await fsp.appendFile(filePath, `${JSON.stringify(obj)}\n`, 'utf8');
 }
@@ -517,11 +570,22 @@ async function main() {
     const sidecarIso = matchedSidecarCanonical
       ? metadataByJsonPath.get(matchedSidecarCanonical)
       : null;
-    const capturedAt =
-      mediaIsoByPath.get(relMediaCanonical) ||
-      mediaIsoByPath.get(relMediaCanonicalStripped) ||
-      candidates.map((c) => metadataByJsonPath.get(c)).find(Boolean) ||
-      sidecarIso;
+    const directIso = mediaIsoByPath.get(relMediaCanonical);
+    const strippedIso = mediaIsoByPath.get(relMediaCanonicalStripped);
+    const candidateIso = candidates.map((c) => metadataByJsonPath.get(c)).find(Boolean);
+    const filenameIso = deriveTimestampFromFilename(relMedia);
+    const capturedAt = directIso || strippedIso || candidateIso || sidecarIso || filenameIso;
+    const capturedAtSource = directIso
+      ? 'metadata-index'
+      : strippedIso
+        ? 'metadata-index-stripped'
+        : candidateIso
+          ? 'sidecar-candidate'
+          : sidecarIso
+            ? 'sidecar-fuzzy'
+            : filenameIso
+              ? 'filename'
+              : 'none';
 
     if (!capturedAt && !allowMissingMetadata) {
       deferredCount += 1;
@@ -529,6 +593,7 @@ async function main() {
         uploadId,
         status: 'deferred-missing-metadata',
         mediaPath: relMedia,
+        triedFilenameFallback: true,
         deferredAt: new Date().toISOString(),
       });
       return;
@@ -632,6 +697,7 @@ async function main() {
         detailsS3Key,
         sidecarPath: matchedSidecarRel,
         capturedAt: finalCapturedAt,
+        capturedAtSource,
         uploadedAt: new Date().toISOString(),
         dryRun,
       });
