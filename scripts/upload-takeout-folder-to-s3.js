@@ -107,6 +107,24 @@ function normalizeJsonKey(p) {
   return normalizeRel(p).replace(/\(\d+\)(?=\.json$)/i, '');
 }
 
+function normalizeStemForMatch(stem) {
+  return String(stem)
+    .toLowerCase()
+    .replace(/\(\d+\)$/i, '')
+    .replace(/[.\s]+$/g, '');
+}
+
+function stripEditedSuffix(stem) {
+  return String(stem).replace(/-(?:effects-)?edited$/i, '');
+}
+
+function longestCommonPrefix(a, b) {
+  const max = Math.min(a.length, b.length);
+  let i = 0;
+  while (i < max && a[i] === b[i]) i += 1;
+  return i;
+}
+
 function toIsoUtc(date) {
   const value = new Date(date);
   if (Number.isNaN(value.getTime())) {
@@ -172,17 +190,63 @@ function sidecarCandidates(mediaRelPath) {
   for (const variant of variants) {
     const ext = path.extname(variant);
     const noExt = ext ? variant.slice(0, -ext.length) : variant;
+    const noExtTrimmedDots = noExt.replace(/\.+$/g, '');
     const dir = path.posix.dirname(variant);
     const base = path.posix.basename(variant);
 
     out.add(`${variant}.json`);
     out.add(`${noExt}.json`);
+    out.add(`${noExtTrimmedDots}.json`);
     out.add(`${dir}/${base}.supplemental-metadata.json`);
     out.add(`${dir}/${base}.supplemental-met.json`);
     out.add(`${dir}/${base}.supple.json`);
     out.add(`${dir}/${base}.suppl.json`);
+    out.add(`${dir}/${base}.supplemental-metad.json`);
+    out.add(`${dir}/${base}.supplemental-metadat.json`);
+    out.add(`${dir}/${base}.suppleme.json`);
   }
   return Array.from(out);
+}
+
+function findBestSidecarByStem({
+  mediaRelCanonical,
+  jsonEntriesByDir,
+}) {
+  const ext = path.posix.extname(mediaRelCanonical);
+  const dir = path.posix.dirname(mediaRelCanonical);
+  const stemRaw = path.posix.basename(mediaRelCanonical, ext);
+  const mediaStem = normalizeStemForMatch(stemRaw);
+  const mediaStemNoEdited = normalizeStemForMatch(stripEditedSuffix(stemRaw));
+  const stemsToTry = new Set([mediaStem]);
+  if (mediaStemNoEdited && mediaStemNoEdited !== mediaStem) {
+    stemsToTry.add(mediaStemNoEdited);
+  }
+
+  const entries = jsonEntriesByDir.get(dir) || [];
+  let best = null;
+
+  for (const entry of entries) {
+    for (const mediaTry of stemsToTry) {
+      if (!mediaTry || !entry.stem) continue;
+      const isPrefixMatch =
+        mediaTry.startsWith(entry.stem) || entry.stem.startsWith(mediaTry);
+      if (!isPrefixMatch) continue;
+
+      const lcp = longestCommonPrefix(mediaTry, entry.stem);
+      if (lcp < 16) continue;
+
+      if (!best || lcp > best.lcp || (lcp === best.lcp && entry.stem.length > best.stemLen)) {
+        best = {
+          relCanonical: entry.relCanonical,
+          relRaw: entry.relRaw,
+          lcp,
+          stemLen: entry.stem.length,
+        };
+      }
+    }
+  }
+
+  return best;
 }
 
 function extractTimestampFromSidecar(json) {
@@ -307,6 +371,7 @@ async function main() {
 
   const metadataByJsonPath = new Map();
   const jsonRelByNormalized = new Map();
+  const jsonEntriesByDir = new Map();
   const mediaIsoByPath = new Map();
   let jsonParsedCount = 0;
 
@@ -331,6 +396,22 @@ async function main() {
     const relJsonNormalized = normalizeJsonKey(relJsonCanonical);
     metadataByJsonPath.set(relJsonCanonical, iso);
     metadataByJsonPath.set(relJsonNormalized, iso);
+    const jsonDir = path.posix.dirname(relJsonCanonical);
+    const jsonBase = path.posix.basename(relJsonCanonical, '.json');
+    const jsonStem = normalizeStemForMatch(
+      jsonBase.replace(
+        /\.(supplemental-metadata|supplemental-met|supplemental-metad|supplemental-metadat|supple|suppl|suppleme)$/i,
+        '',
+      ),
+    );
+    if (!jsonEntriesByDir.has(jsonDir)) {
+      jsonEntriesByDir.set(jsonDir, []);
+    }
+    jsonEntriesByDir.get(jsonDir).push({
+      relCanonical: relJsonCanonical,
+      relRaw: relJsonRaw,
+      stem: jsonStem,
+    });
     if (!jsonRelByNormalized.has(relJsonCanonical)) {
       jsonRelByNormalized.set(relJsonCanonical, relJsonRaw);
     }
@@ -351,7 +432,7 @@ async function main() {
 
   for (const [relJson, iso] of metadataByJsonPath.entries()) {
     const relWithoutSuffix = relJson.replace(
-      /\.(supplemental-metadata|supplemental-met|supple|suppl)(?:\(\d+\))?\.json$/i,
+      /\.(supplemental-metadata|supplemental-met|supplemental-metad|supplemental-metadat|supple|suppl|suppleme)(?:\(\d+\))?\.json$/i,
       '',
     );
     if (relWithoutSuffix !== relJson && !mediaIsoByPath.has(relWithoutSuffix)) {
@@ -400,10 +481,27 @@ async function main() {
     }
 
     const candidates = sidecarCandidates(relMediaCanonical);
+    const matchedSidecarNorm = candidates.find(
+      (c) => metadataByJsonPath.has(c) || jsonRelByNormalized.has(c),
+    );
+    const fuzzySidecar = matchedSidecarNorm
+      ? null
+      : findBestSidecarByStem({
+          mediaRelCanonical: relMediaCanonical,
+          jsonEntriesByDir,
+        });
+    const matchedSidecarRel = matchedSidecarNorm
+      ? jsonRelByNormalized.get(matchedSidecarNorm) || matchedSidecarNorm
+      : fuzzySidecar?.relRaw || null;
+    const matchedSidecarCanonical = matchedSidecarNorm || fuzzySidecar?.relCanonical || null;
+    const sidecarIso = matchedSidecarCanonical
+      ? metadataByJsonPath.get(matchedSidecarCanonical)
+      : null;
     const capturedAt =
       mediaIsoByPath.get(relMediaCanonical) ||
       mediaIsoByPath.get(relMediaCanonicalStripped) ||
-      candidates.map((c) => metadataByJsonPath.get(c)).find(Boolean);
+      candidates.map((c) => metadataByJsonPath.get(c)).find(Boolean) ||
+      sidecarIso;
 
     if (!capturedAt && !allowMissingMetadata) {
       deferredCount += 1;
@@ -419,12 +517,6 @@ async function main() {
     const finalCapturedAt = capturedAt || toIsoUtc(new Date());
     const ext = path.extname(mediaPath) || '';
     const s3Key = buildS3Key({ prefix, owner, iso: finalCapturedAt, ext });
-    const matchedSidecarNorm = candidates.find(
-      (c) => metadataByJsonPath.has(c) || jsonRelByNormalized.has(c),
-    );
-    const matchedSidecarRel = matchedSidecarNorm
-      ? jsonRelByNormalized.get(matchedSidecarNorm) || matchedSidecarNorm
-      : null;
     const detailsS3Key =
       uploadMetadata && matchedSidecarRel
         ? `${s3Key}.metadata.json`
