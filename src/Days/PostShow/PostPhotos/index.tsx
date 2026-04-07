@@ -8,6 +8,7 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import GPhotosContext from '../../../shared/context/GPhotosContext';
 import {
   completeMediaUpload,
+  computeFileSha256,
   deleteMediaByKey,
   failMediaUpload,
   getPhotosOnDate,
@@ -128,10 +129,13 @@ const PostPhotos = ({
         : parsedDate.toISOString();
       for (const file of Array.from(files)) {
         let uploadKey: string | null = null;
+        const sha256 = await computeFileSha256(file);
         const { data, error } = await initMediaUpload({
           filename: file.name,
           mimeType: file.type,
           capturedAt,
+          sizeBytes: file.size,
+          sha256,
         });
         if (error || !data) {
           throw error || new Error('Upload init failed');
@@ -166,6 +170,7 @@ const PostPhotos = ({
           mimeType: file.type,
           capturedAt,
           sizeBytes: file.size,
+          sha256,
         });
         if (completeResult.error) {
           await failMediaUpload({
