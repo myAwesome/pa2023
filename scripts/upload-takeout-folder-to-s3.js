@@ -118,6 +118,20 @@ function stripEditedSuffix(stem) {
   return String(stem).replace(/-(?:effects-)?edited$/i, '');
 }
 
+function stripKnownMediaExtFromStem(stem) {
+  return String(stem).replace(
+    /\.(jpg|jpeg|png|gif|webp|heic|heif|avif|mp4|mov|avi|m4v|3gp|mkv|webm)$/i,
+    '',
+  );
+}
+
+function stripSidecarSuffix(stem) {
+  return String(stem).replace(
+    /\.(supplemental-metadata|supplemental-metadat|supplemental-metad|supplemental-meta|supplemental-met|supplemental-me|supplemental-m|supplemental|supplement|suppleme|supple|suppl|supp|sup|su|s)$/i,
+    '',
+  );
+}
+
 function longestCommonPrefix(a, b) {
   const max = Math.min(a.length, b.length);
   let i = 0;
@@ -204,6 +218,15 @@ function sidecarCandidates(mediaRelPath) {
     out.add(`${dir}/${base}.supplemental-metad.json`);
     out.add(`${dir}/${base}.supplemental-metadat.json`);
     out.add(`${dir}/${base}.suppleme.json`);
+    out.add(`${dir}/${base}.supplemental-m.json`);
+    out.add(`${dir}/${base}.supplemental-me.json`);
+    out.add(`${dir}/${base}.supplemental-meta.json`);
+    out.add(`${dir}/${base}.supplemental.json`);
+    out.add(`${dir}/${base}.supplement.json`);
+    out.add(`${dir}/${base}.supp.json`);
+    out.add(`${dir}/${base}.sup.json`);
+    out.add(`${dir}/${base}.su.json`);
+    out.add(`${dir}/${base}.s.json`);
   }
   return Array.from(out);
 }
@@ -215,8 +238,10 @@ function findBestSidecarByStem({
   const ext = path.posix.extname(mediaRelCanonical);
   const dir = path.posix.dirname(mediaRelCanonical);
   const stemRaw = path.posix.basename(mediaRelCanonical, ext);
-  const mediaStem = normalizeStemForMatch(stemRaw);
-  const mediaStemNoEdited = normalizeStemForMatch(stripEditedSuffix(stemRaw));
+  const mediaStem = normalizeStemForMatch(stripKnownMediaExtFromStem(stemRaw));
+  const mediaStemNoEdited = normalizeStemForMatch(
+    stripEditedSuffix(stripKnownMediaExtFromStem(stemRaw)),
+  );
   const stemsToTry = new Set([mediaStem]);
   if (mediaStemNoEdited && mediaStemNoEdited !== mediaStem) {
     stemsToTry.add(mediaStemNoEdited);
@@ -228,12 +253,10 @@ function findBestSidecarByStem({
   for (const entry of entries) {
     for (const mediaTry of stemsToTry) {
       if (!mediaTry || !entry.stem) continue;
-      const isPrefixMatch =
-        mediaTry.startsWith(entry.stem) || entry.stem.startsWith(mediaTry);
-      if (!isPrefixMatch) continue;
-
       const lcp = longestCommonPrefix(mediaTry, entry.stem);
-      if (lcp < 16) continue;
+      const isPrefixish =
+        mediaTry.startsWith(entry.stem) || entry.stem.startsWith(mediaTry);
+      if (lcp < 16 && !isPrefixish) continue;
 
       if (!best || lcp > best.lcp || (lcp === best.lcp && entry.stem.length > best.stemLen)) {
         best = {
@@ -399,10 +422,7 @@ async function main() {
     const jsonDir = path.posix.dirname(relJsonCanonical);
     const jsonBase = path.posix.basename(relJsonCanonical, '.json');
     const jsonStem = normalizeStemForMatch(
-      jsonBase.replace(
-        /\.(supplemental-metadata|supplemental-met|supplemental-metad|supplemental-metadat|supple|suppl|suppleme)$/i,
-        '',
-      ),
+      stripKnownMediaExtFromStem(stripSidecarSuffix(jsonBase)),
     );
     if (!jsonEntriesByDir.has(jsonDir)) {
       jsonEntriesByDir.set(jsonDir, []);
@@ -432,7 +452,7 @@ async function main() {
 
   for (const [relJson, iso] of metadataByJsonPath.entries()) {
     const relWithoutSuffix = relJson.replace(
-      /\.(supplemental-metadata|supplemental-met|supplemental-metad|supplemental-metadat|supple|suppl|suppleme)(?:\(\d+\))?\.json$/i,
+      /\.(supplemental-metadata|supplemental-metadat|supplemental-metad|supplemental-meta|supplemental-met|supplemental-me|supplemental-m|supplemental|supplement|supple|suppl|suppleme|supp|sup|su|s)(?:\(\d+\))?\.json$/i,
       '',
     );
     if (relWithoutSuffix !== relJson && !mediaIsoByPath.has(relWithoutSuffix)) {
