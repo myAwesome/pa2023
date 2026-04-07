@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto';
 import { Params } from '@feathersjs/feathers';
 import { BadRequest, GeneralError } from '@feathersjs/errors';
 import {
+  DeleteObjectCommand,
   GetObjectCommand,
   ListObjectsV2Command,
   PutObjectCommand,
@@ -18,6 +19,7 @@ dayjs.extend(utc);
 type MediaQuery = {
   date?: string;
   mmdd?: string;
+  key?: string;
   owner?: string;
   ranges?: string;
   pageToken?: string;
@@ -40,11 +42,26 @@ type MediaRange = {
 
 const MAX_PAGE_SIZE = 100;
 const DEFAULT_PAGE_SIZE = 24;
+const MEDIA_EXTENSIONS = new Set([
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.gif',
+  '.webp',
+  '.heic',
+  '.heif',
+  '.avif',
+  '.mp4',
+  '.mov',
+  '.avi',
+  '.m4v',
+  '.3gp',
+  '.mkv',
+  '.webm',
+]);
 
 const toBool = (value: MediaQuery['onThisDay']) =>
   value === true || value === 'true' || value === 1 || value === '1';
-
-const toMmDd = (date: string) => dayjs.utc(date).format('MM-DD');
 
 const toIsoFromKey = (key: string) => {
   const tsMatch = key.match(/\/ts=([^_\/]+)_/);
@@ -57,6 +74,12 @@ const toIsoFromKey = (key: string) => {
 
 const keyContainsOwner = (key: string, owner?: string) =>
   !owner || key.includes(`/owner=${owner}/`);
+
+const isMediaKey = (key: string) => {
+  const lower = key.toLowerCase();
+  const ext = lower.includes('.') ? `.${lower.split('.').pop() || ''}` : '';
+  return MEDIA_EXTENSIONS.has(ext);
+};
 
 const isWithinRanges = (isoDate: string, ranges: MediaRange[]) =>
   ranges.some((range) => {
@@ -86,8 +109,8 @@ const buildKey = ({
     ? `.${filename.split('.').pop() || ''}`.replace(/\.+$/, '')
     : '';
   const ts = captured.format('YYYY-MM-DDTHH:mm:ss[Z]');
-  const mmdd = captured.format('MM-DD');
-  return `${prefix}mmdd=${mmdd}/owner=${owner}/ts=${ts}_${randomUUID()}${extension}`;
+  const yyyymmdd = captured.format('YYYY-MM-DD');
+  return `${prefix}date=${yyyymmdd}/owner=${owner}/ts=${ts}_${randomUUID()}${extension}`;
 };
 
 export class MediaService {
@@ -150,10 +173,11 @@ export class MediaService {
       }
     }
 
-    const targetMmdd = query.mmdd || (date ? toMmDd(date.toISOString()) : null);
-    const prefix = targetMmdd
-      ? `${this.prefix}mmdd=${targetMmdd}/`
-      : this.prefix;
+    const targetDate = date?.format('YYYY-MM-DD');
+    const prefix =
+      date && !onThisDay && targetDate
+        ? `${this.prefix}date=${targetDate}/`
+        : this.prefix;
 
     let continuationToken = query.pageToken;
     const collected: Array<{ key: string; createdAt: string }> = [];
@@ -173,7 +197,11 @@ export class MediaService {
       const objects = result.Contents || [];
 
       for (const item of objects) {
-        if (!item.Key || !keyContainsOwner(item.Key, query.owner)) {
+        if (
+          !item.Key ||
+          !keyContainsOwner(item.Key, query.owner) ||
+          !isMediaKey(item.Key)
+        ) {
           continue;
         }
         const createdAt =
@@ -278,5 +306,43 @@ export class MediaService {
         'Content-Type': data.mimeType || 'application/octet-stream',
       },
     };
+  }
+
+  async remove(id: string | null, params: Params<MediaQuery>) {
+    const query = params.query || {};
+    const key = String(id || query.key || '').trim();
+    if (!key) {
+      throw new BadRequest('key is required');
+    }
+
+    const owner = String(params.user?.id || '');
+    if (!owner || !keyContainsOwner(key, owner)) {
+      throw new BadRequest('Not allowed to delete this media item');
+    }
+
+    try {
+      await this.s3.send(
+        new DeleteObjectCommand({
+          Bucket: this.bucket,
+          Key: key,
+        }),
+      );
+
+      // Best effort delete for paired metadata object.
+      await this.s3.send(
+        new DeleteObjectCommand({
+          Bucket: this.bucket,
+          Key: `${key}.metadata.json`,
+        }),
+      );
+
+      return {
+        id: key,
+        key,
+        deleted: true,
+      };
+    } catch (error) {
+      throw new GeneralError('Failed to delete media', { error });
+    }
   }
 }

@@ -4,6 +4,7 @@ import { Dialog, Typography, Box } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import GPhotosContext from '../../../shared/context/GPhotosContext';
 import {
+  deleteMediaByKey,
   getPhotosOnDate,
   initMediaUpload,
   uploadFileToPresignedUrl,
@@ -16,6 +17,21 @@ type Props = {
   extraAction?: ReactNode;
 };
 
+const VIDEO_EXTENSIONS = [
+  '.mp4',
+  '.mov',
+  '.avi',
+  '.m4v',
+  '.3gp',
+  '.mkv',
+  '.webm',
+];
+
+const isVideoMedia = (photo: PhotoType) => {
+  const key = (photo?.id || '').toLowerCase();
+  return VIDEO_EXTENSIONS.some((ext) => key.endsWith(ext));
+};
+
 const PostPhotos = ({
   date,
   hideGetPhotosButton = false,
@@ -23,8 +39,15 @@ const PostPhotos = ({
 }: Props) => {
   const [photos, setPhotos] = React.useState<PhotoType[]>([]);
   const [isFetched, setFetched] = React.useState(false);
-  const [showImg, setShowImg] = React.useState('');
+  const [previewMedia, setPreviewMedia] = React.useState<{
+    url: string;
+    type: 'image' | 'video';
+  } | null>(null);
   const [isUploading, setUploading] = React.useState(false);
+  const [deleteTarget, setDeleteTarget] = React.useState<PhotoType | null>(
+    null,
+  );
+  const [isDeleting, setDeleting] = React.useState(false);
   const uploadInputRef = React.useRef<HTMLInputElement | null>(null);
   const {
     value: { token: oauthToken },
@@ -47,6 +70,23 @@ const PostPhotos = ({
 
   const handleUploadButtonClick = () => {
     uploadInputRef.current?.click();
+  };
+
+  const confirmDeletePhoto = async () => {
+    if (!deleteTarget?.id) return;
+    setDeleting(true);
+    try {
+      const { error } = await deleteMediaByKey(deleteTarget.id);
+      if (error) {
+        throw error;
+      }
+      setPhotos((prev) => prev.filter((photo) => photo.id !== deleteTarget.id));
+      setDeleteTarget(null);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const handleFileSelected = async (
@@ -107,7 +147,7 @@ const PostPhotos = ({
       />
       <Grid container spacing={1} alignItems="center">
         {extraAction ? <Box>{extraAction}</Box> : null}
-        {!hideGetPhotosButton && !isFetched ? (
+        {!isFetched && !hideGetPhotosButton ? (
           <Button onClick={getPhotos}>GET PHOTOS</Button>
         ) : null}
         <Button onClick={handleUploadButtonClick} disabled={isUploading}>
@@ -121,30 +161,87 @@ const PostPhotos = ({
         <Grid container spacing={1}>
           {photos.map((p) => (
             <Grid key={p.id}>
-              <Box
-                sx={{
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  width: 70,
-                  height: 70,
-                  cursor: 'pointer',
-                  backgroundImage: `url(${p.baseUrl})`,
-                }}
-                onClick={() => setShowImg(p.baseUrl)}
-              />
+              <Grid container direction="column" spacing={0.5}>
+                <Grid>
+                  <Box
+                    sx={{
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      width: 70,
+                      height: 70,
+                      cursor: 'pointer',
+                      backgroundImage: `url(${p.baseUrl})`,
+                    }}
+                    onClick={() =>
+                      setPreviewMedia({
+                        url: p.baseUrl,
+                        type: isVideoMedia(p) ? 'video' : 'image',
+                      })
+                    }
+                  />
+                </Grid>
+                <Grid>
+                  <Button
+                    size="small"
+                    color="error"
+                    onClick={() => setDeleteTarget(p)}
+                    disabled={isDeleting}
+                  >
+                    DELETE
+                  </Button>
+                </Grid>
+              </Grid>
             </Grid>
           ))}
         </Grid>
       ) : null}
-      <Dialog open={!!showImg} onClose={() => setShowImg('')}>
-        <img
-          src={showImg}
-          style={{
-            maxWidth: '90vw',
-            maxHeight: '90vh',
-          }}
-          alt={date.toString()}
-        />
+      <Dialog open={!!previewMedia} onClose={() => setPreviewMedia(null)}>
+        {previewMedia?.type === 'video' ? (
+          <video
+            src={previewMedia.url}
+            controls
+            autoPlay
+            style={{
+              maxWidth: '90vw',
+              maxHeight: '90vh',
+            }}
+          />
+        ) : (
+          <img
+            src={previewMedia?.url}
+            style={{
+              maxWidth: '90vw',
+              maxHeight: '90vh',
+            }}
+            alt={date.toString()}
+          />
+        )}
+      </Dialog>
+      <Dialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
+        <Box sx={{ padding: 2, maxWidth: 360 }}>
+          <Typography sx={{ marginBottom: 1 }}>
+            Delete this photo from storage?
+          </Typography>
+          <Grid container spacing={1} justifyContent="flex-end">
+            <Grid>
+              <Button
+                onClick={() => setDeleteTarget(null)}
+                disabled={isDeleting}
+              >
+                CANCEL
+              </Button>
+            </Grid>
+            <Grid>
+              <Button
+                color="error"
+                onClick={confirmDeletePhoto}
+                disabled={isDeleting}
+              >
+                {isDeleting ? 'DELETING...' : 'DELETE'}
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
       </Dialog>
     </Grid>
   );
