@@ -80,7 +80,25 @@ export const getPhotosOnDate = async (
   return { photos, error };
 };
 
-export const initMediaUpload = async ({ filename, mimeType, capturedAt }) => {
+const toHex = (buffer) =>
+  Array.from(new Uint8Array(buffer))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+
+export const computeFileSha256 = async (file) => {
+  if (!file) return null;
+  const arrayBuffer = await file.arrayBuffer();
+  const digest = await crypto.subtle.digest('SHA-256', arrayBuffer);
+  return toHex(digest);
+};
+
+export const initMediaUpload = async ({
+  filename,
+  mimeType,
+  capturedAt,
+  sizeBytes,
+  sha256,
+}) => {
   let data = null;
   let error = null;
 
@@ -93,6 +111,8 @@ export const initMediaUpload = async ({ filename, mimeType, capturedAt }) => {
         filename,
         mimeType,
         capturedAt,
+        sizeBytes,
+        sha256,
       }),
     });
     const result = await response.json();
@@ -116,6 +136,7 @@ export const completeMediaUpload = async ({
   mimeType,
   capturedAt,
   sizeBytes,
+  sha256,
 }) => {
   let data = null;
   let error = null;
@@ -130,6 +151,7 @@ export const completeMediaUpload = async ({
         mimeType,
         capturedAt,
         sizeBytes,
+        sha256,
       }),
     });
     const result = await response.json();
