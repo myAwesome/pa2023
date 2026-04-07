@@ -4,6 +4,7 @@ import { BadRequest, GeneralError } from '@feathersjs/errors';
 import {
   DeleteObjectCommand,
   GetObjectCommand,
+  HeadObjectCommand,
   ListObjectsV2Command,
   PutObjectCommand,
   S3Client,
@@ -28,11 +29,15 @@ type MediaQuery = {
 };
 
 type UploadInitBody = {
-  action: 'init-upload';
+  action: 'init-upload' | 'complete-upload' | 'fail-upload';
   filename: string;
   mimeType?: string;
   capturedAt?: string;
   owner?: string;
+  sha256?: string;
+  sizeBytes?: number;
+  key?: string;
+  reason?: string;
 };
 
 type MediaRange = {
@@ -121,6 +126,7 @@ export class MediaService {
   getUrlTtlSeconds: number;
   putUrlTtlSeconds: number;
   uploadStorageClass?: StorageClass;
+  dedupeIndexPrefix: string;
 
   constructor(app: Application) {
     this.app = app;
@@ -142,6 +148,12 @@ export class MediaService {
     if (!this.prefix.endsWith('/')) {
       this.prefix += '/';
     }
+    this.dedupeIndexPrefix = String(
+      cfg.dedupeIndexPrefix || 'media-index/v1/',
+    ).replace(/^\/+/, '');
+    if (!this.dedupeIndexPrefix.endsWith('/')) {
+      this.dedupeIndexPrefix += '/';
+    }
     this.s3 = new S3Client({
       region: cfg.region || process.env.AWS_REGION || 'us-east-1',
       endpoint: cfg.endpoint || process.env.AWS_S3_ENDPOINT || undefined,
@@ -149,6 +161,84 @@ export class MediaService {
         cfg.forcePathStyle || process.env.AWS_S3_FORCE_PATH_STYLE === 'true',
       ),
     });
+  }
+
+  buildDedupeKey(owner: string, sha256: string) {
+    const shard = sha256.slice(0, 2);
+    return `${this.dedupeIndexPrefix}owner=${owner}/sha256/${shard}/${sha256}.json`;
+  }
+
+  normalizeSha256(value?: string) {
+    if (!value) return null;
+    const normalized = value.trim().toLowerCase();
+    if (!/^[a-f0-9]{64}$/.test(normalized)) {
+      throw new BadRequest('sha256 must be a 64-character hex string');
+    }
+    return normalized;
+  }
+
+  async getDedupeMarker(owner: string, sha256?: string) {
+    const normalized = this.normalizeSha256(sha256);
+    if (!normalized) return null;
+
+    const key = this.buildDedupeKey(owner, normalized);
+    try {
+      const result = await this.s3.send(
+        new GetObjectCommand({
+          Bucket: this.bucket,
+          Key: key,
+        }),
+      );
+      const body = await result.Body?.transformToString();
+      if (!body) return null;
+      return JSON.parse(body);
+    } catch (error: any) {
+      const status = Number(error?.$metadata?.httpStatusCode || 0);
+      if (status === 404 || error?.name === 'NoSuchKey') {
+        return null;
+      }
+      throw new GeneralError('Failed to read dedupe marker', { error });
+    }
+  }
+
+  async putDedupeMarker({
+    owner,
+    sha256,
+    sizeBytes,
+    mimeType,
+    key,
+    source,
+  }: {
+    owner: string;
+    sha256: string;
+    sizeBytes?: number;
+    mimeType?: string;
+    key: string;
+    source: string;
+  }) {
+    const markerKey = this.buildDedupeKey(owner, sha256);
+    const payload = {
+      sha256,
+      sizeBytes: Number(sizeBytes || 0) || undefined,
+      mimeType: mimeType || undefined,
+      canonicalMediaKey: key,
+      createdAt: dayjs.utc().toISOString(),
+      source,
+      owner,
+    };
+
+    try {
+      await this.s3.send(
+        new PutObjectCommand({
+          Bucket: this.bucket,
+          Key: markerKey,
+          ContentType: 'application/json',
+          Body: JSON.stringify(payload),
+        }),
+      );
+    } catch (error) {
+      throw new GeneralError('Failed to write dedupe marker', { error });
+    }
   }
 
   async find(params: Params<MediaQuery>) {
@@ -265,14 +355,84 @@ export class MediaService {
   }
 
   async create(data: UploadInitBody, params: Params) {
-    if (!data || data.action !== 'init-upload') {
-      throw new BadRequest('Unsupported action. Use action="init-upload".');
+    const owner = data.owner || String(params.user?.id || 'anonymous');
+    const normalizedSha = this.normalizeSha256(data.sha256 || undefined);
+
+    if (!data || !data.action) {
+      throw new BadRequest(
+        'Unsupported action. Use action="init-upload", "complete-upload", or "fail-upload".',
+      );
+    }
+
+    if (data.action === 'complete-upload') {
+      if (!data.key) {
+        throw new BadRequest('key is required for complete-upload');
+      }
+      if (!keyContainsOwner(data.key, owner)) {
+        throw new BadRequest('Not allowed to complete this media item');
+      }
+
+      try {
+        await this.s3.send(
+          new HeadObjectCommand({
+            Bucket: this.bucket,
+            Key: data.key,
+          }),
+        );
+      } catch (error) {
+        throw new GeneralError('Uploaded media object not found', { error });
+      }
+
+      if (normalizedSha) {
+        await this.putDedupeMarker({
+          owner,
+          sha256: normalizedSha,
+          sizeBytes: data.sizeBytes,
+          mimeType: data.mimeType,
+          key: data.key,
+          source: 'mobile',
+        });
+      }
+
+      return {
+        key: data.key,
+        completed: true,
+        dedupeIndexed: Boolean(normalizedSha),
+      };
+    }
+
+    if (data.action === 'fail-upload') {
+      return {
+        key: data.key || null,
+        failed: true,
+        reason: data.reason || null,
+      };
+    }
+
+    if (data.action !== 'init-upload') {
+      throw new BadRequest(
+        'Unsupported action. Use action="init-upload", "complete-upload", or "fail-upload".',
+      );
     }
     if (!data.filename) {
       throw new BadRequest('filename is required');
     }
 
-    const owner = data.owner || String(params.user?.id || 'anonymous');
+    if (normalizedSha) {
+      const marker = await this.getDedupeMarker(owner, normalizedSha);
+      if (marker?.canonicalMediaKey) {
+        return {
+          duplicate: true,
+          existingKey: marker.canonicalMediaKey,
+          key: marker.canonicalMediaKey,
+          uploadUrl: null,
+          expiresIn: null,
+          method: null,
+          headers: null,
+        };
+      }
+    }
+
     const key = buildKey({
       capturedAt: data.capturedAt,
       owner,
@@ -298,6 +458,7 @@ export class MediaService {
     );
 
     return {
+      duplicate: false,
       key,
       uploadUrl,
       expiresIn: this.putUrlTtlSeconds,
