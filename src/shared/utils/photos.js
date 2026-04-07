@@ -111,6 +111,73 @@ export const initMediaUpload = async ({ filename, mimeType, capturedAt }) => {
   return { data, error };
 };
 
+export const completeMediaUpload = async ({
+  key,
+  mimeType,
+  capturedAt,
+  sizeBytes,
+}) => {
+  let data = null;
+  let error = null;
+
+  try {
+    const response = await fetch(`${LOCAL}/media`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({
+        action: 'complete-upload',
+        key,
+        mimeType,
+        capturedAt,
+        sizeBytes,
+      }),
+    });
+    const result = await response.json();
+    if (response.ok && !result.error) {
+      data = result;
+    } else {
+      error = result.error || {
+        code: response.status,
+        message: 'Failed to complete upload',
+      };
+    }
+  } catch (err) {
+    error = err;
+  }
+
+  return { data, error };
+};
+
+export const failMediaUpload = async ({ key, reason }) => {
+  let data = null;
+  let error = null;
+
+  try {
+    const response = await fetch(`${LOCAL}/media`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({
+        action: 'fail-upload',
+        key,
+        reason,
+      }),
+    });
+    const result = await response.json();
+    if (response.ok && !result.error) {
+      data = result;
+    } else {
+      error = result.error || {
+        code: response.status,
+        message: 'Failed to report upload failure',
+      };
+    }
+  } catch (err) {
+    error = err;
+  }
+
+  return { data, error };
+};
+
 export const uploadFileToPresignedUrl = async ({
   uploadUrl,
   file,

@@ -2,12 +2,11 @@ import React, { ReactNode, useContext } from 'react';
 import Button from '@mui/material/Button';
 import { Dialog, Typography, Box } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import GPhotosContext from '../../../shared/context/GPhotosContext';
 import {
+  completeMediaUpload,
   deleteMediaByKey,
+  failMediaUpload,
   getPhotosOnDate,
   initMediaUpload,
   uploadFileToPresignedUrl,
@@ -42,7 +41,10 @@ const PostPhotos = ({
 }: Props) => {
   const [photos, setPhotos] = React.useState<PhotoType[]>([]);
   const [isFetched, setFetched] = React.useState(false);
-  const [previewIndex, setPreviewIndex] = React.useState<number | null>(null);
+  const [previewMedia, setPreviewMedia] = React.useState<{
+    url: string;
+    type: 'image' | 'video';
+  } | null>(null);
   const [isUploading, setUploading] = React.useState(false);
   const [deleteTarget, setDeleteTarget] = React.useState<PhotoType | null>(
     null,
@@ -52,12 +54,6 @@ const PostPhotos = ({
   const {
     value: { token: oauthToken },
   } = useContext(GPhotosContext);
-  const previewMedia =
-    previewIndex !== null && previewIndex >= 0 && previewIndex < photos.length
-      ? photos[previewIndex]
-      : null;
-  const previewType =
-    previewMedia && isVideoMedia(previewMedia) ? 'video' : 'image';
 
   const getPhotos = () => {
     getPhotosOnDate(oauthToken, date)
@@ -77,22 +73,6 @@ const PostPhotos = ({
   const handleUploadButtonClick = () => {
     uploadInputRef.current?.click();
   };
-
-  const showPreviousMedia = React.useCallback(() => {
-    if (!photos.length) return;
-    setPreviewIndex((prev) => {
-      if (prev === null) return 0;
-      return (prev - 1 + photos.length) % photos.length;
-    });
-  }, [photos.length]);
-
-  const showNextMedia = React.useCallback(() => {
-    if (!photos.length) return;
-    setPreviewIndex((prev) => {
-      if (prev === null) return 0;
-      return (prev + 1) % photos.length;
-    });
-  }, [photos.length]);
 
   const confirmDeletePhoto = async () => {
     if (!deleteTarget?.id) return;
@@ -124,35 +104,56 @@ const PostPhotos = ({
       const capturedAt = Number.isNaN(parsedDate.getTime())
         ? new Date().toISOString()
         : parsedDate.toISOString();
-      const uploadTasks = Array.from(files).map(async (file) => {
+      for (const file of Array.from(files)) {
+        let uploadKey: string | null = null;
         const { data, error } = await initMediaUpload({
           filename: file.name,
           mimeType: file.type,
           capturedAt,
         });
-        if (error || !data?.uploadUrl) {
+        if (error || !data) {
           throw error || new Error('Upload init failed');
         }
+
+        if (data.duplicate) {
+          continue;
+        }
+
+        uploadKey = data.key;
+        if (!data.uploadUrl) {
+          throw new Error('Upload URL is missing');
+        }
+
         const uploadResult = await uploadFileToPresignedUrl({
           uploadUrl: data.uploadUrl,
           file,
           mimeType: file.type,
         });
         if (uploadResult.error) {
+          await failMediaUpload({
+            key: uploadKey,
+            reason:
+              uploadResult.error?.message ||
+              'Presigned upload failed on client',
+          });
           throw uploadResult.error;
         }
-      });
-      const results = await Promise.allSettled(uploadTasks);
-      const hasSuccess = results.some(
-        (result) => result.status === 'fulfilled',
-      );
-      const hasFailure = results.some((result) => result.status === 'rejected');
-      if (hasSuccess) {
-        getPhotos();
+
+        const completeResult = await completeMediaUpload({
+          key: uploadKey,
+          mimeType: file.type,
+          capturedAt,
+          sizeBytes: file.size,
+        });
+        if (completeResult.error) {
+          await failMediaUpload({
+            key: uploadKey,
+            reason: completeResult.error?.message || 'Complete upload failed',
+          });
+          throw completeResult.error;
+        }
       }
-      if (hasFailure) {
-        throw new Error('Some files failed to upload');
-      }
+      getPhotos();
     } catch (error) {
       console.log(error);
     } finally {
@@ -160,24 +161,6 @@ const PostPhotos = ({
       setUploading(false);
     }
   };
-
-  React.useEffect(() => {
-    if (previewIndex === null) {
-      return;
-    }
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'ArrowLeft') {
-        event.preventDefault();
-        showPreviousMedia();
-      }
-      if (event.key === 'ArrowRight') {
-        event.preventDefault();
-        showNextMedia();
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [previewIndex, showNextMedia, showPreviousMedia]);
 
   return (
     <Grid
@@ -201,7 +184,7 @@ const PostPhotos = ({
           <Button onClick={getPhotos}>GET PHOTOS</Button>
         ) : null}
         <Button onClick={handleUploadButtonClick} disabled={isUploading}>
-          {isUploading ? 'UPLOADING...' : 'UPLOAD FILES'}
+          {isUploading ? 'UPLOADING...' : 'UPLOAD PHOTO'}
         </Button>
       </Grid>
       {isFetched && !photos.length ? (
@@ -209,7 +192,7 @@ const PostPhotos = ({
       ) : null}
       {isFetched && photos.length ? (
         <Grid container spacing={1}>
-          {photos.map((p, index) => (
+          {photos.map((p) => (
             <Grid key={p.id}>
               <Grid container direction="column" spacing={0.5}>
                 <Grid>
@@ -221,30 +204,14 @@ const PostPhotos = ({
                       height: 70,
                       cursor: 'pointer',
                       backgroundImage: `url(${p.baseUrl})`,
-                      position: 'relative',
-                      borderRadius: 0.5,
-                      overflow: 'hidden',
                     }}
-                    onClick={() => setPreviewIndex(index)}
-                  >
-                    {isVideoMedia(p) ? (
-                      <Box
-                        sx={{
-                          position: 'absolute',
-                          inset: 0,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          backgroundColor: 'rgba(0, 0, 0, 0.35)',
-                        }}
-                      >
-                        <PlayArrowIcon
-                          sx={{ color: '#fff', fontSize: 32 }}
-                          aria-label="video"
-                        />
-                      </Box>
-                    ) : null}
-                  </Box>
+                    onClick={() =>
+                      setPreviewMedia({
+                        url: p.baseUrl,
+                        type: isVideoMedia(p) ? 'video' : 'image',
+                      })
+                    }
+                  />
                 </Grid>
                 <Grid>
                   <Button
@@ -261,94 +228,27 @@ const PostPhotos = ({
           ))}
         </Grid>
       ) : null}
-      <Dialog
-        open={previewIndex !== null}
-        onClose={() => setPreviewIndex(null)}
-        fullScreen
-        PaperProps={{
-          sx: {
-            backgroundColor: 'rgba(0, 0, 0, 0.85)',
-          },
-        }}
-      >
-        <Box
-          sx={{
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '100vw',
-            height: '100vh',
-          }}
-        >
-          {photos.length > 1 ? (
-            <Button
-              onClick={showPreviousMedia}
-              sx={{
-                position: 'fixed',
-                left: 0,
-                top: 0,
-                bottom: 0,
-                borderRadius: 0,
-                width: { xs: 56, sm: 80 },
-                minWidth: 0,
-                color: '#fff',
-                zIndex: 1,
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                },
-              }}
-              aria-label="Previous file"
-            >
-              <ChevronLeftIcon sx={{ fontSize: 40 }} />
-            </Button>
-          ) : null}
-          {previewMedia ? (
-            previewType === 'video' ? (
-              <video
-                src={previewMedia.baseUrl}
-                controls
-                autoPlay
-                style={{
-                  maxWidth: 'calc(100vw - 160px)',
-                  maxHeight: '95vh',
-                }}
-              />
-            ) : (
-              <img
-                src={previewMedia.baseUrl}
-                style={{
-                  maxWidth: 'calc(100vw - 160px)',
-                  maxHeight: '95vh',
-                  objectFit: 'contain',
-                }}
-                alt={date.toString()}
-              />
-            )
-          ) : null}
-          {photos.length > 1 ? (
-            <Button
-              onClick={showNextMedia}
-              sx={{
-                position: 'fixed',
-                right: 0,
-                top: 0,
-                bottom: 0,
-                borderRadius: 0,
-                width: { xs: 56, sm: 80 },
-                minWidth: 0,
-                color: '#fff',
-                zIndex: 1,
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                },
-              }}
-              aria-label="Next file"
-            >
-              <ChevronRightIcon sx={{ fontSize: 40 }} />
-            </Button>
-          ) : null}
-        </Box>
+      <Dialog open={!!previewMedia} onClose={() => setPreviewMedia(null)}>
+        {previewMedia?.type === 'video' ? (
+          <video
+            src={previewMedia.url}
+            controls
+            autoPlay
+            style={{
+              maxWidth: '90vw',
+              maxHeight: '90vh',
+            }}
+          />
+        ) : (
+          <img
+            src={previewMedia?.url}
+            style={{
+              maxWidth: '90vw',
+              maxHeight: '90vh',
+            }}
+            alt={date.toString()}
+          />
+        )}
       </Dialog>
       <Dialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
         <Box sx={{ padding: 2, maxWidth: 360 }}>
