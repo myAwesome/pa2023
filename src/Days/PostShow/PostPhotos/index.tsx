@@ -264,6 +264,12 @@ const PostPhotos = ({
       <Dialog
         open={previewIndex !== null}
         onClose={() => setPreviewIndex(null)}
+        fullScreen
+        PaperProps={{
+          sx: {
+            backgroundColor: 'rgba(0, 0, 0, 0.85)',
+          },
+        }}
       >
         <Box
           sx={{
@@ -271,20 +277,26 @@ const PostPhotos = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            minWidth: { xs: '80vw', sm: '70vw' },
-            minHeight: { xs: '50vh', sm: '70vh' },
-            backgroundColor: 'black',
+            width: '100vw',
+            height: '100vh',
           }}
         >
           {photos.length > 1 ? (
             <Button
               onClick={showPreviousMedia}
               sx={{
-                position: 'absolute',
-                left: 8,
+                position: 'fixed',
+                left: 0,
+                top: 0,
+                bottom: 0,
+                borderRadius: 0,
+                width: { xs: 56, sm: 80 },
                 minWidth: 0,
                 color: '#fff',
                 zIndex: 1,
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                },
               }}
               aria-label="Previous file"
             >
@@ -298,16 +310,17 @@ const PostPhotos = ({
                 controls
                 autoPlay
                 style={{
-                  maxWidth: '90vw',
-                  maxHeight: '90vh',
+                  maxWidth: 'calc(100vw - 160px)',
+                  maxHeight: '95vh',
                 }}
               />
             ) : (
               <img
                 src={previewMedia.baseUrl}
                 style={{
-                  maxWidth: '90vw',
-                  maxHeight: '90vh',
+                  maxWidth: 'calc(100vw - 160px)',
+                  maxHeight: '95vh',
+                  objectFit: 'contain',
                 }}
                 alt={date.toString()}
               />
@@ -317,11 +330,18 @@ const PostPhotos = ({
             <Button
               onClick={showNextMedia}
               sx={{
-                position: 'absolute',
-                right: 8,
+                position: 'fixed',
+                right: 0,
+                top: 0,
+                bottom: 0,
+                borderRadius: 0,
+                width: { xs: 56, sm: 80 },
                 minWidth: 0,
                 color: '#fff',
                 zIndex: 1,
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                },
               }}
               aria-label="Next file"
             >
