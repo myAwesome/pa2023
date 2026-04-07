@@ -5,7 +5,10 @@ const fs = require('fs');
 const fsp = require('fs/promises');
 const path = require('path');
 const crypto = require('crypto');
+const { execFile } = require('child_process');
+const { promisify } = require('util');
 const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+const execFileAsync = promisify(execFile);
 
 const MEDIA_EXTENSIONS = new Set([
   '.jpg',
@@ -341,6 +344,80 @@ function deriveTimestampFromFilename(filePath) {
   return null;
 }
 
+function parseExifDateToIso(value) {
+  if (!value) return null;
+  const raw = String(value).trim();
+
+  if (/^\d{10,13}$/.test(raw)) {
+    const num = Number(raw);
+    if (Number.isFinite(num) && num > 0) {
+      return toIsoUtc(new Date(raw.length === 13 ? num : num * 1000));
+    }
+  }
+
+  const normalized = raw.replace(
+    /^(\d{4}):(\d{2}):(\d{2})[ T](\d{2}):(\d{2}):(\d{2})(.*)$/,
+    '$1-$2-$3T$4:$5:$6$7',
+  );
+
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(normalized)) {
+    return toIsoUtc(new Date(`${normalized}Z`));
+  }
+
+  const parsed = new Date(normalized);
+  if (!Number.isNaN(parsed.getTime())) {
+    return toIsoUtc(parsed);
+  }
+
+  return null;
+}
+
+async function deriveTimestampFromExif(filePath, exifState) {
+  if (!exifState?.enabled) return null;
+  if (exifState.values.has(filePath)) {
+    return exifState.values.get(filePath);
+  }
+
+  try {
+    const { stdout } = await execFileAsync(
+      'exiftool',
+      [
+        '-json',
+        '-DateTimeOriginal',
+        '-CreateDate',
+        '-MediaCreateDate',
+        '-TrackCreateDate',
+        '-FileModifyDate',
+        filePath,
+      ],
+      { maxBuffer: 2 * 1024 * 1024 },
+    );
+    const parsed = JSON.parse(stdout);
+    const row = Array.isArray(parsed) ? parsed[0] : null;
+    const candidates = [
+      row?.DateTimeOriginal,
+      row?.CreateDate,
+      row?.MediaCreateDate,
+      row?.TrackCreateDate,
+      row?.FileModifyDate,
+    ];
+    const iso = candidates.map(parseExifDateToIso).find(Boolean) || null;
+    exifState.values.set(filePath, iso);
+    return iso;
+  } catch (error) {
+    const message = String(error?.message || '');
+    if (message.includes('spawn exiftool ENOENT')) {
+      exifState.enabled = false;
+      if (!exifState.warnedMissing) {
+        exifState.warnedMissing = true;
+        console.warn('exiftool not found; EXIF fallback disabled.');
+      }
+    }
+    exifState.values.set(filePath, null);
+    return null;
+  }
+}
+
 async function appendJsonLine(filePath, obj) {
   await fsp.appendFile(filePath, `${JSON.stringify(obj)}\n`, 'utf8');
 }
@@ -420,6 +497,7 @@ async function main() {
   const dryRun = Boolean(args.dryRun);
   const allowMissingMetadata = Boolean(args.allowMissingMetadata);
   const uploadMetadata = !args.skipMetadataUpload;
+  const exifFallbackEnabled = !args.noExifFallback;
   const uploadConcurrency = Math.max(
     1,
     Number(args.concurrency || args.uploadConcurrency || 6) || 6,
@@ -530,6 +608,11 @@ async function main() {
 
   let mediaProcessedCount = 0;
   let nextMediaIndex = 0;
+  const exifState = {
+    enabled: exifFallbackEnabled,
+    warnedMissing: false,
+    values: new Map(),
+  };
 
   const processOneMedia = async (mediaPath, workerId) => {
     mediaProcessedCount += 1;
@@ -573,8 +656,13 @@ async function main() {
     const directIso = mediaIsoByPath.get(relMediaCanonical);
     const strippedIso = mediaIsoByPath.get(relMediaCanonicalStripped);
     const candidateIso = candidates.map((c) => metadataByJsonPath.get(c)).find(Boolean);
+    const exifIso =
+      directIso || strippedIso || candidateIso || sidecarIso
+        ? null
+        : await deriveTimestampFromExif(mediaPath, exifState);
     const filenameIso = deriveTimestampFromFilename(relMedia);
-    const capturedAt = directIso || strippedIso || candidateIso || sidecarIso || filenameIso;
+    const capturedAt =
+      directIso || strippedIso || candidateIso || sidecarIso || exifIso || filenameIso;
     const capturedAtSource = directIso
       ? 'metadata-index'
       : strippedIso
@@ -583,6 +671,8 @@ async function main() {
           ? 'sidecar-candidate'
           : sidecarIso
             ? 'sidecar-fuzzy'
+            : exifIso
+              ? 'exif'
             : filenameIso
               ? 'filename'
               : 'none';
