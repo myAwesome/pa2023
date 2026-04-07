@@ -17,7 +17,15 @@ type Props = {
   extraAction?: ReactNode;
 };
 
-const VIDEO_EXTENSIONS = ['.mp4', '.mov', '.avi', '.m4v', '.3gp', '.mkv', '.webm'];
+const VIDEO_EXTENSIONS = [
+  '.mp4',
+  '.mov',
+  '.avi',
+  '.m4v',
+  '.3gp',
+  '.mkv',
+  '.webm',
+];
 
 const isVideoMedia = (photo: PhotoType) => {
   const key = (photo?.id || '').toLowerCase();
@@ -36,7 +44,9 @@ const PostPhotos = ({
     type: 'image' | 'video';
   } | null>(null);
   const [isUploading, setUploading] = React.useState(false);
-  const [deleteTarget, setDeleteTarget] = React.useState<PhotoType | null>(null);
+  const [deleteTarget, setDeleteTarget] = React.useState<PhotoType | null>(
+    null,
+  );
   const [isDeleting, setDeleting] = React.useState(false);
   const uploadInputRef = React.useRef<HTMLInputElement | null>(null);
   const {
@@ -214,7 +224,10 @@ const PostPhotos = ({
           </Typography>
           <Grid container spacing={1} justifyContent="flex-end">
             <Grid>
-              <Button onClick={() => setDeleteTarget(null)} disabled={isDeleting}>
+              <Button
+                onClick={() => setDeleteTarget(null)}
+                disabled={isDeleting}
+              >
                 CANCEL
               </Button>
             </Grid>

@@ -77,9 +77,7 @@ const keyContainsOwner = (key: string, owner?: string) =>
 
 const isMediaKey = (key: string) => {
   const lower = key.toLowerCase();
-  const ext = lower.includes('.')
-    ? `.${lower.split('.').pop() || ''}`
-    : '';
+  const ext = lower.includes('.') ? `.${lower.split('.').pop() || ''}` : '';
   return MEDIA_EXTENSIONS.has(ext);
 };
 
