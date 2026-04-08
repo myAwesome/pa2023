@@ -280,7 +280,9 @@ export class MediaService {
           Bucket: this.bucket,
           Prefix: prefix,
           ContinuationToken: continuationToken,
-          MaxKeys: 1000,
+          // Keep S3 page size aligned with API page size so NextContinuationToken
+          // correctly represents "there is more data for this query page".
+          MaxKeys: pageSize,
         }),
       );
       continuationToken = result.NextContinuationToken;
