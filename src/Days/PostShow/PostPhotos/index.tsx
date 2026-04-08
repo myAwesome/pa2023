@@ -46,6 +46,8 @@ const PostPhotos = ({
 }: Props) => {
   const [photos, setPhotos] = React.useState<PhotoType[]>([]);
   const [isFetched, setFetched] = React.useState(false);
+  const [nextPageToken, setNextPageToken] = React.useState<string | null>(null);
+  const [isLoadingMore, setLoadingMore] = React.useState(false);
   const [previewIndex, setPreviewIndex] = React.useState<number | null>(null);
   const [isUploading, setUploading] = React.useState(false);
   const [deleteTarget, setDeleteTarget] = React.useState<PhotoType | null>(
@@ -64,18 +66,57 @@ const PostPhotos = ({
     previewMedia && isVideoMedia(previewMedia) ? 'video' : 'image';
 
   const getPhotos = () => {
-    getPhotosOnDate(oauthToken, date)
+    getPhotosOnDate(oauthToken, date, undefined, undefined, 100)
       .then(({ photos, error }) => {
         setFetched(true);
         if (error) {
           console.log(error);
+          setNextPageToken(null);
           return;
         }
         if (photos?.mediaItems) {
           setPhotos(photos.mediaItems);
+          setNextPageToken(photos?.nextPageToken || null);
+          return;
         }
+        setPhotos([]);
+        setNextPageToken(null);
       })
       .catch(console.log);
+  };
+
+  const loadMorePhotos = async () => {
+    if (!nextPageToken || isLoadingMore) {
+      return;
+    }
+    setLoadingMore(true);
+    try {
+      const { photos: nextPhotos, error } = await getPhotosOnDate(
+        oauthToken,
+        date,
+        undefined,
+        nextPageToken,
+        100,
+      );
+      if (error) {
+        console.log(error);
+        return;
+      }
+      if (nextPhotos?.mediaItems?.length) {
+        setPhotos((prev) => {
+          const existingIds = new Set(prev.map((item) => item.id));
+          const uniqueNewItems = nextPhotos.mediaItems.filter(
+            (item: PhotoType) => !existingIds.has(item.id),
+          );
+          return [...prev, ...uniqueNewItems];
+        });
+      }
+      setNextPageToken(nextPhotos?.nextPageToken || null);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoadingMore(false);
+    }
   };
 
   const handleUploadButtonClick = () => {
@@ -228,6 +269,11 @@ const PostPhotos = ({
         {extraAction ? <Box>{extraAction}</Box> : null}
         {!isFetched && !hideGetPhotosButton ? (
           <Button onClick={getPhotos}>GET PHOTOS</Button>
+        ) : null}
+        {isFetched && nextPageToken ? (
+          <Button onClick={loadMorePhotos} disabled={isLoadingMore}>
+            {isLoadingMore ? 'LOADING...' : 'LOAD MORE'}
+          </Button>
         ) : null}
         <Button onClick={handleUploadButtonClick} disabled={isUploading}>
           {isUploading ? 'UPLOADING...' : 'UPLOAD FILES'}
