@@ -1,10 +1,11 @@
 import React, { ReactNode, useContext } from 'react';
 import Button from '@mui/material/Button';
-import { Dialog, Typography, Box } from '@mui/material';
+import { Dialog, Typography, Box, IconButton } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import CloseIcon from '@mui/icons-material/Close';
 import GPhotosContext from '../../../shared/context/GPhotosContext';
 import {
   completeMediaUpload,
@@ -309,6 +310,23 @@ const PostPhotos = ({
             height: '100vh',
           }}
         >
+          <IconButton
+            onClick={() => setPreviewIndex(null)}
+            aria-label="Close preview"
+            sx={{
+              position: 'fixed',
+              top: 12,
+              right: 12,
+              color: '#fff',
+              zIndex: 2,
+              backgroundColor: 'rgba(0, 0, 0, 0.35)',
+              '&:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.55)',
+              },
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
           {photos.length > 1 ? (
             <Button
               onClick={showPreviousMedia}
