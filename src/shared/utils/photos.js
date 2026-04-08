@@ -39,13 +39,14 @@ export const getPhotosOnDate = async (
   date,
   ranges,
   nextPageToken,
+  pageSize = 100,
 ) => {
   let photos = [];
   let error = null;
 
   try {
     const params = new URLSearchParams();
-    params.set('pageSize', '24');
+    params.set('pageSize', String(pageSize));
     if (nextPageToken) {
       params.set('pageToken', nextPageToken);
     }
