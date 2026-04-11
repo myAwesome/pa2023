@@ -7,7 +7,50 @@ type Props = {
   body: string;
 };
 
+const normalizeParagraphNewlines = (value: string): string => {
+  if (!value) {
+    return value;
+  }
+
+  const lines = value.replace(/\r\n/g, '\n').split('\n');
+  const normalized: string[] = [];
+  let inFence = false;
+  let fenceToken = '';
+
+  lines.forEach((line, index) => {
+    const fenceMatch = line.match(/^\s*(```+|~~~+)/);
+    if (fenceMatch) {
+      const token = fenceMatch[1][0];
+      if (!inFence) {
+        inFence = true;
+        fenceToken = token;
+      } else if (fenceToken === token) {
+        inFence = false;
+        fenceToken = '';
+      }
+    }
+
+    normalized.push(line);
+
+    const isLastLine = index === lines.length - 1;
+    const nextLine = lines[index + 1];
+    const shouldInsertParagraphBreak =
+      !isLastLine &&
+      !inFence &&
+      line.trim() !== '' &&
+      (nextLine || '').trim() !== '';
+
+    if (shouldInsertParagraphBreak) {
+      normalized.push('');
+    }
+  });
+
+  return normalized.join('\n');
+};
+
 const MarkdownRenderer = ({ body }: Props) => {
+  const normalizedBody = normalizeParagraphNewlines(body || '');
+
   return (
     <Box
       sx={{
@@ -45,7 +88,7 @@ const MarkdownRenderer = ({ body }: Props) => {
           ),
         }}
       >
-        {body || ''}
+        {normalizedBody}
       </ReactMarkdown>
     </Box>
   );
