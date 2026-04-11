@@ -7,7 +7,33 @@ type Props = {
   body: string;
 };
 
+const normalizeParagraphNewlines = (value: string): string => {
+  if (!value) {
+    return value;
+  }
+
+  const lines = value.replace(/\r\n/g, '\n').split('\n');
+  const normalized: string[] = [];
+
+  lines.forEach((line, index) => {
+    normalized.push(line);
+
+    const isLastLine = index === lines.length - 1;
+    const nextLine = lines[index + 1];
+    const shouldInsertParagraphBreak =
+      !isLastLine && line.trim() !== '' && (nextLine || '').trim() !== '';
+
+    if (shouldInsertParagraphBreak) {
+      normalized.push('');
+    }
+  });
+
+  return normalized.join('\n');
+};
+
 const MarkdownRenderer = ({ body }: Props) => {
+  const normalizedBody = normalizeParagraphNewlines(body || '');
+
   return (
     <Box
       sx={{
@@ -45,7 +71,7 @@ const MarkdownRenderer = ({ body }: Props) => {
           ),
         }}
       >
-        {body || ''}
+        {normalizedBody}
       </ReactMarkdown>
     </Box>
   );
