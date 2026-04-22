@@ -80,6 +80,7 @@ app.configure(channels);
 app.use(notFound());
 app.use((error: any, req: any, _res: any, next: any) => {
   logger.error('Request failed: %s %s', req.method, req.originalUrl);
+  console.log(error);
   logger.error(
     'Error summary: name=%s code=%s message=%s',
     error?.name,

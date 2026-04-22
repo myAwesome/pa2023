@@ -5,16 +5,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import Chip from '@mui/material/Chip';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
-import {
-  Box,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Paper,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Box, Paper, TextField, Typography } from '@mui/material';
 import {
   QueryKey,
   useMutation,
@@ -24,14 +15,11 @@ import {
 import PostLabel from '../PostLabel';
 import {
   addLabelToPost,
-  deleteContextSegment,
-  getContextSegments,
-  getHistoricalWeather,
-  patchContextSegment,
   deleteLabelFromPost,
   deletePost,
   editPost,
-  splitContextSegment,
+  getContextSegments,
+  getHistoricalWeather,
 } from '../../shared/api/routes';
 import { useUpdateMutation } from '../../shared/hooks/useUpdateMutation';
 import { useDeleteMutation } from '../../shared/hooks/useDeleteMutation';
@@ -47,6 +35,7 @@ import PostComment from './PostComment';
 import PostCommentEdit from './PostCommentEdit';
 import PostPhotos from './PostPhotos';
 import MarkdownRenderer from '../../shared/components/MarkdownRenderer';
+import { ContextSegmentDialogue } from './ContextSegmentDialogue';
 
 dayjs.extend(utc);
 dayjs.extend(relativeTime);
@@ -113,11 +102,6 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
   const [isEdit, setIsEdit] = React.useState(false);
   const [selectedContext, setSelectedContext] =
     React.useState<ContextSegmentType | null>(null);
-  const [title, setTitle] = React.useState('');
-  const [details, setDetails] = React.useState('');
-  const [startDate, setStartDate] = React.useState('');
-  const [endDate, setEndDate] = React.useState('');
-  const [splitDate, setSplitDate] = React.useState('');
   const [weather, setWeather] = React.useState(post.weather || '');
   const postDate = toDateOnly(post.date);
   const [updateDate, setUpdateDate] = React.useState(postDate);
@@ -175,52 +159,6 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
       }
     },
   });
-  const refreshContextData = () => {
-    queryClient.invalidateQueries({ queryKey: invalidateQueries });
-    queryClient.invalidateQueries({ queryKey: ['context_segments', postDate] });
-  };
-  const editContextMutation = useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: number;
-      data: {
-        title?: string;
-        details?: string;
-        start_date?: string;
-        end_date?: string | null;
-      };
-    }) => patchContextSegment(id, data),
-    onSuccess: () => {
-      setSelectedContext(null);
-      refreshContextData();
-    },
-  });
-  const splitContextMutation = useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: number;
-      data: {
-        splitDate: string;
-        newTitle?: string;
-        newDetails?: string;
-      };
-    }) => splitContextSegment(id, data),
-    onSuccess: () => {
-      setSelectedContext(null);
-      refreshContextData();
-    },
-  });
-  const deleteContextMutation = useMutation({
-    mutationFn: (id: number) => deleteContextSegment(id),
-    onSuccess: () => {
-      setSelectedContext(null);
-      refreshContextData();
-    },
-  });
 
   const toggleDeleteMode = () => {
     setDeletedMode(!deleteMode);
@@ -230,55 +168,11 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
     e.preventDefault();
     editPostMutation.mutate(updateText);
   };
-  const toInputDate = (value?: string | null) =>
-    value ? toDateOnly(value) : '';
+
   const openContextDialog = (segment: ContextSegmentType) => {
     setSelectedContext(segment);
-    setTitle(segment.title || '');
-    setDetails(segment.details || '');
-    setStartDate(toInputDate(segment.start_date));
-    setEndDate(toInputDate(segment.end_date));
-    setSplitDate(postDate);
   };
-  const handleEditContext = () => {
-    if (!selectedContext || !title.trim()) {
-      return;
-    }
-    if (endDate && endDate < startDate) {
-      return;
-    }
-    editContextMutation.mutate({
-      id: selectedContext.id,
-      data: {
-        title: title.trim(),
-        details,
-        start_date: startDate,
-        end_date: endDate || null,
-      },
-    });
-  };
-  const handleSplitContext = () => {
-    if (!selectedContext || !splitDate) {
-      return;
-    }
-    splitContextMutation.mutate({
-      id: selectedContext.id,
-      data: {
-        splitDate,
-        newTitle: title.trim() || selectedContext.title,
-        newDetails: details,
-      },
-    });
-  };
-  const handleDeleteContext = () => {
-    if (!selectedContext) {
-      return;
-    }
-    if (!window.confirm('Delete this context segment?')) {
-      return;
-    }
-    deleteContextMutation.mutate(selectedContext.id);
-  };
+
   const handleFetchWeather = async () => {
     const locationPeriods = (post.periods || [])
       .filter((period) => period.is_location)
@@ -601,74 +495,13 @@ const PostShow = ({ post, labels, searchTerm, invalidateQueries }: Props) => {
                 )
               }
             />
-            <Dialog
-              open={!!selectedContext}
+            <ContextSegmentDialogue
+              isOpen={!!selectedContext}
+              selectedContext={selectedContext}
               onClose={() => setSelectedContext(null)}
-              fullWidth
-              maxWidth="sm"
-            >
-              <DialogTitle>Context details</DialogTitle>
-              <DialogContent>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 1.5,
-                    marginTop: 1,
-                  }}
-                >
-                  <TextField
-                    label="Title"
-                    size="small"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                  />
-                  <TextField
-                    label="Details"
-                    size="small"
-                    multiline
-                    minRows={2}
-                    value={details}
-                    onChange={(e) => setDetails(e.target.value)}
-                  />
-                  <TextField
-                    label="Start date"
-                    type="date"
-                    size="small"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    InputLabelProps={{ shrink: true }}
-                  />
-                  <TextField
-                    label="End date"
-                    type="date"
-                    size="small"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    InputLabelProps={{ shrink: true }}
-                  />
-                  <TextField
-                    label="Split from date"
-                    type="date"
-                    size="small"
-                    value={splitDate}
-                    onChange={(e) => setSplitDate(e.target.value)}
-                    InputLabelProps={{ shrink: true }}
-                  />
-                </Box>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={handleDeleteContext} color="inherit">
-                  Delete
-                </Button>
-                <Button onClick={handleSplitContext} color="inherit">
-                  Split
-                </Button>
-                <Button onClick={handleEditContext} variant="contained">
-                  Save
-                </Button>
-              </DialogActions>
-            </Dialog>
+              invalidateQueries={invalidateQueries}
+              postDate={postDate}
+            />
           </Box>
         )}
       </Paper>

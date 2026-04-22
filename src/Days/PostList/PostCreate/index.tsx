@@ -6,26 +6,16 @@ import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
 import IconButton from '@mui/material/IconButton';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  deleteContextSegment,
-  getContextSegments,
-  patchContextSegment,
-  postContextSegment,
-  postPost,
-  splitContextSegment,
-} from '../../../shared/api/routes';
+import { useQuery } from '@tanstack/react-query';
+import { getContextSegments, postPost } from '../../../shared/api/routes';
 import { useCreateMutation } from '../../../shared/hooks/useCreateMutation';
 import { ContextSegmentType } from '../../../shared/types';
 import { dateToMySQLFormat } from '../../../shared/utils/mappers';
 import MarkdownToolbar from '../../../shared/components/MarkdownToolbar';
 import MarkdownRenderer from '../../../shared/components/MarkdownRenderer';
 import TagMentionsInput from '../../../shared/components/TagMentionsInput';
+import { ContextSegmentDialogue } from '../../PostShow/ContextSegmentDialogue';
 
 dayjs.extend(utc);
 
@@ -58,7 +48,6 @@ const normalizeSegments = (val: any): ContextSegmentType[] => {
 };
 
 const PostCreate = () => {
-  const queryClient = useQueryClient();
   const [value, setValue] = React.useState('');
   const [isPreview, setIsPreview] = React.useState(false);
   const inputRef = React.useRef<HTMLTextAreaElement | HTMLInputElement | null>(
@@ -68,73 +57,11 @@ const PostCreate = () => {
   const [isAddContextOpen, setAddContextOpen] = React.useState(false);
   const [selectedContext, setSelectedContext] =
     React.useState<ContextSegmentType | null>(null);
-  const [title, setTitle] = React.useState('');
-  const [details, setDetails] = React.useState('');
-  const [startDate, setStartDate] = React.useState(today);
-  const [endDate, setEndDate] = React.useState('');
-  const [splitDate, setSplitDate] = React.useState(today);
   const contextQuery = useQuery({
     queryKey: ['context_segments', date],
     queryFn: () => getContextSegments({ date }),
   });
-  const refreshContextData = () => {
-    queryClient.invalidateQueries({ queryKey: ['context_segments', date] });
-    queryClient.invalidateQueries({ queryKey: ['recent_posts'] });
-    queryClient.invalidateQueries({ queryKey: ['history_posts'] });
-  };
-  const createContextMutation = useMutation({
-    mutationFn: postContextSegment,
-    onSuccess: () => {
-      setTitle('');
-      setDetails('');
-      setStartDate(date);
-      setEndDate('');
-      setAddContextOpen(false);
-      refreshContextData();
-    },
-  });
-  const editContextMutation = useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: number;
-      data: {
-        title?: string;
-        details?: string;
-        start_date?: string;
-        end_date?: string | null;
-      };
-    }) => patchContextSegment(id, data),
-    onSuccess: () => {
-      setSelectedContext(null);
-      refreshContextData();
-    },
-  });
-  const splitContextMutation = useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: number;
-      data: {
-        splitDate: string;
-        newTitle?: string;
-        newDetails?: string;
-      };
-    }) => splitContextSegment(id, data),
-    onSuccess: () => {
-      setSelectedContext(null);
-      refreshContextData();
-    },
-  });
-  const deleteContextMutation = useMutation({
-    mutationFn: (id: number) => deleteContextSegment(id),
-    onSuccess: () => {
-      setSelectedContext(null);
-      refreshContextData();
-    },
-  });
+
   const createPostMutation = useCreateMutation(
     (payload: { body: string; date: string }) => postPost(payload),
     ['recent_posts'],
@@ -164,65 +91,11 @@ const PostCreate = () => {
       createPostMutation.mutate(createPost(value, date));
     }
   };
-  const isValidDateRange = !endDate || endDate >= startDate;
-  const handleCreateContext = () => {
-    if (!title.trim() || !isValidDateRange) {
-      return;
-    }
-    createContextMutation.mutate({
-      title: title.trim(),
-      details: details.trim(),
-      start_date: startDate,
-      end_date: endDate || null,
-    });
-  };
+
   const openContextDialog = (segment: ContextSegmentType) => {
     setSelectedContext(segment);
-    setTitle(segment.title || '');
-    setDetails(segment.details || '');
-    setStartDate(toInputDate(segment.start_date) || toInputDate(date));
-    setEndDate(toInputDate(segment.end_date));
-    setSplitDate(toInputDate(date));
   };
-  const handleEditContext = () => {
-    if (!selectedContext || !title.trim()) {
-      return;
-    }
-    if (endDate && endDate < startDate) {
-      return;
-    }
-    editContextMutation.mutate({
-      id: selectedContext.id,
-      data: {
-        title: title.trim(),
-        details,
-        start_date: startDate,
-        end_date: endDate || null,
-      },
-    });
-  };
-  const handleSplitContext = () => {
-    if (!selectedContext || !splitDate) {
-      return;
-    }
-    splitContextMutation.mutate({
-      id: selectedContext.id,
-      data: {
-        splitDate,
-        newTitle: title.trim() || selectedContext.title,
-        newDetails: details,
-      },
-    });
-  };
-  const handleDeleteContext = () => {
-    if (!selectedContext) {
-      return;
-    }
-    if (!window.confirm('Delete this context segment?')) {
-      return;
-    }
-    deleteContextMutation.mutate(selectedContext.id);
-  };
+
   const appliedContext = normalizeSegments(contextQuery.data);
 
   return (
@@ -286,10 +159,6 @@ const PostCreate = () => {
         <IconButton
           size="small"
           onClick={() => {
-            setTitle('');
-            setDetails('');
-            setStartDate(date);
-            setEndDate('');
             setAddContextOpen(true);
           }}
         >
@@ -324,135 +193,16 @@ const PostCreate = () => {
       >
         Today
       </Button>
-      <Dialog
-        open={isAddContextOpen}
-        onClose={() => setAddContextOpen(false)}
-        fullWidth
-        maxWidth="sm"
-      >
-        <DialogTitle>Add context</DialogTitle>
-        <DialogContent>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 1.5,
-              marginTop: 1,
-            }}
-          >
-            <TextField
-              label="Title"
-              size="small"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-            <TextField
-              label="Details"
-              size="small"
-              multiline
-              minRows={2}
-              value={details}
-              onChange={(e) => setDetails(e.target.value)}
-            />
-            <TextField
-              label="Start date"
-              type="date"
-              size="small"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-            />
-            <TextField
-              label="End date"
-              type="date"
-              size="small"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-            />
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setAddContextOpen(false)} color="inherit">
-            Cancel
-          </Button>
-          <Button
-            onClick={handleCreateContext}
-            variant="contained"
-            disabled={!title.trim() || !isValidDateRange}
-          >
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Dialog
-        open={!!selectedContext}
-        onClose={() => setSelectedContext(null)}
-        fullWidth
-        maxWidth="sm"
-      >
-        <DialogTitle>Context details</DialogTitle>
-        <DialogContent>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 1.5,
-              marginTop: 1,
-            }}
-          >
-            <TextField
-              label="Title"
-              size="small"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-            <TextField
-              label="Details"
-              size="small"
-              multiline
-              minRows={2}
-              value={details}
-              onChange={(e) => setDetails(e.target.value)}
-            />
-            <TextField
-              label="Start date"
-              type="date"
-              size="small"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-            />
-            <TextField
-              label="End date"
-              type="date"
-              size="small"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-            />
-            <TextField
-              label="Split from date"
-              type="date"
-              size="small"
-              value={splitDate}
-              onChange={(e) => setSplitDate(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-            />
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDeleteContext} color="inherit">
-            Delete
-          </Button>
-          <Button onClick={handleSplitContext} color="inherit">
-            Split
-          </Button>
-          <Button onClick={handleEditContext} variant="contained">
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <ContextSegmentDialogue
+        isOpen={!!selectedContext || isAddContextOpen}
+        selectedContext={selectedContext}
+        onClose={() => {
+          setSelectedContext(null);
+          setAddContextOpen(false);
+        }}
+        invalidateQueries={['context_segments', date]}
+        postDate={toInputDate(date)}
+      />
       <Button
         fullWidth
         type="button"
