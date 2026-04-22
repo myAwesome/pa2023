@@ -72,7 +72,7 @@ const NoteCategories = () => {
   };
 
   const deleteMutation = useDeleteMutation(
-    () => deleteNoteCategory(noteCategoryToDelete?.id || 0),
+    (id: number) => deleteNoteCategory(id),
     ['note_categories'],
     noteCategoryToDelete?.id,
     handleCancel,
@@ -165,7 +165,12 @@ const NoteCategories = () => {
           <Button onClick={handleCancel} variant="outlined">
             Nooo
           </Button>
-          <Button onClick={deleteMutation.mutate} variant="contained">
+          <Button
+            onClick={() => {
+              deleteMutation.mutate(noteCategoryToDelete?.id);
+            }}
+            variant="contained"
+          >
             Yes, delete
           </Button>
         </DialogActions>
